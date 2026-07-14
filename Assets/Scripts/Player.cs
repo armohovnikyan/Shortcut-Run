@@ -1,61 +1,37 @@
 using System.Collections;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
-public class Player : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
-    [Header("Settings")]
-    public float moveSpeed = 5f;
-    public float mouseSensitivity = 2f; // Для мыши чувствительность выше
-    public float touchSensitivity = 0.1f; // Для пальца ниже
-    public Transform playerCamera;
-    public TextMeshProUGUI countdownText;
-    public Vector3 cameraOffset = new Vector3(0f, 2f, -5f);
+    [Header("Настройки бега")]
+    public float forwardSpeed = 5f;      
+    public float laneChangeSpeed = 10f;  
 
-    private float _verticalRotation = 0f;
+    [Header("Ограничения дороги")]
+    public float maxLaneOffset = 3f;
+
     private CharacterController _characterController;
     private bool _isGameStarted = false;
-    private float _horizontalRotation = 0f;
-
+    private float _targetHorizontalPosition = 0f; 
 
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
-        if (playerCamera == null) playerCamera = Camera.main.transform;
-
-        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
 
         StartCoroutine(StartCountdownRoutine());
     }
 
     void Update()
     {
-        playerCamera.LookAt(transform.position + Vector3.up);
-        HandleCameraRotation();
-    }
-    void HandleCameraRotation()
-    {
-        if (_isGameStarted)
-        {
-            CheckCameraRotation();
-            Quaternion rotation = Quaternion.Euler(_verticalRotation, _horizontalRotation, 0);
-            Vector3 positionOffset = rotation * cameraOffset;
-            playerCamera.position = transform.position + positionOffset;
-
-            MoveForwardAutomatically();
-        }
-        else
-        {
-            Quaternion defaultRotation = Quaternion.Euler(_verticalRotation, _horizontalRotation, 0);
-            playerCamera.position = transform.position + (defaultRotation * cameraOffset);
-        }
+        if (!_isGameStarted) return;
+        HandleInput();
+        MovePlayer();
     }
 
-    void CheckCameraRotation()
+    void HandleInput()
     {
-         float mouseX = 0f;
+        float swipedDirection = 0f;
 
         if (Touchscreen.current != null && Touchscreen.current.touches.Count > 0)
         {
@@ -63,36 +39,61 @@ public class Player : MonoBehaviour
             if (touch.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Moved)
             {
                 Vector2 delta = touch.delta.ReadValue();
-                mouseX = delta.x * touchSensitivity;
+
+                if (Mathf.Abs(delta.x) > 5f)
+                {
+                    swipedDirection = delta.x;
+                }
             }
         }
-        else if (Mouse.current != null)
+        else if (Keyboard.current != null)
         {
-            Vector2 mouseDelta = Mouse.current.delta.ReadValue();
-            mouseX = mouseDelta.x * mouseSensitivity * 0.1f;
+            if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
+            {
+                swipedDirection = -10f;
+            }
+            else if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
+            {
+                swipedDirection = 10f;
+            }
         }
-        _horizontalRotation += mouseX;
+
+        if (Mathf.Abs(swipedDirection) > 0.1f)
+        {
+            _targetHorizontalPosition += swipedDirection * Time.deltaTime * 0.5f;
+
+            _targetHorizontalPosition = Mathf.Clamp(_targetHorizontalPosition, -maxLaneOffset, maxLaneOffset);
+        }
     }
 
-    void MoveForwardAutomatically()
+    void MovePlayer()
     {
-        Vector3 move = playerCamera.forward;
-        move.y = 0;
-        move.Normalize();
-        _characterController.Move(move * moveSpeed * Time.deltaTime);
+        Vector3 moveDirection = transform.forward * forwardSpeed;
+
+        float currentX = Mathf.Lerp(transform.position.x, _targetHorizontalPosition, laneChangeSpeed * Time.deltaTime);
+
+        float xDiff = currentX - transform.position.x;
+
+        Vector3 finalMove = new Vector3(xDiff / Time.deltaTime, 0f, moveDirection.z);
+
+        if (!_characterController.isGrounded)
+        {
+            finalMove.y = Physics.gravity.y;
+        }
+
+        _characterController.Move(finalMove * Time.deltaTime);
     }
 
-    IEnumerator StartCountdownRoutine()
+    private IEnumerator StartCountdownRoutine()
     {
-        countdownText.text = "3";
+        Debug.Log("3...");
         yield return new WaitForSeconds(1f);
-        countdownText.text = "2";
+        Debug.Log("2...");
         yield return new WaitForSeconds(1f);
-        countdownText.text = "1";
+        Debug.Log("1...");
         yield return new WaitForSeconds(1f);
-        countdownText.text = "Run!";
+        Debug.Log("СТАРТ!");
+
         _isGameStarted = true;
-        yield return new WaitForSeconds(0.5f);
-        countdownText.text = "";
     }
 }
