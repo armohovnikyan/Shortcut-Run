@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,10 +12,13 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController _characterController;
     private bool _isGameStarted = false;
     private float _currentTurnInput = 0f; 
+    public int Place;
+    [SerializeField] TMP_Text PlaceText;
 
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
+        GameManager.Instance.RegistrRunner(transform);
         StartCoroutine(StartCountdownRoutine());
     }
 
@@ -23,8 +27,9 @@ public class PlayerMovement : MonoBehaviour
         if (!_isGameStarted) return;
 
         HandleInput();
-
         MoveAndRotatePlayer();
+        Place = GameManager.Instance.GetMyPlace(transform);
+        PlaceText.text = Place.ToString();
     }
 
     void HandleInput()

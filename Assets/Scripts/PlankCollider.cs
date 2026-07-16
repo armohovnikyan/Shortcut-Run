@@ -63,6 +63,7 @@ public class PlankCollector : MonoBehaviour
         float spawnYOffset = _collectedPlanks.Count * plankHeight;
         newPlank.transform.localPosition = new Vector3(0, spawnYOffset, 0);
         newPlank.transform.localRotation = Quaternion.Euler(0,90,0);
+        newPlank.GetComponent<Collider>().enabled = false;
 
         Vector3 parentScale = stackPosition.lossyScale;
         float scaleX = parentScale.x != 0 ? parentScale.x : 1f;

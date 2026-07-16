@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class BotsManager : MonoBehaviour
 {
-    public Transform Destination;
     public static BotsManager Instance;
     public List<Bot> BotsList = new List<Bot>();
     public List<Transform> SpawnPositionsForBots = new List<Transform>();
+    public Material[] ColorsForBot;
     [SerializeField] GameObject BotPrefab;
     public int BotsCount;
     void Awake()
@@ -21,8 +21,13 @@ public class BotsManager : MonoBehaviour
             GameObject Bot = Instantiate(BotPrefab,SpawnPositionsForBots[i].position,transform.rotation);
             Bot botScript = Bot.GetComponent<Bot>();
             BotsList.Add(botScript);
-            botScript.Spawn(Destination);
+            botScript.Spawn(GameManager.Instance.Finish,GetRandomColor(),GetRandomColor(),GetRandomColor());
         }
+    }
+
+     Material GetRandomColor()
+    {
+       return ColorsForBot[Random.Range(0,ColorsForBot.Length)];
     }
 
     public void StartTheRun()
