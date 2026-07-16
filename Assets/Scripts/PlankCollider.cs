@@ -57,12 +57,12 @@ public class PlankCollector : MonoBehaviour
     {
         if (plankPrefab == null || stackPosition == null) return;
 
-        GameObject newPlank = Instantiate(plankPrefab);
+        GameObject newPlank = Instantiate(plankPrefab); 
         newPlank.transform.SetParent(stackPosition);
 
         float spawnYOffset = _collectedPlanks.Count * plankHeight;
         newPlank.transform.localPosition = new Vector3(0, spawnYOffset, 0);
-        newPlank.transform.localRotation = Quaternion.identity;
+        newPlank.transform.localRotation = Quaternion.Euler(0,90,0);
 
         Vector3 parentScale = stackPosition.lossyScale;
         float scaleX = parentScale.x != 0 ? parentScale.x : 1f;

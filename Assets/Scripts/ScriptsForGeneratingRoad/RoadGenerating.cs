@@ -21,8 +21,6 @@ public class RoadGenerating : MonoBehaviour
 
     private NavMeshSurface navSurface;
 
-    public Bot bot;
-
     void OnEnable()
     {
 
@@ -60,7 +58,6 @@ public class RoadGenerating : MonoBehaviour
 
          if (navSurface != null)
             navSurface.BuildNavMesh();
-            bot.BuildWay();
     }
 
     

@@ -5,14 +5,13 @@ using UnityEngine.AI;
 public class Bot : MonoBehaviour
 {
     public NavMeshAgent Agent;
-    public Transform Finish;
-
-    void Start()
+    Vector3 Destination;
+    public void Spawn(Transform Finish)
     {
-       // Agent = GetComponent<NavMeshAgent>();
+       Destination = Finish.position;
     }
-    public void BuildWay()
+    public void StartGoing()
     {
-        Agent.SetDestination(Finish.position);
+        Agent.SetDestination(Destination);
     }
 }

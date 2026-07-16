@@ -74,6 +74,7 @@ public class PlayerMovement : MonoBehaviour
     private IEnumerator StartCountdownRoutine()
     {
         yield return new WaitForSeconds(3f);
+        BotsManager.Instance.StartTheRun();
         _isGameStarted = true;
     }
 }
