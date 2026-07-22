@@ -27,8 +27,10 @@ public class GameManager : MonoBehaviour
         Distances.Clear();
         foreach(Transform Runner in Runners)
         {
-           float Distance =  Vector2.Distance(new Vector2(Finish.position.x,Finish.position.z),new Vector2(Runner.position.x,Runner.position.z));
-           Distances.Add(new Place { Distance = Distance, RunnerTransform = Runner});
+         Vector3 dir = Finish.position - Runner.position;
+        dir.y = 0;
+    
+        Distances.Add(new Place { Distance = dir.sqrMagnitude, RunnerTransform = Runner});
         }
 
          Distances.Sort((a, b) => a.Distance.CompareTo(b.Distance));

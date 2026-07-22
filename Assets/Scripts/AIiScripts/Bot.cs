@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.AI.Navigation;
 using UnityEngine.AI;
 using System.Collections.Generic;
+using System.Collections;
 
 public class Bot : MonoBehaviour
 {
@@ -45,7 +46,7 @@ public class Bot : MonoBehaviour
         
         if (currentWaypoint == Goals.Length)
         {
-           Finish();
+           ReacedTheFinish();
            return;
         }
         if(!RunIsStarted) return;
@@ -78,19 +79,31 @@ public class Bot : MonoBehaviour
         }    
     }
 
-    void Finish()
+    void ReacedTheFinish()
     {
         if(RunIsStarted)
         {
         Agent.enabled = false;
         Animation.SetDance();
         RunIsStarted = false;
+
+        StartCoroutine(GoToFinalPoint());
+        }
+    }
+
+    IEnumerator GoToFinalPoint()
+    {
+        Vector3 Target = Finish.Instance.GetFreePoint();
+        while(GetDistance(Target) > 4)
+        {
+        Move(Target);
+        yield return null;
         }
     }
 
     float GetDistance(Vector3 Point)
     {
-         Vector3 dir = Point - transform.position;
+        Vector3 dir = Point - transform.position;
         dir.y = 0;
         
         return dir.sqrMagnitude;
@@ -118,22 +131,8 @@ public class Bot : MonoBehaviour
 
     void ShortCut()
     {
-        
-    Vector3 pos = Vector3.MoveTowards(
-    transform.position,
-    Goals[currentWaypoint],
-    Agent.speed * Time.deltaTime);
-
-
-    Vector3 direction = Goals[currentWaypoint] - transform.position;
-    direction.y = 0f;
-    
-    if (direction != Vector3.zero)
-       transform.rotation = Quaternion.LookRotation(direction);
-
-    transform.position = pos;
-    Agent.nextPosition = pos;
-        
+        Move(Goals[currentWaypoint]);
+            
         float sqrDist = GetDistance(Goals[currentWaypoint]);
         if(sqrDist < 64)
         {
@@ -142,5 +141,20 @@ public class Bot : MonoBehaviour
             Agent.Warp(transform.position);
             Agent.SetDestination(Destination); 
         }
+    }
+
+    void Move(Vector3 Target)
+    {
+
+    Vector3 pos = Vector3.MoveTowards(transform.position,Target,Agent.speed * Time.deltaTime);  
+    Vector3 direction = Target - transform.position;
+
+    direction.y = 0f;
+    
+    if (direction != Vector3.zero)
+       transform.rotation = Quaternion.LookRotation(direction);
+
+        transform.position = pos;
+    Agent.nextPosition = pos;
     }
 }
