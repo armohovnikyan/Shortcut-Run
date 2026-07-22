@@ -20,11 +20,13 @@ public class RoadGenerating : MonoBehaviour
     private MeshFilter meshFilter;
 
     private NavMeshSurface navSurface;
+    int sampleCount;
 
     void OnEnable()
     {
+        
 
-       splineContainer = GetComponent<SplineContainer>();
+    splineContainer = GetComponent<SplineContainer>();
     meshFilter = GetComponent<MeshFilter>();
     navSurface = GetComponent<NavMeshSurface>();
     Spline.Changed += OnSplineChanged;
