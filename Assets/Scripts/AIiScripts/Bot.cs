@@ -6,10 +6,10 @@ using System.Collections.Generic;
 public class Bot : MonoBehaviour
 {
     public NavMeshAgent Agent;
-    public MeshRenderer Renderer;
    public PlankCollector PlanksInfo;
    public Vector3 Destination;
     public bool RunIsStarted;
+    public AnimationsControl Animation;
 
     public Vector3[] Goals;
 
@@ -17,96 +17,98 @@ public class Bot : MonoBehaviour
     {
         Agent = GetComponent<NavMeshAgent>();
         PlanksInfo = GetComponent<PlankCollector>();
+        Animation = GetComponent<AnimationsControl>();
         GameManager.Instance.RegistrRunner(transform);
     }
-    public void Spawn(Transform Finish, Material ShirtColor,Material PantsColor,Material HairColor,Vector3[] WayPoints)
-    {
-        Material[] mats = Renderer.materials; 
-        mats[0] = ShirtColor;
-        mats[1] = PantsColor;
-        mats[5] = HairColor;
-        Renderer.materials = mats;   
+    public void Spawn(Transform Finish,Vector3[] WayPoints)
+    { 
         Goals = WayPoints;
+        Destination = Finish.position;
 
-       Destination = Finish.position;
+        Animation.SetIdle();
     }
     [SerializeField] int currentWaypoint = 2;
     public bool ShortCutting;
-    public float dis;
-
-
-    void SetPoints()
-    {
-        NavMeshPath path = new NavMeshPath();
-
-        if (Agent.CalculatePath(Destination, path))
-        {
-            Goals = path.corners;
-        }
-    }
 
     public int PointToCut;
+    public int BestForShortCut;
+
+    public void StartRun()
+    {
+        Agent.SetDestination(Destination);
+        RunIsStarted = true;
+
+        Animation.SetRunning();
+    }
     public void Update()
     {
-        if (Goals == null || Goals.Length == 0 || !RunIsStarted) return;
         
-        if(ShortCutting)
+        if (currentWaypoint == Goals.Length)
+        {
+           Finish();
+           return;
+        }
+        if(!RunIsStarted) return;
+
+         if(ShortCutting)
         {
             ShortCut();
             return;
         }
 
-        if (!Agent.pathPending && Agent.remainingDistance <= Agent.stoppingDistance)
+        float sqrDist = GetDistance(Goals[currentWaypoint]);
+        
+        if (sqrDist < 64)
         {
-            currentWaypoint += 2;
+           currentWaypoint++;
 
-            if (currentWaypoint < Goals.Length)
-            {
-                if(PlanksInfo._collectedPlanks.Count > 5) PointToCut = CheckForBestPointForShortCut();
+            if (currentWaypoint >= Goals.Length)
+            return;
 
-                if(PlanksInfo._collectedPlanks.Count > 5)
-                {
-                    if(PointToCut < Goals.Length)
-                    {
-                    PointToCut = CheckForBestPointForShortCut();
-                    if(Vector3.Distance(transform.position, Goals[PointToCut]) < PlanksInfo._collectedPlanks.Count * PlanksInfo.plankSpacing)
-                    {
-                        currentWaypoint =  PointToCut;
-                        ShortCutting = true;
+           BestForShortCut = CheckForBestPointForShortCut();
 
-                        Debug.Log("Short");
-                        Agent.enabled = false;
-                    }
-                    else
-                    {  
-                    Agent.SetDestination(Goals[currentWaypoint]);         
-                    }
-                    }
-                }
-                else
-                {
-                    Agent.SetDestination(Goals[currentWaypoint]);        
-                }          
-            }
-            else
-            {
-                Agent.SetDestination(Destination); // final finish line transform
-            }
+           Debug.Log("ReachPoint");
+
+            if(BestForShortCut > currentWaypoint)
+        {
+            currentWaypoint = BestForShortCut;
+            ShortCutting = true;
+            Agent.enabled = false;
         }
+        }    
+    }
+
+    void Finish()
+    {
+        if(RunIsStarted)
+        {
+        Agent.enabled = false;
+        Animation.SetDance();
+        RunIsStarted = false;
+        }
+    }
+
+    float GetDistance(Vector3 Point)
+    {
+         Vector3 dir = Point - transform.position;
+        dir.y = 0;
+        
+        return dir.sqrMagnitude;
     }
 
     int CheckForBestPointForShortCut()
     {
-        float BestDist = 0;
         int BestPointIndex = currentWaypoint;
-        for(int i = currentWaypoint + 2; i < Goals.Length - 5;i++)
+        int StartIndexToCheck = currentWaypoint + 2;
+        if(StartIndexToCheck > Goals.Length - 3) return BestPointIndex;
+
+        for(int i = StartIndexToCheck; i < Goals.Length - 3;i++)
         {
             float Dist = Vector3.Distance(transform.position, Goals[i]);
-            if(Dist > PlanksInfo._collectedPlanks.Count * PlanksInfo.plankSpacing) continue;
+            if(Dist > PlanksInfo._collectedPlanks.Count * (PlanksInfo.plankSpacing + 0.5)) continue;
 
-            if(Dist > BestDist)
+            if(i > BestPointIndex)
             {
-                BestDist = Dist;
                 BestPointIndex = i;
             }                   
         }
@@ -117,7 +119,7 @@ public class Bot : MonoBehaviour
     void ShortCut()
     {
         
-       Vector3 pos = Vector3.MoveTowards(
+    Vector3 pos = Vector3.MoveTowards(
     transform.position,
     Goals[currentWaypoint],
     Agent.speed * Time.deltaTime);
@@ -131,13 +133,14 @@ public class Bot : MonoBehaviour
 
     transform.position = pos;
     Agent.nextPosition = pos;
-
-        if(Vector3.Distance(transform.position, Goals[currentWaypoint]) < 1)
+        
+        float sqrDist = GetDistance(Goals[currentWaypoint]);
+        if(sqrDist < 64)
         {
             ShortCutting = false;
-            Agent.Warp(transform.position);
             Agent.enabled = true;
-            Agent.SetDestination(Goals[currentWaypoint]); 
+            Agent.Warp(transform.position);
+            Agent.SetDestination(Destination); 
         }
     }
 }

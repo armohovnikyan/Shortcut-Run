@@ -24,8 +24,6 @@ public class RoadGenerating : MonoBehaviour
 
     void OnEnable()
     {
-        
-
     splineContainer = GetComponent<SplineContainer>();
     meshFilter = GetComponent<MeshFilter>();
     navSurface = GetComponent<NavMeshSurface>();

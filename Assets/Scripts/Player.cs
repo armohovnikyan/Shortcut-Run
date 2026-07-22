@@ -13,12 +13,16 @@ public class PlayerMovement : MonoBehaviour
     private bool _isGameStarted = false;
     private float _currentTurnInput = 0f; 
     public int Place;
+    public AnimationsControl Animation;
     [SerializeField] TMP_Text PlaceText;
 
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
+        Animation = GetComponent<AnimationsControl>();
         GameManager.Instance.RegistrRunner(transform);
+
+        Animation.SetIdle();
         StartCoroutine(StartCountdownRoutine());
     }
 
@@ -80,6 +84,7 @@ public class PlayerMovement : MonoBehaviour
     {
         yield return new WaitForSeconds(3f);
         BotsManager.Instance.StartTheRun();
+        Animation.SetRunning();
         _isGameStarted = true;
     }
 }

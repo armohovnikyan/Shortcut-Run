@@ -12,7 +12,7 @@ public class BotsManager : MonoBehaviour
     [SerializeField] SplineContainer Road;
     [SerializeField] Vector3[] Points;
     public int BotsCount;
-    int sampleCount = 30;
+    int sampleCount = 24;
     void Awake()
     {
       Instance = this;  
@@ -47,13 +47,13 @@ public class BotsManager : MonoBehaviour
 
     public void Start()
     {
-         GetAllSplinePoints();
+        GetAllSplinePoints();
         for(int i = 0; i < BotsCount;i++)
         {
             GameObject Bot = Instantiate(BotPrefab,SpawnPositionsForBots[i].position,transform.rotation);
             Bot botScript = Bot.GetComponent<Bot>();
             BotsList.Add(botScript);
-            botScript.Spawn(GameManager.Instance.Finish,GetRandomColor(),GetRandomColor(),GetRandomColor(),Points);
+            botScript.Spawn(GameManager.Instance.Finish,Points);
         }
     }
 
@@ -66,7 +66,7 @@ public class BotsManager : MonoBehaviour
     {
         foreach(Bot bot in BotsList)
         {
-            bot.RunIsStarted = true;
+             bot.StartRun();
         }
     }
 
