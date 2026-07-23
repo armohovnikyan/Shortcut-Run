@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, ICharacter
 {
     [Header("Настройки движения")]
     public float forwardSpeed = 7f;   
@@ -16,10 +16,13 @@ public class PlayerMovement : MonoBehaviour
     public AnimationsControl Animation;
     [SerializeField] TMP_Text PlaceText;
 
+    PlankCollector PlanksInfo;
+
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
         Animation = GetComponent<AnimationsControl>();
+        PlanksInfo = GetComponent<PlankCollector>();
         GameManager.Instance.RegistrRunner(transform);
 
         Animation.SetIdle();
@@ -32,9 +35,27 @@ public class PlayerMovement : MonoBehaviour
 
         HandleInput();
         MoveAndRotatePlayer();
+
         Place = GameManager.Instance.GetMyPlace(transform);
         PlaceText.text = Place.ToString();
     }
+
+     public void IsFailing()
+      {
+          Animation.SetFailing();
+      }
+
+      public void CheckPlanks()
+      {
+        if(PlanksInfo._collectedPlanks.Count > 0)
+        {
+            Animation.SetRunningWithPlanks();
+        }
+        else
+        {
+            Animation.SetRunning();
+        }
+      }
 
     void HandleInput()
     {

@@ -30,7 +30,7 @@ public class PlankCollector : MonoBehaviour
     [Tooltip("Сколько секунд подряд нет дороги под ногами, чтобы считать сход с дороги")]
     public float offRoadDebounce = 0.05f;
     [Tooltip("Сколько секунд подряд есть дорога, чтобы считать возврат на дорогу")]
-    public float onRoadDebounce = 0.1f;
+    public float onRoadDebounce = 0.05f;
 
     [Header("Настройки моста")]
     [Tooltip("Расстояние между центрами досок в метрах")]
@@ -50,6 +50,8 @@ public class PlankCollector : MonoBehaviour
     private float _onRoadTimer;
     private Vector2? _lastPlankSpawnXZ;
 
+    ICharacter MainScript;
+
     // ВРЕМЕННАЯ ОТЛАДКА — удалишь после того, как всё заработает
     private bool _debugLastHitRoad;
     private Vector3 _debugRayOrigin;
@@ -65,6 +67,7 @@ public class PlankCollector : MonoBehaviour
     void Start()
     {
         _previousXZ = new Vector2(transform.position.x, transform.position.z);
+        MainScript = GetComponent<ICharacter>();
 
         if (bodyRigidbody == null)
         {
@@ -199,6 +202,7 @@ public class PlankCollector : MonoBehaviour
         if (_collectedPlanks.Count == 0)
         {
             _state = GroundState.Falling; // доски кончились — падаем
+            MainScript.IsFailing();
             Debug.Log("[Bridge] Доски кончились -> Falling");
             return;
         }
@@ -227,6 +231,7 @@ public class PlankCollector : MonoBehaviour
         bridgePlank.tag = "Untagged";
 
         _lastPlankSpawnXZ = currentXZ;
+        MainScript.CheckPlanks();
         Debug.Log($"[Bridge] Доска установлена в {spawnPos}, осталось в руках: {_collectedPlanks.Count}");
     }
 
@@ -262,12 +267,14 @@ public class PlankCollector : MonoBehaviour
         // Небольшой предохранитель, если что-то всё равно посчиталось в 0
         if (_cachedPlankThickness <= 0f) _cachedPlankThickness = plankHeight;
 
-        return _cachedPlankThickness;
+        return _cachedPlankThickness + 0.2f;
     }
 
     void AddPlankToStack()
     {
         if (plankPrefab == null || stackPosition == null) return;
+
+        MainScript.CheckPlanks();
 
         GameObject newPlank = Instantiate(plankPrefab);
         newPlank.GetComponent<Collider>().enabled = false;
@@ -288,7 +295,7 @@ public class PlankCollector : MonoBehaviour
         // при переводе в мировые координаты — и доски "разъедутся" по высоте
         float stepY = GetPlankThickness();
         float compensatedStep = stepY / (parentScale.y != 0 ? parentScale.y : 1f);
-        float spawnYOffset = _collectedPlanks.Count * compensatedStep;
+        float spawnYOffset = _collectedPlanks.Count * (compensatedStep + 0.05f);
         newPlank.transform.localPosition = new Vector3(0, spawnYOffset, 0);
 
         // БЫЛО: сначала выставлялся мировой поворот через new quaternion(0,90,0,0)
@@ -303,4 +310,16 @@ public class PlankCollector : MonoBehaviour
 
         _collectedPlanks.Add(newPlank);
     }
+
+    public void RemoveAllPlanks()
+    {
+        foreach(GameObject plank in _collectedPlanks)
+        {
+            Destroy(plank);
+        }
+
+        _collectedPlanks.Clear();
+    }
 }
+
+

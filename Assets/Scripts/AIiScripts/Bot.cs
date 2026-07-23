@@ -4,7 +4,7 @@ using UnityEngine.AI;
 using System.Collections.Generic;
 using System.Collections;
 
-public class Bot : MonoBehaviour
+public class Bot : MonoBehaviour, ICharacter
 {
     public NavMeshAgent Agent;
    public PlankCollector PlanksInfo;
@@ -51,7 +51,7 @@ public class Bot : MonoBehaviour
         }
         if(!RunIsStarted) return;
 
-         if(ShortCutting)
+        if(ShortCutting)
         {
             ShortCut();
             return;
@@ -79,6 +79,23 @@ public class Bot : MonoBehaviour
         }    
     }
 
+      public void IsFailing()
+      {
+          Animation.SetFailing();
+      }
+
+      public void CheckPlanks()
+      {
+        if(PlanksInfo._collectedPlanks.Count > 0)
+        {
+            Animation.SetRunningWithPlanks();
+        }
+        else
+        {
+            Animation.SetRunning();
+        }
+      }
+
     void ReacedTheFinish()
     {
         if(RunIsStarted)
@@ -99,6 +116,12 @@ public class Bot : MonoBehaviour
         Move(Target);
         yield return null;
         }
+
+        PlanksInfo.RemoveAllPlanks();
+
+        Vector3 direction = Destination - transform.position;
+        direction.y = 0f;
+         transform.rotation = Quaternion.LookRotation(direction);
     }
 
     float GetDistance(Vector3 Point)
@@ -154,7 +177,7 @@ public class Bot : MonoBehaviour
     if (direction != Vector3.zero)
        transform.rotation = Quaternion.LookRotation(direction);
 
-        transform.position = pos;
+    transform.position = pos;
     Agent.nextPosition = pos;
     }
 }
