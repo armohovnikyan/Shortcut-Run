@@ -12,6 +12,10 @@ public class Bot : MonoBehaviour, ICharacter
     public bool RunIsStarted;
     public AnimationsControl Animation;
 
+    public GameObject Skin;
+    public Transform AnimatorParent;
+    public GameObject[] Skins;
+
     public Vector3[] Goals;
 
     void Start()
@@ -26,6 +30,10 @@ public class Bot : MonoBehaviour, ICharacter
         Goals = WayPoints;
         Destination = Finish.position;
 
+      //Skin = Skins[Random.Range(0,Skins.Length)];
+        GameObject Model = Instantiate(Skins[Random.Range(0,Skins.Length)],transform.position,transform.rotation,AnimatorParent);
+        Model.name = "mixamorig:Hips";
+         Animation.Rebind();
         Animation.SetIdle();
     }
     [SerializeField] int currentWaypoint = 2;

@@ -22,6 +22,11 @@ public class GameManager : MonoBehaviour
         Runners.Add(RunnerTransform);
     }
 
+    public void UnRegisterRunner()
+    {
+        
+    }
+
     void FixedUpdate()
     {
         Distances.Clear();
