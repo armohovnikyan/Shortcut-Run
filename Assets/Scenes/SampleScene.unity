@@ -4455,7 +4455,7 @@ Transform:
   m_GameObject: {fileID: 1130345218}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 44.94082, y: -0.95, z: 255.5}
+  m_LocalPosition: {x: 44.94082, y: -6.7, z: 255.5}
   m_LocalScale: {x: 79.851, y: 79.851, z: 79.851}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6195,7 +6195,7 @@ Transform:
   m_GameObject: {fileID: 1679506032}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.355, z: 1.171}
+  m_LocalPosition: {x: 0, y: 1.83, z: 1.171}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6389,8 +6389,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoadGenerating
   roadWidth: 16
-  resolution: 200
-  uvTilingPerUnit: 0.25
+  roadThickness: 1
+  resolution: 150
+  uvTilingPerUnit: 0.2
+  topMaterial: {fileID: 2100000, guid: 1d57db5d384e51a47a8d9ae120700f53, type: 2}
+  sideMaterial: {fileID: 2100000, guid: 22194c14e68a0644b9ea54af6973937a, type: 2}
 --- !u!114 &1701175916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6676,7 +6679,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8149ee801becf5a4c84c2d61a090cb7d, type: 2}
+  - {fileID: 2100000, guid: 1d57db5d384e51a47a8d9ae120700f53, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6717,7 +6720,7 @@ Transform:
   m_GameObject: {fileID: 1701175914}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.9, y: -0.00001, z: 44.5}
+  m_LocalPosition: {x: 2.9, y: 0, z: 44.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7200,7 +7203,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28229009e3990ad4ea644df0d56368d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlankCollector
-  plankPrefab: {fileID: 5653736026493962404, guid: 8f4d7d1e78d692f4186c734b6424dac8, type: 3}
+  plankPrefab: {fileID: 5653736026493962404, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
   stackPosition: {fileID: 1679506033}
   plankHeight: 0.2
   footOffset: 1

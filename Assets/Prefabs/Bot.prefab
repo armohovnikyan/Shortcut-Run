@@ -218,7 +218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28229009e3990ad4ea644df0d56368d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlankCollector
-  plankPrefab: {fileID: 5653736026493962404, guid: 8f4d7d1e78d692f4186c734b6424dac8, type: 3}
+  plankPrefab: {fileID: 5653736026493962404, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
   stackPosition: {fileID: 2746448709709606715}
   plankHeight: 0.2
   footOffset: 1

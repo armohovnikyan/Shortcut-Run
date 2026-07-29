@@ -44,7 +44,6 @@ public class PlankCollector : MonoBehaviour
     private enum GroundState { OnRoad, Bridging, Falling }
     private GroundState _state = GroundState.OnRoad;
 
-    private float _lastRoadY;
     private float _fixedBridgeY;
     private float _offRoadTimer;
     private float _onRoadTimer;
@@ -59,8 +58,6 @@ public class PlankCollector : MonoBehaviour
 
     // Для отслеживания движения без завязки на конкретный контроллер движения
     [SerializeField] Transform FeetPos;
-
-
 
     void Start()
     {
@@ -100,7 +97,6 @@ public class PlankCollector : MonoBehaviour
 
         if (hitRoad)
         {
-            _lastRoadY = hit.point.y;
             _offRoadTimer = 0f;
             _onRoadTimer += Time.deltaTime;
 
@@ -150,12 +146,12 @@ public class PlankCollector : MonoBehaviour
 
     void TryBuildPlank()
     {
-        Vector2 currentXZ = new Vector2(transform.position.x, transform.position.z);
+        //Vector2 currentXZ = new Vector2(transform.position.x, transform.position.z);
 
-        if (_lastPlankSpawnXZ != null && Vector2.Distance(currentXZ, _lastPlankSpawnXZ.Value) < plankSpacing)
-        {
-            return; // ещё не прошли нужное расстояние с прошлой доски
-        }
+       // if (_lastPlankSpawnXZ != null && Vector2.Distance(currentXZ, _lastPlankSpawnXZ.Value) < plankSpacing)
+       // {
+       //     return; // ещё не прошли нужное расстояние с прошлой доски
+       // }
 
         if (_collectedPlanks.Count == 0)
         {
@@ -173,11 +169,11 @@ public class PlankCollector : MonoBehaviour
         plankFromHand.transform.position = new Vector3(transform.position.x, _fixedBridgeY, transform.position.z) + (transform.forward * 0.5f);
         plankFromHand.tag = "Untagged";
         BoxCollider plankCol = plankFromHand.GetComponent<BoxCollider>();
-        plankCol.size = new Vector3(1,1,2);
+        plankCol.size = new Vector3(1.5f,1,2);
         plankCol.enabled = true;
         plankFromHand.layer = LayerMask.NameToLayer("Road");;
 
-        _lastPlankSpawnXZ = currentXZ;
+     //   _lastPlankSpawnXZ = currentXZ;
         MainScript.CheckPlanks();
         Debug.Log($"[Bridge] Доска установлена, осталось в руках: {_collectedPlanks.Count}");
     }
@@ -192,19 +188,16 @@ public class PlankCollector : MonoBehaviour
     }
     void AddPlankToStack()
     {
-        if (plankPrefab == null || stackPosition == null) return;
-
-        MainScript.CheckPlanks();
-
         GameObject newPlank = Instantiate(plankPrefab);
         newPlank.GetComponent<Collider>().enabled = false;
         newPlank.transform.SetParent(stackPosition);
 
-        float spawnYOffset = _collectedPlanks.Count * (0.2f + 0.05f);
+        float spawnYOffset = _collectedPlanks.Count * (0.2f + 0.03f);
         newPlank.transform.localPosition = new Vector3(0, spawnYOffset, 0);
         newPlank.transform.localRotation = Quaternion.identity;
 
         _collectedPlanks.Add(newPlank);
+        MainScript.CheckPlanks();
     }
 
     public void RemoveAllPlanks()
