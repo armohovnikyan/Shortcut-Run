@@ -112,6 +112,8 @@ public class Bot : MonoBehaviour, ICharacter
         Animation.SetDance();
         RunIsStarted = false;
 
+        GameManager.Instance.UnRegisterRunner(transform);
+
         StartCoroutine(GoToFinalPoint());
         }
     }
@@ -149,7 +151,7 @@ public class Bot : MonoBehaviour, ICharacter
         for(int i = StartIndexToCheck; i < Goals.Length - 3;i++)
         {
             float Dist = Vector3.Distance(transform.position, Goals[i]);
-            if(Dist > PlanksInfo._collectedPlanks.Count * (PlanksInfo.plankSpacing + 0.5)) continue;
+            if(Dist > PlanksInfo._collectedPlanks.Count * (PlanksInfo.plankSpacing + 2)) continue;
 
             if(i > BestPointIndex)
             {

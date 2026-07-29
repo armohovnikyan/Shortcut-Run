@@ -3,15 +3,16 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
     public Transform playerTransform; 
-
     public Vector3 cameraOffset = new Vector3(0f, 6f, -7f);
 
     public float cameraSmoothSpeed = 5f;
     public float rotationSmoothSpeed = 5f; 
 
+    bool RaceFinished;
+
     void LateUpdate()
     {
-        if (playerTransform == null) return;
+        if (playerTransform == null || RaceFinished) return;
 
         Vector3 targetPosition = playerTransform.position + (playerTransform.rotation * cameraOffset);
 
@@ -21,5 +22,10 @@ public class CameraFollow : MonoBehaviour
         Quaternion targetRotation = Quaternion.LookRotation(lookAtTarget - transform.position);
 
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSmoothSpeed * Time.deltaTime);
+    }
+
+    public void RaceEnded()
+    {
+        RaceFinished = true;
     }
 }

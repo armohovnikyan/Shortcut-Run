@@ -5,12 +5,20 @@ public struct Place
 {
     public float Distance;
     public Transform RunnerTransform;
+
+    public bool Passed;
+}
+
+public class Runner
+{
+        public Transform RunnerTransform;
+        public bool Passed;
 }
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public Transform Finish;
-    public List<Transform> Runners = new List<Transform>();
+    public List<Runner> Runners = new List<Runner>();
     List<Place> Distances = new List<Place>();
     void Awake()
     {
@@ -19,23 +27,34 @@ public class GameManager : MonoBehaviour
 
     public void RegistrRunner(Transform RunnerTransform)
     {
-        Runners.Add(RunnerTransform);
+        Runners.Add(new Runner{RunnerTransform = RunnerTransform, Passed = false});
     }
 
-    public void UnRegisterRunner()
+    public void UnRegisterRunner(Transform RunnerTransform)
     {
-        
+        for (int i = 0; i < Runners.Count; i++)
+        {
+            if(Runners[i].RunnerTransform == RunnerTransform)
+            {
+                Runners[i].Passed = true;
+                return;
+            }
+        }
     }
 
     void FixedUpdate()
     {
         Distances.Clear();
-        foreach(Transform Runner in Runners)
+        foreach(Runner Runner in Runners)
         {
-         Vector3 dir = Finish.position - Runner.position;
+        Vector3 dir = Finish.position - Runner.RunnerTransform.position;
         dir.y = 0;
-    
-        Distances.Add(new Place { Distance = dir.sqrMagnitude, RunnerTransform = Runner});
+        
+         if(Runner.Passed)
+         {
+             dir = Vector3.zero;
+         } 
+        Distances.Add(new Place { Distance = dir.sqrMagnitude, RunnerTransform = Runner.RunnerTransform});
         }
 
          Distances.Sort((a, b) => a.Distance.CompareTo(b.Distance));

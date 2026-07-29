@@ -58,69 +58,40 @@ public class PlankCollector : MonoBehaviour
     private Vector3 _debugRayEnd;
 
     // Для отслеживания движения без завязки на конкретный контроллер движения
-    private Vector2 _previousXZ;
-    private float _cachedPlankThickness = -1f;
+    [SerializeField] Transform FeetPos;
 
-    // Кэш коллайдера префаба доски — чтобы не звать GetComponent на каждую укладку в стопку
-    private BoxCollider _plankColliderTemplate;
+
 
     void Start()
     {
-        _previousXZ = new Vector2(transform.position.x, transform.position.z);
         MainScript = GetComponent<ICharacter>();
-
-        if (bodyRigidbody == null)
-        {
-            // Необязателен: просто попробуем найти его сами, если он есть на объекте
-            bodyRigidbody = GetComponent<Rigidbody>();
-        }
-
-        if (plankPrefab != null)
-        {
-            plankPrefab.TryGetComponent(out _plankColliderTemplate);
-        }
     }
 
     // LateUpdate — чтобы коррекция высоты применялась ПОСЛЕ любого скрипта движения игрока
     void LateUpdate()
     {
         CheckGroundState();
-
-        // Смещение по X/Z считаем ДО коррекции высоты — она чисто вертикальная
-        Vector2 currentXZ = new Vector2(transform.position.x, transform.position.z);
-        bool isMoving = Vector2.Distance(currentXZ, _previousXZ) > 0.005f;
-        _previousXZ = currentXZ;
-
-        if (_state == GroundState.Bridging)
+        if (_state != GroundState.Falling)
         {
             MaintainBridgeHeight();
-
-            if (isMoving)
-            {
-                TryBuildPlank();
-            }
+        }
+        if(_state == GroundState.Bridging)
+        {
+            TryBuildPlank();
         }
     }
-
-    private Vector3 GetFeetPosition()
-    {
-        return transform.position + Vector3.down * footOffset;
-    }
-
     private void CheckGroundState()
     {
-        Vector3 feetPos = GetFeetPosition();
+        Vector3 feetPos = FeetPos.position;
         Vector3 origin = feetPos + Vector3.up * rayOriginHeight;
 
-        // QueryTriggerInteraction.Ignore — доски уложены как триггеры и не должны
-        // случайно засчитываться лучом как "дорога"
         bool hitRoad = Physics.Raycast(
             origin,
             Vector3.down,
             out RaycastHit hit,
             rayOriginHeight + groundCheckDistance,
-            roadLayer,
-            QueryTriggerInteraction.Ignore);
+            roadLayer
+            );
 
         // ВРЕМЕННАЯ ОТЛАДКА
         _debugLastHitRoad = hitRoad;
@@ -149,8 +120,6 @@ public class PlankCollector : MonoBehaviour
 
                 if (_offRoadTimer >= offRoadDebounce)
                 {
-                    // Фиксируем высоту РОВНО в момент схода с дороги
-                    _fixedBridgeY = _lastRoadY;
                     _state = GroundState.Bridging;
                     _lastPlankSpawnXZ = new Vector2(transform.position.x, transform.position.z);
                     Debug.Log($"[Bridge] -> Bridging, fixedY={_fixedBridgeY:F2}, planksInHand={_collectedPlanks.Count}");
@@ -168,27 +137,16 @@ public class PlankCollector : MonoBehaviour
         Gizmos.DrawWireSphere(_debugRayEnd, 0.1f);
     }
 
-    private void MaintainBridgeHeight()
-    {
-        // Не опираемся на физику досок — держим высоту сами.
-        // Именно это убирает эффект "лестницы".
-        // pivot.y должен быть таким, чтобы ступни (pivot.y - footOffset) оказались на _fixedBridgeY
-        float targetY = _fixedBridgeY + footOffset;
-        float deltaY = targetY - transform.position.y;
+   private void MaintainBridgeHeight()
+   {
+      float targetY = _fixedBridgeY + footOffset;
+      float deltaY = targetY - transform.position.y;
 
-        if (Mathf.Abs(deltaY) <= 0.0001f) return;
+      if (Mathf.Abs(deltaY) <= 0.0001f) return;
 
-        Vector3 newPos = transform.position + Vector3.up * deltaY;
-
-        if (bodyRigidbody != null && !bodyRigidbody.isKinematic)
-        {
-            bodyRigidbody.MovePosition(newPos);
-        }
-        else
-        {
-            transform.position = newPos;
-        }
-    }
+      Vector3 newPos = transform.position + Vector3.up * deltaY;
+      transform.position = newPos;     
+   }
 
     void TryBuildPlank()
     {
@@ -201,38 +159,27 @@ public class PlankCollector : MonoBehaviour
 
         if (_collectedPlanks.Count == 0)
         {
-            _state = GroundState.Falling; // доски кончились — падаем
-            MainScript.IsFailing();
-            Debug.Log("[Bridge] Доски кончились -> Falling");
+            _state = GroundState.Falling; 
+           // MainScript.IsFailing();
+           // Debug.Log("[Bridge] Доски кончились -> Falling");
             return;
         }
 
         int lastIndex = _collectedPlanks.Count - 1;
         GameObject plankFromHand = _collectedPlanks[lastIndex];
         _collectedPlanks.RemoveAt(lastIndex);
-        Destroy(plankFromHand);
-
-        Vector3 spawnPos = new Vector3(transform.position.x, _fixedBridgeY, transform.position.z)
-                           + (transform.forward * 0.5f);
-
-        GameObject bridgePlank = Instantiate(plankPrefab, spawnPos, transform.rotation);
-
-        // ВАЖНО: доска остаётся триггером — она ЧИСТО визуальная,
-        // высоту держит скрипт, а не физическое столкновение
-        if (bridgePlank.TryGetComponent<BoxCollider>(out var plankCollider))
-        {
-            plankCollider.isTrigger = true;
-        }
-
-        bridgePlank.transform.localScale = plankPrefab.transform.localScale;
-
-        // ВАЖНО: снимаем тег доски, иначе игрок тут же подберёт
-        // только что уложенную доску обратно через OnTriggerEnter
-        bridgePlank.tag = "Untagged";
+        
+        plankFromHand.transform.SetParent(null);
+        plankFromHand.transform.position = new Vector3(transform.position.x, _fixedBridgeY, transform.position.z) + (transform.forward * 0.5f);
+        plankFromHand.tag = "Untagged";
+        BoxCollider plankCol = plankFromHand.GetComponent<BoxCollider>();
+        plankCol.size = new Vector3(1,1,2);
+        plankCol.enabled = true;
+        plankFromHand.layer = LayerMask.NameToLayer("Road");;
 
         _lastPlankSpawnXZ = currentXZ;
         MainScript.CheckPlanks();
-        Debug.Log($"[Bridge] Доска установлена в {spawnPos}, осталось в руках: {_collectedPlanks.Count}");
+        Debug.Log($"[Bridge] Доска установлена, осталось в руках: {_collectedPlanks.Count}");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -243,33 +190,6 @@ public class PlankCollector : MonoBehaviour
             AddPlankToStack();
         }
     }
-
-    // Реальная толщина доски по Y. Считаем напрямую из BoxCollider.size * localScale —
-    // Collider.bounds на НЕинстанциированном префабе-ассете ненадёжен и часто даёт 0
-    private float GetPlankThickness()
-    {
-        if (_cachedPlankThickness > 0f) return _cachedPlankThickness;
-
-        if (_plankColliderTemplate != null)
-        {
-            _cachedPlankThickness = _plankColliderTemplate.size.y * plankPrefab.transform.localScale.y;
-        }
-        else if (plankPrefab.TryGetComponent<Renderer>(out var rend))
-        {
-            // Резервный вариант для непрямоугольных досок
-            _cachedPlankThickness = rend.bounds.size.y > 0f ? rend.bounds.size.y : plankHeight;
-        }
-        else
-        {
-            _cachedPlankThickness = plankHeight;
-        }
-
-        // Небольшой предохранитель, если что-то всё равно посчиталось в 0
-        if (_cachedPlankThickness <= 0f) _cachedPlankThickness = plankHeight;
-
-        return _cachedPlankThickness + 0.2f;
-    }
-
     void AddPlankToStack()
     {
         if (plankPrefab == null || stackPosition == null) return;
@@ -280,32 +200,8 @@ public class PlankCollector : MonoBehaviour
         newPlank.GetComponent<Collider>().enabled = false;
         newPlank.transform.SetParent(stackPosition);
 
-        // Сохраняем НАСТОЯЩИЙ размер доски (как у префаба), просто компенсируя масштаб родителя,
-        // а не выдумывая произвольные числа
-        Vector3 parentScale = stackPosition.lossyScale;
-        Vector3 originalScale = plankPrefab.transform.localScale;
-        newPlank.transform.localScale = new Vector3(
-            originalScale.x / (parentScale.x != 0 ? parentScale.x : 1f),
-            originalScale.y / (parentScale.y != 0 ? parentScale.y : 1f),
-            originalScale.z / (parentScale.z != 0 ? parentScale.z : 1f)
-        );
-
-        // Шаг стопки = реальная толщина доски, но компенсированная под масштаб
-        // родителя (stackPosition), иначе localPosition умножится на его scale
-        // при переводе в мировые координаты — и доски "разъедутся" по высоте
-        float stepY = GetPlankThickness();
-        float compensatedStep = stepY / (parentScale.y != 0 ? parentScale.y : 1f);
-        float spawnYOffset = _collectedPlanks.Count * (compensatedStep + 0.05f);
+        float spawnYOffset = _collectedPlanks.Count * (0.2f + 0.05f);
         newPlank.transform.localPosition = new Vector3(0, spawnYOffset, 0);
-
-        // БЫЛО: сначала выставлялся мировой поворот через new quaternion(0,90,0,0)
-        // (Unity.Mathematics.quaternion) — но этот конструктор принимает СЫРЫЕ
-        // компоненты (x,y,z,w), а НЕ градусы Эйлера, так что поворот получался
-        // мусорным/ненормализованным. Более того, следующая строка (localRotation
-        // = identity) всё равно его перезаписывала — поворот никогда реально не
-        // применялся. Если доски в стопке ДЕЙСТВИТЕЛЬНО должны стоять повёрнутыми
-        // на 90° по Y — раскомментируй строку ниже (это правильный способ):
-        // newPlank.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
         newPlank.transform.localRotation = Quaternion.identity;
 
         _collectedPlanks.Add(newPlank);
@@ -321,5 +217,3 @@ public class PlankCollector : MonoBehaviour
         _collectedPlanks.Clear();
     }
 }
-
-

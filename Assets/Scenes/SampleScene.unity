@@ -1181,6 +1181,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8f4d7d1e78d692f4186c734b6424dac8, type: 3}
+--- !u!1 &374494318
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 374494319}
+  m_Layer: 8
+  m_Name: FeetPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &374494319
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 374494318}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.202, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1769505862}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &381760644 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7114116107316184023, guid: 8f4d7d1e78d692f4186c734b6424dac8, type: 3}
@@ -5248,7 +5279,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   Finish: {fileID: 883514996}
-  Runners: []
 --- !u!4 &1404653062
 Transform:
   m_ObjectHideFlags: 0
@@ -5647,8 +5677,8 @@ Camera:
   m_GameObject: {fileID: 1547552709}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.17528482, g: 0.8887732, b: 0.9528302, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.2007832, g: 0.8487006, b: 0.9056604, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -7130,6 +7160,7 @@ Transform:
   m_Children:
   - {fileID: 1679506033}
   - {fileID: 7114263430413653482}
+  - {fileID: 374494319}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &1769505863
@@ -7179,11 +7210,12 @@ MonoBehaviour:
     m_Bits: 64
   groundCheckDistance: 1.2
   rayOriginHeight: 0.5
-  offRoadDebounce: 0.01
-  onRoadDebounce: 0.1
-  plankSpacing: 1.5
+  offRoadDebounce: 0
+  onRoadDebounce: 0
+  plankSpacing: 0.2
   plankTag: Plank
   _collectedPlanks: []
+  FeetPos: {fileID: 374494319}
 --- !u!114 &1769505866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7199,8 +7231,9 @@ MonoBehaviour:
   forwardSpeed: 10
   turnSpeed: 90
   Place: 0
-  Animation: {fileID: 0}
+  Animation: {fileID: 1769505868}
   PlaceText: {fileID: 2102341871}
+  cameraFollow: {fileID: 1547552714}
 --- !u!54 &1769505867
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -7223,7 +7256,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
@@ -7406,9 +7439,10 @@ GameObject:
   - component: {fileID: 1828991491}
   - component: {fileID: 1828991490}
   - component: {fileID: 1828991494}
+  - component: {fileID: 1828991495}
   m_Layer: 6
   m_Name: FinishPlatform
-  m_TagString: Untagged
+  m_TagString: Finish
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7531,6 +7565,27 @@ MonoBehaviour:
     Pos: {fileID: 1008246189}
   - IsOcupied: 0
     Pos: {fileID: 627576443}
+--- !u!65 &1828991495
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1828991489}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.0000008, y: 6, z: 1.000001}
+  m_Center: {x: 0.00000005960469, y: 4.33, z: -0.00000008940703}
 --- !u!1001 &1833263981
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9338,7 +9393,7 @@ Transform:
   m_GameObject: {fileID: 7633918342262935376}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.7, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:

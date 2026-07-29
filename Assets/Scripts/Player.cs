@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour, ICharacter
     public AnimationsControl Animation;
     [SerializeField] TMP_Text PlaceText;
 
+    public CameraFollow cameraFollow;
+
     PlankCollector PlanksInfo;
 
     void Start()
@@ -27,6 +29,68 @@ public class PlayerMovement : MonoBehaviour, ICharacter
 
         Animation.SetIdle();
         StartCoroutine(StartCountdownRoutine());
+    }
+
+      void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("Finish"))
+        {
+            Finished();
+        }
+    }
+
+    void Finished()
+    {
+        if(Place == 1)
+        {
+            //FirstPlaceLogic
+        }
+        else
+        {
+           StartCoroutine(GoToFinalPoint());
+           cameraFollow.RaceEnded();
+           _isGameStarted = false;
+        }
+    }
+        IEnumerator GoToFinalPoint()
+    {
+        Vector3 Target = Finish.Instance.GetFreePoint();
+        while(GetDistance(Target) > 4)
+        {
+        Move(Target);
+        yield return null;
+        }
+
+        PlanksInfo.RemoveAllPlanks();
+
+        Vector3 direction = Finish.Instance.transform.position - transform.position;
+        direction.y = 0f;
+        transform.rotation = Quaternion.LookRotation(direction);
+
+        Animation.SetIdle();
+    }
+
+        float GetDistance(Vector3 Point)
+    {
+        Vector3 dir = Point - transform.position;
+        dir.y = 0;
+        
+        return dir.sqrMagnitude;
+    }
+
+     void Move(Vector3 Target)
+    {
+
+    Vector3 pos = Vector3.MoveTowards(transform.position,Target,5 * Time.deltaTime);  
+    Vector3 direction = Target - transform.position;
+
+    direction.y = 0f;
+    
+    if (direction != Vector3.zero)
+       transform.rotation = Quaternion.LookRotation(direction);
+
+    transform.position = pos;
+    PlanksInfo.RemoveAllPlanks();
     }
 
     void Update()
