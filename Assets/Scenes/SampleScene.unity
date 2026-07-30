@@ -4382,7 +4382,7 @@ GameObject:
   - component: {fileID: 1130345222}
   - component: {fileID: 1130345221}
   - component: {fileID: 1130345220}
-  m_Layer: 0
+  m_Layer: 4
   m_Name: Plane (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7137,7 +7137,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1769505862}
   - component: {fileID: 1769505863}
-  - component: {fileID: 1769505865}
+  - component: {fileID: 1769505870}
+  - component: {fileID: 1769505869}
   - component: {fileID: 1769505866}
   - component: {fileID: 1769505867}
   - component: {fileID: 1769505868}
@@ -7191,34 +7192,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1.17, z: 0}
---- !u!114 &1769505865
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1769505861}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28229009e3990ad4ea644df0d56368d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlankCollector
-  plankPrefab: {fileID: 5653736026493962404, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
-  stackPosition: {fileID: 1679506033}
-  plankHeight: 0.2
-  footOffset: 1
-  bodyRigidbody: {fileID: 1769505867}
-  roadLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  groundCheckDistance: 1.2
-  rayOriginHeight: 0.5
-  offRoadDebounce: 0
-  onRoadDebounce: 0
-  plankSpacing: 0.2
-  plankTag: Plank
-  _collectedPlanks: []
-  FeetPos: {fileID: 374494319}
 --- !u!114 &1769505866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7277,6 +7250,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimationsControl
   Animator: {fileID: 7633918342262935377}
+--- !u!114 &1769505869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769505861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2ff71e09b305684fbbfbdd60282ea2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BridgeBuilder
+  footOffset: 1
+  bodyRigidbody: {fileID: 0}
+  FeetPos: {fileID: 374494319}
+  roadLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  groundCheckDistance: 1.2
+  rayOriginHeight: 0.5
+  offRoadDebounce: 0.05
+  onRoadDebounce: 0.05
+  plankSpacing: 1.5
+  plankLayerName: Bridge
+  jumpHeight: 1
+  jumpDuration: 0.5
+--- !u!114 &1769505870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769505861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39830a57b7fc95d4f92f5e43d15bf991, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlankStacker
+  plankPrefab: {fileID: 5653736026493962404, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
+  stackPosition: {fileID: 1679506033}
+  plankHeight: 0.15
+  plankGap: 0.03
+  plankTag: Plank
+  CollectedPlanks: []
 --- !u!4 &1783811291 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7114116107316184023, guid: 8f4d7d1e78d692f4186c734b6424dac8, type: 3}

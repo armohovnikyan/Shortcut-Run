@@ -18,13 +18,13 @@ public class PlayerMovement : MonoBehaviour, ICharacter
 
     public CameraFollow cameraFollow;
 
-    PlankCollector PlanksInfo;
+    PlankStacker PlanksInfo;
 
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
         Animation = GetComponent<AnimationsControl>();
-        PlanksInfo = GetComponent<PlankCollector>();
+        PlanksInfo = GetComponent<PlankStacker>();
         GameManager.Instance.RegistrRunner(transform);
 
         Animation.SetIdle();
@@ -111,7 +111,7 @@ public class PlayerMovement : MonoBehaviour, ICharacter
 
       public void CheckPlanks()
       {
-        if(PlanksInfo._collectedPlanks.Count > 0)
+        if(PlanksInfo.CollectedPlanks.Count > 0)
         {
             Animation.SetRunningWithPlanks();
         }
