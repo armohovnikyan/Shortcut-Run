@@ -7,8 +7,8 @@ using System.Collections;
 public class Bot : MonoBehaviour, ICharacter
 {
     public NavMeshAgent Agent;
-   public PlankCollector PlanksInfo;
-   public Vector3 Destination;
+    public PlankCollector PlanksInfo;
+    public Vector3 Destination;
     public bool RunIsStarted;
     public AnimationsControl Animation;
 
@@ -94,7 +94,7 @@ public class Bot : MonoBehaviour, ICharacter
 
       public void CheckPlanks()
       {
-        if(PlanksInfo._collectedPlanks.Count > 0)
+        if(PlanksInfo.CollectedPlanks.Count > 0)
         {
             Animation.SetRunningWithPlanks();
         }
@@ -151,7 +151,7 @@ public class Bot : MonoBehaviour, ICharacter
         for(int i = StartIndexToCheck; i < Goals.Length - 3;i++)
         {
             float Dist = Vector3.Distance(transform.position, Goals[i]);
-            if(Dist > PlanksInfo._collectedPlanks.Count * (PlanksInfo.plankSpacing + 2)) continue;
+            if(Dist > PlanksInfo.CollectedPlanks.Count * (2)) continue;
 
             if(i > BestPointIndex)
             {

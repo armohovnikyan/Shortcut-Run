@@ -111,7 +111,7 @@ public class PlayerMovement : MonoBehaviour, ICharacter
 
       public void CheckPlanks()
       {
-        if(PlanksInfo._collectedPlanks.Count > 0)
+        if(PlanksInfo.CollectedPlanks.Count > 0)
         {
             Animation.SetRunningWithPlanks();
         }

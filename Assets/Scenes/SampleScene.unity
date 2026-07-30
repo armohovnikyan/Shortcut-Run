@@ -7141,6 +7141,8 @@ GameObject:
   - component: {fileID: 1769505866}
   - component: {fileID: 1769505867}
   - component: {fileID: 1769505868}
+  - component: {fileID: 1769505870}
+  - component: {fileID: 1769505869}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -7209,7 +7211,6 @@ MonoBehaviour:
   footOffset: 1
   bodyRigidbody: {fileID: 1769505867}
   roadLayer:
-    serializedVersion: 2
     m_Bits: 64
   groundCheckDistance: 1.2
   rayOriginHeight: 0.5
@@ -7218,6 +7219,13 @@ MonoBehaviour:
   plankSpacing: 0.2
   plankTag: Plank
   _collectedPlanks: []
+  _state: 0
+  _fixedBridgeY: 0
+  _offRoadTimer: 0
+  _onRoadTimer: 0
+  _debugLastHitRoad: 0
+  _debugRayOrigin: {x: 0, y: 0, z: 0}
+  _debugRayEnd: {x: 0, y: 0, z: 0}
   FeetPos: {fileID: 374494319}
 --- !u!114 &1769505866
 MonoBehaviour:
@@ -7277,6 +7285,47 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimationsControl
   Animator: {fileID: 7633918342262935377}
+--- !u!114 &1769505869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769505861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e41c4b7e586a2f4086bbb0d2dca0b40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BridjBuilder
+  footOffset: 1
+  bodyRigidbody: {fileID: 1769505867}
+  roadLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  groundCheckDistance: 1.2
+  rayOriginHeight: 0.5
+  offRoadDebounce: 0.05
+  onRoadDebounce: 0.05
+  jumpHeight: 4
+  jumpDuration: 1
+  FeetPos: {fileID: 374494319}
+--- !u!114 &1769505870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769505861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0fa96bf4eed50442b1d83f8840d6600, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlankCollector
+  plankPrefab: {fileID: 5653736026493962404, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
+  stackPosition: {fileID: 1679506033}
+  plankTag: Plank
+  CollectedPlanks: []
+  plankHeight: 0.15
 --- !u!4 &1783811291 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7114116107316184023, guid: 8f4d7d1e78d692f4186c734b6424dac8, type: 3}
