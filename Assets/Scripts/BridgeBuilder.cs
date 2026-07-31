@@ -39,13 +39,13 @@ public class BridgeBuilder : MonoBehaviour
     private float _fixedBridgeY;
     private float _offRoadTimer;
 
-    ICharacter MainScript;
+    public ICharacter MainScript;
 
     // ВРЕМЕННАЯ ОТЛАДКА — удалишь после того, как всё заработает
     private bool _debugLastHitRoad;
     private Vector3 _debugRayOrigin;
     private Vector3 _debugRayEnd;
-PlankCollector PlankCollector;
+    PlankCollector PlankCollector;
     // Для отслеживания движения без завязки на конкретный контроллер движения
     [SerializeField] Transform FeetPos;
 
@@ -54,6 +54,7 @@ PlankCollector PlankCollector;
     void Start()
     {
         MainScript = GetComponent<ICharacter>();
+        Debug.Log(MainScript);
         PlankCollector = GetComponent<PlankCollector>();
     }
 
@@ -80,9 +81,12 @@ PlankCollector PlankCollector;
         Vector3 feetPos = FeetPos.position;
         Vector3 origin = feetPos + Vector3.up * rayOriginHeight;
 
+        RaycastHit hit;
+
         bool hitRoad = Physics.Raycast(
             origin,
             Vector3.down,
+            out hit,
             rayOriginHeight + groundCheckDistance,
             roadLayer
             );
@@ -92,14 +96,24 @@ PlankCollector PlankCollector;
         _debugRayOrigin = origin;
         _debugRayEnd = origin + Vector3.down * (rayOriginHeight + groundCheckDistance);
 
+
         if (hitRoad)
         {
             _offRoadTimer = 0f;
 
-            if (_state != GroundState.OnRoad )
+            if (_state != GroundState.OnRoad)
             {
                 _state = GroundState.OnRoad;
                 Debug.Log($"[Bridge] -> OnRoad (Y={transform.position.y:F2})");
+            }
+
+            if(hit.collider.CompareTag("PlacedPlank"))
+            {
+                MainScript.ChangeSpeedBonus(0.03f);
+            }
+            else
+            {
+                MainScript.ChangeSpeedBonus(-0.03f);
             }
         }
         else
@@ -112,6 +126,7 @@ PlankCollector PlankCollector;
                 if (_offRoadTimer >= offRoadDebounce)
                 {
                     _state = GroundState.Bridging;
+                    _lastPlankSpawnXZ =new Vector2(transform.position.x,transform.position.z);
                     Debug.Log($"[Bridge] -> Bridging, fixedY={_fixedBridgeY:F2}, planksInHand={PlankCollector.CollectedPlanks.Count}");
                 }
             }
@@ -155,6 +170,7 @@ PlankCollector PlankCollector;
         }
     }
 
+    Vector2 _lastPlankSpawnXZ;
     void TryBuildPlank()
     {
         if (PlankCollector.CollectedPlanks.Count == 0)
@@ -168,14 +184,14 @@ PlankCollector PlankCollector;
         PlankCollector.CollectedPlanks.RemoveAt(lastIndex);
         
         plankFromHand.transform.SetParent(null);
-        plankFromHand.transform.position = new Vector3(transform.position.x, _fixedBridgeY, transform.position.z) + (transform.forward * 0.5f);
-        plankFromHand.tag = "Untagged";
+        plankFromHand.transform.position = new Vector3(_lastPlankSpawnXZ.x, _fixedBridgeY, _lastPlankSpawnXZ.y) + (transform.forward * 0.5f);
+        plankFromHand.tag = "PlacedPlank";
         BoxCollider plankCol = plankFromHand.GetComponent<BoxCollider>();
         plankCol.size = new Vector3(1.5f,1,2);
         plankCol.enabled = true;
         plankFromHand.layer = LayerMask.NameToLayer("Road");;
 
-     //   _lastPlankSpawnXZ = currentXZ;
+        _lastPlankSpawnXZ = new Vector2(plankFromHand.transform.position.x,plankFromHand.transform.position.y);
         MainScript.CheckPlanks();
         Debug.Log($"[Bridge] Доска установлена, осталось в руках: {PlankCollector.CollectedPlanks.Count}");
     }

@@ -7,7 +7,10 @@ public class PlayerMovement : MonoBehaviour, ICharacter
 {
     [Header("Настройки движения")]
     public float forwardSpeed = 7f;   
-    public float turnSpeed = 90f;    
+    public float turnSpeed = 90f;  
+
+    public float SpeedBonus = 1; 
+    public float MaxSpeedBonus = 3;  
 
     private CharacterController _characterController;
     private bool _isGameStarted = false;
@@ -37,6 +40,11 @@ public class PlayerMovement : MonoBehaviour, ICharacter
         {
             Finished();
         }
+    }
+
+    public void ChangeSpeedBonus(float Bonus)
+    {
+        SpeedBonus = Mathf.Clamp(SpeedBonus + Bonus, 1f, MaxSpeedBonus);
     }
 
     void Finished()
@@ -104,9 +112,9 @@ public class PlayerMovement : MonoBehaviour, ICharacter
         PlaceText.text = Place.ToString();
     }
 
-     public void IsFailing()
+      public void IsFailing()
       {
-          Animation.SetFailing();
+      Animation.SetFailing();
       }
 
       public void CheckPlanks()
@@ -155,7 +163,7 @@ public class PlayerMovement : MonoBehaviour, ICharacter
             transform.Rotate(0, rotationAmount, 0);
         }
 
-        Vector3 moveDirection = transform.forward * forwardSpeed;
+        Vector3 moveDirection = transform.forward * forwardSpeed * SpeedBonus;
 
         if (!_characterController.isGrounded)
         {

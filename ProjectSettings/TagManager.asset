@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Plank
+  - PlacedPlank
   layers:
   - Default
   - TransparentFX

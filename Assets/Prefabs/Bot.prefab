@@ -202,6 +202,8 @@ MonoBehaviour:
   - {fileID: 4691649751598740091, guid: dae268f71084ca04893c986693bb6b85, type: 3}
   - {fileID: 5382459569070341312, guid: 529e52475367294469b6b10916075413, type: 3}
   - {fileID: 5382459569070341312, guid: 529e52475367294469b6b10916075413, type: 3}
+  SpeedBonus: 1
+  Speed: 9
   Goals: []
   currentWaypoint: 2
   ShortCutting: 0

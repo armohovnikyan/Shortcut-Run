@@ -16,6 +16,9 @@ public class Bot : MonoBehaviour, ICharacter
     public Transform AnimatorParent;
     public GameObject[] Skins;
 
+    public float SpeedBonus;
+    public float Speed;
+
     public Vector3[] Goals;
 
     void Start()
@@ -30,10 +33,11 @@ public class Bot : MonoBehaviour, ICharacter
         Goals = WayPoints;
         Destination = Finish.position;
 
-      //Skin = Skins[Random.Range(0,Skins.Length)];
+        //Skin = Skins[Random.Range(0,Skins.Length)];
         GameObject Model = Instantiate(Skins[Random.Range(0,Skins.Length)],transform.position,transform.rotation,AnimatorParent);
         Model.name = "mixamorig:Hips";
-         Animation.Rebind();
+
+        Animation.Rebind();
         Animation.SetIdle();
     }
     [SerializeField] int currentWaypoint = 2;
@@ -103,6 +107,12 @@ public class Bot : MonoBehaviour, ICharacter
             Animation.SetRunning();
         }
       }
+
+    public void ChangeSpeedBonus(float Bonus)
+    {
+        SpeedBonus = Mathf.Clamp(SpeedBonus + Bonus, 1f, 3f);
+        Agent.speed = Speed * SpeedBonus;
+    }
 
     void ReacedTheFinish()
     {
