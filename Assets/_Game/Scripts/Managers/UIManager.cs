@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -39,12 +40,39 @@ public class UIManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI TMP_Level_Board;
     [SerializeField] TextMeshProUGUI TMP_Level_OfflineEarn;
     [SerializeField] TextMeshProUGUI TMP_PlayerPlace;
+    [SerializeField] TextMeshProUGUI TMP_PlaceAbbreviation;
     [SerializeField] TextMeshProUGUI TMP_EarnedCoins;
     [SerializeField] TextMeshProUGUI TMP_WonCoins;
     [SerializeField] TextMeshProUGUI TMP_CollectedBoards;
 
     float collectedCoins, earnedCoins;
-
+    #region Singleton
+    private static UIManager _instance;
+    public static UIManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindFirstObjectByType<UIManager>();
+                if (_instance == null)
+                {
+                    Debug.LogError("AuidoManager not found in the scene!");
+                }
+            }
+            return _instance;
+        }
+    }
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        _instance = this;
+    }
+    #endregion
     private void Start()
     {
         P_MainMenu?.SetActive(false);
@@ -66,9 +94,21 @@ public class UIManager : MonoBehaviour
         //show the won coins menu
         //}
         //else
-        P_MainMenu?.SetActive(true);
+        P_MainMenu.SetActive(true);
+
     }
-    
+
+    public void SetPlayersPlace(int place)
+    {
+        TMP_PlayerPlace.text = place.ToString();
+        switch (place)
+        {
+            case 1: TMP_PlaceAbbreviation.text = "st"; break;
+            case 2: TMP_PlaceAbbreviation.text = "nd"; break;
+            case 3: TMP_PlaceAbbreviation.text = "rd"; break;
+            default: TMP_PlaceAbbreviation.text = "th"; break;
+        }
+    }
     void ResetListeners()
     {
         B_OpenSettings.onClick.RemoveAllListeners();
@@ -109,8 +149,10 @@ public class UIManager : MonoBehaviour
     }
     void OnPlay()
     {
+        GameManager.Instance.RaiseOnStart();
         P_MainMenu?.SetActive(false);
         P_GamePlay?.SetActive(true);
+
     }
 
     void InPlay()
@@ -135,10 +177,13 @@ public class UIManager : MonoBehaviour
     void OnGameExit()
     {
         //pause time
+        GameManager.Instance.RaiseOnPause();
         P_ExitGame?.SetActive(true);
+        GameManager.Instance.GameFlow = GameFlow.Pause;
     }
     void OnSettings()
     {
+        GameManager.Instance.RaiseOnPause();
         P_Settings?.SetActive(true);
     }
     void OnCloseSettings()
@@ -149,6 +194,7 @@ public class UIManager : MonoBehaviour
     {
         //restart time 
         P_ExitGame?.SetActive(false);
+        GameManager.Instance.GameFlow = GameFlow.Playing;
 
     }
     void OnGetRewardedCoins()

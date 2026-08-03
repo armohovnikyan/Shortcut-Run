@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6487759029939289814
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7996952156356388878}
+  - component: {fileID: 5062923682969461715}
+  m_Layer: 0
+  m_Name: UIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7996952156356388878
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6487759029939289814}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.73166, y: -1.51657, z: 90}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5062923682969461715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6487759029939289814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37ee954aa87524149b9dbdd1b07c1f27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIManager
+  P_MainMenu: {fileID: 0}
+  P_GamePlay: {fileID: 0}
+  P_WonCoins: {fileID: 0}
+  P_Settings: {fileID: 0}
+  P_ExitGame: {fileID: 0}
+  P_Victory: {fileID: 0}
+  P_GameOver: {fileID: 0}
+  B_Play: {fileID: 0}
+  B_Retry: {fileID: 0}
+  B_Deny: {fileID: 0}
+  B_Confirm: {fileID: 0}
+  B_OpenSettings: {fileID: 0}
+  B_CloseSettings: {fileID: 0}
+  B_OpenBackToMenu: {fileID: 0}
+  B_CloseBackToMenu: {fileID: 0}
+  B_BoardLevelUp: {fileID: 0}
+  B_OfflineCoinsEarnLevelUp: {fileID: 0}
+  B_GetCoinsAfterFinishing: {fileID: 0}
+  B_GetWonCoins: {fileID: 0}
+  TMP_Coins_MainMenu: {fileID: 0}
+  TMP_Coins_GamePlay: {fileID: 0}
+  TMP_Coins_WonCoinsMenu: {fileID: 0}
+  TMP_Price_Board: {fileID: 0}
+  TMP_Price_OfflineEarn: {fileID: 0}
+  TMP_Level_Board: {fileID: 0}
+  TMP_Level_OfflineEarn: {fileID: 0}
+  TMP_PlayerPlace: {fileID: 0}
+  TMP_EarnedCoins: {fileID: 0}
+  TMP_WonCoins: {fileID: 0}
+  TMP_CollectedBoards: {fileID: 0}
