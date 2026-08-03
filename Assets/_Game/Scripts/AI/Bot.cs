@@ -7,17 +7,22 @@ using System.Collections;
 public class Bot : MonoBehaviour, ICharacter
 {
     public NavMeshAgent Agent;
-   public PlankCollector PlanksInfo;
+   public PlankStacker PlanksInfo;
+   public BridgeBuilder BridgeInfo;
    public Vector3 Destination;
     public bool RunIsStarted;
     public AnimationsControl Animation;
+
+    public GameObject Skin;
+    public Transform AnimatorParent;
+    public GameObject[] Skins;
 
     public Vector3[] Goals;
 
     void Start()
     {
         Agent = GetComponent<NavMeshAgent>();
-        PlanksInfo = GetComponent<PlankCollector>();
+        PlanksInfo = GetComponent<PlankStacker>();
         Animation = GetComponent<AnimationsControl>();
     }
     public void Spawn(Transform Finish,Vector3[] WayPoints)
@@ -25,6 +30,10 @@ public class Bot : MonoBehaviour, ICharacter
         Goals = WayPoints;
         Destination = Finish.position;
 
+      //Skin = Skins[Random.Range(0,Skins.Length)];
+        GameObject Model = Instantiate(Skins[Random.Range(0,Skins.Length)],transform.position,transform.rotation,AnimatorParent);
+        Model.name = "mixamorig:Hips";
+         Animation.Rebind();
         Animation.SetIdle();
     }
     [SerializeField] int currentWaypoint = 2;
@@ -85,7 +94,7 @@ public class Bot : MonoBehaviour, ICharacter
 
       public void CheckPlanks()
       {
-        if(PlanksInfo._collectedPlanks.Count > 0)
+        if(PlanksInfo.CollectedPlanks.Count > 0)
         {
             Animation.SetRunningWithPlanks();
         }
@@ -102,6 +111,8 @@ public class Bot : MonoBehaviour, ICharacter
         Agent.enabled = false;
         Animation.SetDance();
         RunIsStarted = false;
+
+        GameManager.Instance.UnRegisterRunner(transform);
 
         StartCoroutine(GoToFinalPoint());
         }
@@ -140,7 +151,7 @@ public class Bot : MonoBehaviour, ICharacter
         for(int i = StartIndexToCheck; i < Goals.Length - 3;i++)
         {
             float Dist = Vector3.Distance(transform.position, Goals[i]);
-            if(Dist > PlanksInfo._collectedPlanks.Count * (PlanksInfo.plankSpacing + 0.5)) continue;
+            if(Dist > PlanksInfo.CollectedPlanks.Count * (BridgeInfo.plankSpacing + 2)) continue;
 
             if(i > BestPointIndex)
             {

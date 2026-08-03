@@ -5,6 +5,11 @@ public class AnimationsControl : MonoBehaviour
 {
     public Animator Animator;
 
+    public void Rebind()
+   {
+      Animator.Rebind();
+   }
+
     public void SetRunning()
     {
        Animator.SetBool("Running", true);
