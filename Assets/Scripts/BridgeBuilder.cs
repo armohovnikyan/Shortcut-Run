@@ -1,7 +1,6 @@
 using UnityEngine;
 
-// Отвечает за: определение схода с дороги, удержание фиксированной высоты моста,
-// укладку досок из PlankStacker и прыжок перед падением, если досок не осталось.
+
 [RequireComponent(typeof(PlankStacker))]
 public class BridgeBuilder : MonoBehaviour
 {
@@ -19,6 +18,7 @@ public class BridgeBuilder : MonoBehaviour
     [Header("Слои (замена isGrounded)")]
     [Tooltip("Сюда добавить ТОЛЬКО слой главной дороги. Слой досок класть НЕЛЬЗЯ")]
     public LayerMask roadLayer;
+    public LayerMask trampolineLayer;
     public float groundCheckDistance = 1.2f;
     public float rayOriginHeight = 0.5f;
     [Tooltip("Сколько секунд подряд нет дороги под ногами, чтобы считать сход с дороги")]
@@ -37,13 +37,17 @@ public class BridgeBuilder : MonoBehaviour
     [Header("Прыжок перед падением (пока нет анимации)")]
     [Tooltip("Насколько высоко подпрыгивает персонаж, метры")]
     public float jumpHeight = 0.4f;
+    public float jumpTroHeight = 0.8f;
     [Tooltip("Сколько секунд длится прыжок целиком (вверх и обратно вниз)")]
     public float jumpDuration = 0.35f;
+    public float jumpTroDuration = 0.7f;
+    private bool isTrampoline;
+    private bool _currentJumpIsTrampoline; // тип прыжка ЗАФИКСИРОВАННЫЙ на момент старта, не меняется на лету
 
     private PlankStacker _stacker;
     private ICharacter MainScript;
 
-    private enum GroundState { OnRoad, Bridging, Jump, Falling }
+    private enum GroundState { OnRoad, Bridging, Jump, Falling, OnTrampoline }
     private GroundState _state = GroundState.OnRoad;
 
     private float _fixedBridgeY;
@@ -74,9 +78,11 @@ public class BridgeBuilder : MonoBehaviour
                 HandleJump();
                 break;
 
+            case GroundState.OnTrampoline:
+                HandleJump();
+                break;
+
             case GroundState.Falling:
-                // Ничего не делаем — персонажа никто не держит,
-                // дальше падает обычная гравитация в PlayerMovement
                 break;
         }
     }
@@ -84,6 +90,21 @@ public class BridgeBuilder : MonoBehaviour
     private void CheckGroundState()
     {
         Vector3 origin = FeetPos.position + Vector3.up * rayOriginHeight;
+
+        isTrampoline = Physics.Raycast(
+           origin,
+           Vector3.down,
+           rayOriginHeight + groundCheckDistance,
+           trampolineLayer
+           );
+
+        // Батут — отдельная механика, проверяется ПЕРВОЙ и независимо от того,
+        // есть доски в руках или нет. Если уже прыгаем/падаем — не перебиваем.
+        if (isTrampoline && _state != GroundState.Jump && _state != GroundState.OnTrampoline && _state != GroundState.Falling)
+        {
+            StartJump(true);
+            return;
+        }
 
         bool hitRoad = Physics.Raycast(
             origin,
@@ -119,7 +140,7 @@ public class BridgeBuilder : MonoBehaviour
 
                     if (_stacker.Count == 0)
                     {
-                        StartJump(); // досок нет вообще — сразу прыжок, потом падение
+                        StartJump(false);
                     }
                     else
                     {
@@ -130,7 +151,6 @@ public class BridgeBuilder : MonoBehaviour
         }
     }
 
-    // Общая функция коррекции высоты — использует и мост, и прыжок
     private void MoveToY(float targetY)
     {
         float deltaY = targetY - transform.position.y;
@@ -148,27 +168,49 @@ public class BridgeBuilder : MonoBehaviour
         }
     }
 
-    private void StartJump()
+    private void StartJump(bool trampoline)
     {
-        _state = GroundState.Jump;
+        _currentJumpIsTrampoline = trampoline;
+        _state = trampoline ? GroundState.OnTrampoline : GroundState.Jump;
         _jumpStartTime = Time.time;
     }
 
-    // Простая параболическая дуга: 0 в начале, jumpHeight в середине, снова 0 в конце.
-    // Потом отпускаем персонажа — переходим в Falling и включаем анимацию/логику провала.
+    // Использует ЗАФИКСИРОВАННЫЙ на старте тип прыжка (_currentJumpIsTrampoline),
+    // а не текущее живое значение isTrampoline — иначе параметры дуги могли бы
+    // "переключиться" посреди прыжка, если персонаж уже сошёл с батута в воздухе
     private void HandleJump()
     {
         float elapsed = Time.time - _jumpStartTime;
+        float arc;
 
-        if (elapsed >= jumpDuration)
+        if (_currentJumpIsTrampoline)
         {
-            _state = GroundState.Falling;
-            MainScript.IsFailing();
-            return;
-        }
+            if (elapsed >= jumpTroDuration)
+            {
+                // Батут ПОДБРАСЫВАЕТ, а не убивает — отдаём управление обратно
+                // обычной проверке земли, пусть CheckGroundState сам разберётся,
+                // куда персонаж приземлился (дорога / мост / пустота)
+                _state = GroundState.OnRoad;
+                _onRoadTimer = 0f;
+                _offRoadTimer = 0f;
+                return;
+            }
 
-        float t = elapsed / jumpDuration;
-        float arc = 4f * jumpHeight * t * (1f - t); // парабола: пик ровно посередине
+            float t = elapsed / jumpTroDuration;
+            arc = 4f * jumpTroHeight * t * (1f - t);
+        }
+        else
+        {
+            if (elapsed >= jumpDuration)
+            {
+                _state = GroundState.Falling;
+                MainScript.IsFailing();
+                return;
+            }
+
+            float t = elapsed / jumpDuration;
+            arc = 4f * jumpHeight * t * (1f - t);
+        }
 
         MoveToY(_fixedBridgeY + footOffset + arc);
     }
@@ -186,7 +228,7 @@ public class BridgeBuilder : MonoBehaviour
 
         if (plank == null)
         {
-            StartJump(); // доски кончились по пути — прыжок, потом падение
+            StartJump(false); // доски кончились по пути — прыжок, потом падение
             return;
         }
 

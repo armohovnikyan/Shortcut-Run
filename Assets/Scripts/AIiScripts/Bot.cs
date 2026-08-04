@@ -23,6 +23,7 @@ public class Bot : MonoBehaviour, ICharacter
     {
         Agent = GetComponent<NavMeshAgent>();
         PlanksInfo = GetComponent<PlankStacker>();
+        BridgeInfo = GetComponent<BridgeBuilder>();
         Animation = GetComponent<AnimationsControl>();
         GameManager.Instance.RegistrRunner(transform);
     }
