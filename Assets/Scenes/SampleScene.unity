@@ -7256,6 +7256,7 @@ GameObject:
   - component: {fileID: 1769505866}
   - component: {fileID: 1769505867}
   - component: {fileID: 1769505868}
+  - component: {fileID: 1769505871}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -7413,6 +7414,19 @@ MonoBehaviour:
   plankGap: 0.03
   plankTag: Plank
   CollectedPlanks: []
+--- !u!114 &1769505871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769505861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69782afd05877c8408bdab2ce30a4be1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerKiller
+  botTag: Bot
 --- !u!4 &1783811291 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7114116107316184023, guid: 8f4d7d1e78d692f4186c734b6424dac8, type: 3}
