@@ -42,7 +42,7 @@ public class BridgeBuilder : MonoBehaviour
     public float jumpDuration = 0.35f;
     public float jumpTroDuration = 0.7f;
     private bool isTrampoline;
-    private bool _currentJumpIsTrampoline; // тип прыжка ЗАФИКСИРОВАННЫЙ на момент старта, не меняется на лету
+    private bool _currentJumpIsTrampoline;
 
     private PlankStacker _stacker;
     private ICharacter MainScript;
@@ -98,8 +98,7 @@ public class BridgeBuilder : MonoBehaviour
            trampolineLayer
            );
 
-        // Батут — отдельная механика, проверяется ПЕРВОЙ и независимо от того,
-        // есть доски в руках или нет. Если уже прыгаем/падаем — не перебиваем.
+
         if (isTrampoline && _state != GroundState.Jump && _state != GroundState.OnTrampoline && _state != GroundState.Falling)
         {
             StartJump(true);
@@ -168,6 +167,12 @@ public class BridgeBuilder : MonoBehaviour
         }
     }
 
+    private bool IsOnRoadNow()
+    {
+        Vector3 origin = FeetPos.position + Vector3.up * rayOriginHeight;
+        return Physics.Raycast(origin, Vector3.down, rayOriginHeight + groundCheckDistance, roadLayer);
+    }
+
     private void StartJump(bool trampoline)
     {
         _currentJumpIsTrampoline = trampoline;
@@ -175,9 +180,7 @@ public class BridgeBuilder : MonoBehaviour
         _jumpStartTime = Time.time;
     }
 
-    // Использует ЗАФИКСИРОВАННЫЙ на старте тип прыжка (_currentJumpIsTrampoline),
-    // а не текущее живое значение isTrampoline — иначе параметры дуги могли бы
-    // "переключиться" посреди прыжка, если персонаж уже сошёл с батута в воздухе
+
     private void HandleJump()
     {
         float elapsed = Time.time - _jumpStartTime;
@@ -187,9 +190,6 @@ public class BridgeBuilder : MonoBehaviour
         {
             if (elapsed >= jumpTroDuration)
             {
-                // Батут ПОДБРАСЫВАЕТ, а не убивает — отдаём управление обратно
-                // обычной проверке земли, пусть CheckGroundState сам разберётся,
-                // куда персонаж приземлился (дорога / мост / пустота)
                 _state = GroundState.OnRoad;
                 _onRoadTimer = 0f;
                 _offRoadTimer = 0f;
@@ -203,8 +203,17 @@ public class BridgeBuilder : MonoBehaviour
         {
             if (elapsed >= jumpDuration)
             {
-                _state = GroundState.Falling;
-                MainScript.IsFailing();
+                if (IsOnRoadNow())
+                {
+                    _state = GroundState.OnRoad;
+                    _onRoadTimer = 0f;
+                    _offRoadTimer = 0f;
+                }
+                else
+                {
+                    _state = GroundState.Falling;
+                    MainScript.IsFailing();
+                }
                 return;
             }
 
@@ -221,14 +230,14 @@ public class BridgeBuilder : MonoBehaviour
 
         if (_lastPlankSpawnXZ != null && Vector2.Distance(currentXZ, _lastPlankSpawnXZ.Value) < plankSpacing)
         {
-            return; // ещё не прошли нужное расстояние с прошлой доски
+            return;
         }
 
         GameObject plank = _stacker.TakePlank();
 
         if (plank == null)
         {
-            StartJump(false); // доски кончились по пути — прыжок, потом падение
+            StartJump(false); 
             return;
         }
 

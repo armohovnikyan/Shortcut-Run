@@ -7,11 +7,20 @@ public class PlayerKiller : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"[PlayerKiller] Триггер сработал с: {other.name}, тег: {other.tag}");
         if (!other.CompareTag(botTag)) return;
+
         IKillable killable = other.GetComponentInParent<IKillable>();
         if (killable == null) return;
 
-        killable.GetKnockedOut(transform.forward);
+
+        Vector3 hitDirection = other.transform.position - transform.position;
+        hitDirection.y = 0f;
+
+        if (hitDirection.sqrMagnitude < 0.0001f)
+        {
+            hitDirection = transform.forward; 
+        }
+
+        killable.GetKnockedOut(hitDirection.normalized);
     }
 }

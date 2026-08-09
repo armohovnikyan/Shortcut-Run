@@ -7319,7 +7319,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d85ce1e813878d443bd8ed82e54f28fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  forwardSpeed: 15
+  forwardSpeed: 10
   turnSpeed: 90
   Place: 0
   Animation: {fileID: 1769505868}

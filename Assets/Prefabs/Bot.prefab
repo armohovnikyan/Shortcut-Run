@@ -204,9 +204,9 @@ MonoBehaviour:
   - {fileID: 5382459569070341312, guid: 529e52475367294469b6b10916075413, type: 3}
   - {fileID: 5382459569070341312, guid: 529e52475367294469b6b10916075413, type: 3}
   Goals: []
-  knockoutHeight: 3
-  knockoutDistance: 4
-  knockoutDuration: 1.2
+  knockoutHeight: 10
+  knockoutDistance: 15
+  knockoutDuration: 1.8
   currentWaypoint: 2
   ShortCutting: 0
   PointToCut: 0
@@ -318,9 +318,9 @@ MonoBehaviour:
   plankSpacing: 1.5
   plankLayerName: Bridge
   jumpHeight: 0.4
-  jumpTroHeight: 1.5
+  jumpTroHeight: 2.5
   jumpDuration: 0.35
-  jumpTroDuration: 2
+  jumpTroDuration: 3
 --- !u!1 &5181734612418514705
 GameObject:
   m_ObjectHideFlags: 0
