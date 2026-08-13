@@ -4,13 +4,14 @@ using UnityEngine.AI;
 using System.Collections.Generic;
 using System.Collections;
 
-public class Bot : MonoBehaviour, ICharacter
+public class Bot : MonoBehaviour, ICharacter,IKillable
 {
     public NavMeshAgent Agent;
     public PlankCollector PlanksInfo;
     public Vector3 Destination;
     public bool RunIsStarted;
     public AnimationsControl Animation;
+    public BridgeBuilder BridgeInfo;
 
     public GameObject Skin;
     public Transform AnimatorParent;
@@ -20,6 +21,16 @@ public class Bot : MonoBehaviour, ICharacter
     public float Speed;
 
     public Vector3[] Goals;
+
+    [Header("Убийство при касании игроком")]
+    [Tooltip("Насколько высоко подлетает бот (как у батута)")]
+    public float knockoutHeight = 3f;
+    [Tooltip("На какое расстояние вперёд по направлению игрока улетает бот")]
+    public float knockoutDistance = 4f;
+    [Tooltip("Сколько секунд длится дуга полёта целиком (вверх и обратно вниз)")]
+    public float knockoutDuration = 1.2f;
+
+    public bool IsKnockedOut { get; private set; }
 
     void Start()
     {
@@ -199,5 +210,77 @@ public class Bot : MonoBehaviour, ICharacter
 
     transform.position = pos;
     Agent.nextPosition = pos;
+    }
+
+    public void GetKnockedOut(Vector3 launchDirection)
+    {
+        if (IsKnockedOut) return; // уже улетает — повторно не реагируем
+
+        IsKnockedOut = true;
+        RunIsStarted = false;
+        ShortCutting = false;
+
+        if (Agent != null) Agent.enabled = false;
+        if (BridgeInfo != null) BridgeInfo.enabled = false; // чтобы не мешал своей логикой моста/прыжка/падения
+
+        GameManager.Instance.UnRegisterRunner(transform);
+
+        StartCoroutine(KnockoutRoutine(launchDirection));
+    }
+
+    private IEnumerator KnockoutRoutine(Vector3 launchDirection)
+    {
+        launchDirection.y = 0f;
+        launchDirection.Normalize();
+
+        Vector3 startPos = transform.position;
+        float elapsed = 0f;
+
+        while (elapsed < knockoutDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / knockoutDuration);
+
+            float height = 4f * knockoutHeight * t * (1f - t);
+            Vector3 horizontal = launchDirection * knockoutDistance * t;
+
+            transform.position = startPos + horizontal + Vector3.up * height;
+
+            yield return null;
+        }
+
+        bool landedOnRoad = Physics.Raycast(
+            transform.position + Vector3.up * 0.5f,
+            Vector3.down,
+            5f,
+            BridgeInfo.roadLayer
+        );
+
+        if (landedOnRoad)
+        {
+            ResumeRunning();
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
+    }
+
+    private void ResumeRunning()
+    {
+        IsKnockedOut = false;
+        RunIsStarted = true;
+
+        if (BridgeInfo != null) BridgeInfo.enabled = true; // возвращаем обычную логику моста
+
+        if (Agent != null)
+        {
+            Agent.enabled = true;
+            Agent.Warp(transform.position);
+            Agent.SetDestination(Destination);
+        }
+
+        GameManager.Instance.RegistrRunner(transform);
+        CheckPlanks(); // вернёт Running или RunningWithPlanks в зависимости от того, есть ли доски
     }
 }

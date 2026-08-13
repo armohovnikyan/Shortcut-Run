@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Plank
   - PlacedPlank
+  - Tramp
+  - Bot
   layers:
   - Default
   - TransparentFX

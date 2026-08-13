@@ -74,7 +74,7 @@ GameObject:
   - component: {fileID: 7093006970486976231}
   m_Layer: 7
   m_Name: Bot
-  m_TagString: Untagged
+  m_TagString: Bot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -188,10 +188,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bot
   Agent: {fileID: 9163748589445064941}
-  PlanksInfo: {fileID: 0}
+  PlanksInfo: {fileID: 7093006970486976231}
   Destination: {x: 0, y: 0, z: 0}
   RunIsStarted: 0
   Animation: {fileID: 8935432448099405616}
+  BridgeInfo: {fileID: 795105875540512225}
   Skin: {fileID: 0}
   AnimatorParent: {fileID: 4426473191563027653}
   Skins:
@@ -205,6 +206,9 @@ MonoBehaviour:
   SpeedBonus: 1
   Speed: 9
   Goals: []
+  knockoutHeight: 10
+  knockoutDistance: 8
+  knockoutDuration: 2
   currentWaypoint: 2
   ShortCutting: 0
   PointToCut: 0
@@ -264,7 +268,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -292,7 +296,9 @@ MonoBehaviour:
   offRoadDebounce: 0.05
   onRoadDebounce: 0.05
   jumpHeight: 0.4
+  jumpTroHeight: 2
   jumpDuration: 0.35
+  jumpTroDuration: 2
   FeetPos: {fileID: 7206080679617950510}
 --- !u!114 &7093006970486976231
 MonoBehaviour:

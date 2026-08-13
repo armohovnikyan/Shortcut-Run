@@ -27,15 +27,16 @@ public class BridgeBuilder : MonoBehaviour
     public float offRoadDebounce = 0.05f;
     [Tooltip("Сколько секунд подряд есть дорога, чтобы считать возврат на дорогу")]
     public float onRoadDebounce = 0.05f;
-    private enum GroundState { OnRoad, Bridging, Jump, Falling }
+    private enum GroundState { OnRoad, Bridging, Jump, Falling, OnTrampoline}
     private GroundState _state = GroundState.OnRoad;
 
     [Header("Прыжок перед падением (пока нет анимации)")]
     [Tooltip("Насколько высоко подпрыгивает персонаж, метры")]
-    public float jumpHeight = 0.4f;
+    public float jumpHeight = 1;
+    public float jumpTroHeight = 2;
     [Tooltip("Сколько секунд длится прыжок целиком (вверх и обратно вниз)")]
-    public float jumpDuration = 0.35f;
-
+    public float jumpDuration = 1f;
+    public float jumpTroDuration = 2f;
     private float _fixedBridgeY;
     private float _offRoadTimer;
 
@@ -76,6 +77,7 @@ public class BridgeBuilder : MonoBehaviour
             HandleJump();
         }
     }
+    bool isTrampoline;
     private void CheckGroundState()
     {
         Vector3 feetPos = FeetPos.position;
@@ -90,6 +92,18 @@ public class BridgeBuilder : MonoBehaviour
             rayOriginHeight + groundCheckDistance,
             roadLayer
             );
+        
+        if(hit.collider != null && hit.collider.CompareTag("Tramp"))
+        {
+           isTrampoline = true; 
+        }
+
+        if (isTrampoline && _state != GroundState.Jump && _state != GroundState.OnTrampoline && _state != GroundState.Falling)
+        {
+            StartJump(true);
+            isTrampoline = false;
+            return;
+        }
 
         // ВРЕМЕННАЯ ОТЛАДКА
         _debugLastHitRoad = hitRoad;
@@ -118,7 +132,6 @@ public class BridgeBuilder : MonoBehaviour
         }
         else
         {
-
             if (_state == GroundState.OnRoad)
             {
                 _offRoadTimer += Time.deltaTime;
@@ -126,7 +139,7 @@ public class BridgeBuilder : MonoBehaviour
                 if (_offRoadTimer >= offRoadDebounce)
                 {
                     _state = GroundState.Bridging;
-                    _lastPlankSpawnXZ =new Vector2(transform.position.x,transform.position.z);
+                    _lastPlankSpawnXZ = new Vector2(transform.position.x,transform.position.z);
                     Debug.Log($"[Bridge] -> Bridging, fixedY={_fixedBridgeY:F2}, planksInHand={PlankCollector.CollectedPlanks.Count}");
                 }
             }
@@ -175,7 +188,7 @@ public class BridgeBuilder : MonoBehaviour
     {
         if (PlankCollector.CollectedPlanks.Count == 0)
         {
-            StartJump();
+            StartJump(false);
             return;
         }
 
@@ -191,16 +204,20 @@ public class BridgeBuilder : MonoBehaviour
         plankCol.enabled = true;
         plankFromHand.layer = LayerMask.NameToLayer("Road");;
 
-        _lastPlankSpawnXZ = new Vector2(plankFromHand.transform.position.x,plankFromHand.transform.position.y);
+        _lastPlankSpawnXZ = new Vector2(plankFromHand.transform.position.x,plankFromHand.transform.position.z);
         MainScript.CheckPlanks();
         Debug.Log($"[Bridge] Доска установлена, осталось в руках: {PlankCollector.CollectedPlanks.Count}");
     }
 
-     private void StartJump()
+    bool _currentJumpIsTrampoline;
+
+    private void StartJump(bool trampoline)
     {
+        _currentJumpIsTrampoline = trampoline;
         _state = GroundState.Jump;
         _jumpStartTime = Time.time;
     }
+
 
     // Простая параболическая дуга: 0 в начале, jumpHeight в середине, снова 0 в конце.
     // Потом отпускаем персонажа — переходим в Falling и включаем анимацию/логику провала.
@@ -208,15 +225,15 @@ public class BridgeBuilder : MonoBehaviour
     {
         float elapsed = Time.time - _jumpStartTime;
 
-        if (elapsed >= jumpDuration)
+        if (elapsed >= (_currentJumpIsTrampoline ? jumpTroDuration : jumpDuration))
         {
             _state = GroundState.Falling;
             MainScript.IsFailing();
             return;
         }
 
-        float t = elapsed / jumpDuration;
-        float arc = 4f * jumpHeight * t * (1f - t); // парабола: пик ровно посередине
+        float t = elapsed / (_currentJumpIsTrampoline ? jumpTroDuration : jumpDuration);
+        float arc = 4f * (_currentJumpIsTrampoline ? jumpTroHeight : jumpHeight) * t * (1f - t); // парабола: пик ровно посередине
 
         MoveToY(_fixedBridgeY + footOffset + arc);
     }
