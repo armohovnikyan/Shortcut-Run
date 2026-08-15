@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// ВАЖНО: имя файла должно совпадать с именем класса для Unity.
-// Файл уже называется PlankCollector.cs — ничего переименовывать не нужно.
+
 public class BridgeBuilder : MonoBehaviour
 {
 
@@ -27,8 +26,20 @@ public class BridgeBuilder : MonoBehaviour
     public float offRoadDebounce = 0.05f;
     [Tooltip("Сколько секунд подряд есть дорога, чтобы считать возврат на дорогу")]
     public float onRoadDebounce = 0.05f;
-    private enum GroundState { OnRoad, Bridging, Jump, Falling, OnTrampoline}
+    private enum GroundState { OnRoad, Bridging, Jump, Falling, OnTrampoline, ClimbUp }
     private GroundState _state = GroundState.OnRoad;
+
+    [Header("Зацепиться за дорогу в прыжке")]
+    [Tooltip("На какое расстояние ВПЕРЕДИ ищем дорогу, если под ногами пусто")]
+    public float grabRoadDistance = 2f;
+    [Tooltip("Толщина луча поиска (допуск в стороны от направления взгляда)")]
+    public float grabRoadCastRadius = 0.5f;
+    [Tooltip("Сколько секунд длится подтягивание на дорогу")]
+    public float climbDuration = 0.25f;
+
+    private Vector3 _climbStartPos;
+    private Vector3 _climbTargetPos;
+    private float _climbStartTime;
 
     [Header("Прыжок перед падением (пока нет анимации)")]
     [Tooltip("Насколько высоко подпрыгивает персонаж, метры")]
@@ -42,12 +53,10 @@ public class BridgeBuilder : MonoBehaviour
 
     public ICharacter MainScript;
 
-    // ВРЕМЕННАЯ ОТЛАДКА — удалишь после того, как всё заработает
     private bool _debugLastHitRoad;
     private Vector3 _debugRayOrigin;
     private Vector3 _debugRayEnd;
     PlankCollector PlankCollector;
-    // Для отслеживания движения без завязки на конкретный контроллер движения
     [SerializeField] Transform FeetPos;
 
     private float _jumpStartTime;
@@ -59,22 +68,25 @@ public class BridgeBuilder : MonoBehaviour
         PlankCollector = GetComponent<PlankCollector>();
     }
 
-    // LateUpdate — чтобы коррекция высоты применялась ПОСЛЕ любого скрипта движения игрока
     void LateUpdate()
     {
         CheckGroundState();
 
-        if (_state != GroundState.Falling)
+        if (_state != GroundState.Falling && _state != GroundState.ClimbUp)
         {
             MoveToY(_fixedBridgeY + footOffset);
         }
-        if(_state == GroundState.Bridging)
+        if (_state == GroundState.Bridging)
         {
             TryBuildPlank();
         }
-        if(_state == GroundState.Jump)
+        if (_state == GroundState.Jump)
         {
             HandleJump();
+        }
+        if (_state == GroundState.ClimbUp)
+        {
+            HandleClimb();
         }
     }
     bool isTrampoline;
@@ -92,20 +104,19 @@ public class BridgeBuilder : MonoBehaviour
             rayOriginHeight + groundCheckDistance,
             roadLayer
             );
-        
-        if(hit.collider != null && hit.collider.CompareTag("Tramp"))
+
+        if (hit.collider != null && hit.collider.CompareTag("Tramp"))
         {
-           isTrampoline = true; 
+            isTrampoline = true;
         }
 
-        if (isTrampoline && _state != GroundState.Jump && _state != GroundState.OnTrampoline && _state != GroundState.Falling)
+        if (isTrampoline && _state != GroundState.Jump && _state != GroundState.OnTrampoline && _state != GroundState.Falling && _state != GroundState.ClimbUp)
         {
             StartJump(true);
             isTrampoline = false;
             return;
         }
 
-        // ВРЕМЕННАЯ ОТЛАДКА
         _debugLastHitRoad = hitRoad;
         _debugRayOrigin = origin;
         _debugRayEnd = origin + Vector3.down * (rayOriginHeight + groundCheckDistance);
@@ -118,10 +129,11 @@ public class BridgeBuilder : MonoBehaviour
             if (_state != GroundState.OnRoad)
             {
                 _state = GroundState.OnRoad;
+                MainScript.CheckPlanks(); 
                 Debug.Log($"[Bridge] -> OnRoad (Y={transform.position.y:F2})");
             }
 
-            if(hit.collider.CompareTag("PlacedPlank"))
+            if (hit.collider.CompareTag("PlacedPlank"))
             {
                 MainScript.ChangeSpeedBonus(0.03f);
             }
@@ -139,14 +151,13 @@ public class BridgeBuilder : MonoBehaviour
                 if (_offRoadTimer >= offRoadDebounce)
                 {
                     _state = GroundState.Bridging;
-                    _lastPlankSpawnXZ = new Vector2(transform.position.x,transform.position.z);
+                    _lastPlankSpawnXZ = new Vector2(transform.position.x, transform.position.z);
                     Debug.Log($"[Bridge] -> Bridging, fixedY={_fixedBridgeY:F2}, planksInHand={PlankCollector.CollectedPlanks.Count}");
                 }
             }
         }
     }
 
-    // ВРЕМЕННАЯ ОТЛАДКА — рисует луч проверки земли в Scene view (зелёный = попал, красный = мимо)
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying) return;
@@ -155,16 +166,7 @@ public class BridgeBuilder : MonoBehaviour
         Gizmos.DrawWireSphere(_debugRayEnd, 0.1f);
     }
 
-  //private void MaintainBridgeHeight()
-  //{
-  //   float targetY = _fixedBridgeY + footOffset;
-  //   float deltaY = targetY - transform.position.y;
 
-  //   if (Mathf.Abs(deltaY) <= 0.0001f) return;
-
-  //   Vector3 newPos = transform.position + Vector3.up * deltaY;
-  //   transform.position = newPos;     
-  //}
 
     private void MoveToY(float targetY)
     {
@@ -195,16 +197,16 @@ public class BridgeBuilder : MonoBehaviour
         int lastIndex = PlankCollector.CollectedPlanks.Count - 1;
         GameObject plankFromHand = PlankCollector.CollectedPlanks[lastIndex];
         PlankCollector.CollectedPlanks.RemoveAt(lastIndex);
-        
+
         plankFromHand.transform.SetParent(null);
         plankFromHand.transform.position = new Vector3(_lastPlankSpawnXZ.x, _fixedBridgeY, _lastPlankSpawnXZ.y) + (transform.forward * 0.5f);
         plankFromHand.tag = "PlacedPlank";
         BoxCollider plankCol = plankFromHand.GetComponent<BoxCollider>();
-        plankCol.size = new Vector3(1.5f,1,2);
+        plankCol.size = new Vector3(1.5f, 1, 2);
         plankCol.enabled = true;
-        plankFromHand.layer = LayerMask.NameToLayer("Road");;
+        plankFromHand.layer = LayerMask.NameToLayer("Road"); ;
 
-        _lastPlankSpawnXZ = new Vector2(plankFromHand.transform.position.x,plankFromHand.transform.position.z);
+        _lastPlankSpawnXZ = new Vector2(plankFromHand.transform.position.x, plankFromHand.transform.position.z);
         MainScript.CheckPlanks();
         Debug.Log($"[Bridge] Доска установлена, осталось в руках: {PlankCollector.CollectedPlanks.Count}");
     }
@@ -219,24 +221,70 @@ public class BridgeBuilder : MonoBehaviour
     }
 
 
-    // Простая параболическая дуга: 0 в начале, jumpHeight в середине, снова 0 в конце.
-    // Потом отпускаем персонажа — переходим в Falling и включаем анимацию/логику провала.
-    private void HandleJump()
-    {
+        private void HandleJump()
+        {
         float elapsed = Time.time - _jumpStartTime;
 
         if (elapsed >= (_currentJumpIsTrampoline ? jumpTroDuration : jumpDuration))
         {
+            if (!_currentJumpIsTrampoline)
+            {
+                if (TryFindNearbyRoad(out Vector3 grabPoint))
+                {
+                    StartClimb(grabPoint);
+                    return;
+                }
+            }
+
             _state = GroundState.Falling;
             MainScript.IsFailing();
             return;
         }
 
         float t = elapsed / (_currentJumpIsTrampoline ? jumpTroDuration : jumpDuration);
-        float arc = 4f * (_currentJumpIsTrampoline ? jumpTroHeight : jumpHeight) * t * (1f - t); // парабола: пик ровно посередине
-
+        float arc = 4f * (_currentJumpIsTrampoline ? jumpTroHeight : jumpHeight) * t * (1f - t); 
         MoveToY(_fixedBridgeY + footOffset + arc);
     }
+
+    private bool TryFindNearbyRoad(out Vector3 grabPoint)
+    {
+        grabPoint = default;
+
+        bool hit = Physics.SphereCast(
+            transform.position,
+            grabRoadCastRadius,
+            transform.forward,
+            out RaycastHit hitInfo,
+            grabRoadDistance,
+            roadLayer
+        );
+
+        if (!hit) return false;
+
+        grabPoint = hitInfo.point;
+        return true;
+    }
+
+    private void StartClimb(Vector3 grabPoint)
+    {
+        _state = GroundState.ClimbUp;
+        _climbStartPos = transform.position;
+        _climbTargetPos = new Vector3(grabPoint.x, grabPoint.y + footOffset, grabPoint.z);
+        _climbStartTime = Time.time;
+    }
+
+    private void HandleClimb()
+    {
+        float elapsed = Time.time - _climbStartTime;
+        float t = Mathf.Clamp01(elapsed / climbDuration);
+
+        transform.position = Vector3.Lerp(_climbStartPos, _climbTargetPos, t);
+
+        if (t >= 1f)
+        {
+            _fixedBridgeY = _climbTargetPos.y - footOffset;
+            _state = GroundState.OnRoad;
+            MainScript.CheckPlanks(); 
+        }
+    }
 }
-
-

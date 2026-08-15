@@ -4,7 +4,7 @@ using UnityEngine.AI;
 using System.Collections.Generic;
 using System.Collections;
 
-public class Bot : MonoBehaviour, ICharacter,IKillable
+public class Bot : MonoBehaviour, ICharacter, IKillable
 {
     public NavMeshAgent Agent;
     public PlankCollector PlanksInfo;
@@ -19,6 +19,12 @@ public class Bot : MonoBehaviour, ICharacter,IKillable
 
     public float SpeedBonus;
     public float Speed;
+
+    [Header("Штраф скорости за доски в руках")]
+    [Tooltip("Насколько замедляется бот за КАЖДУЮ доску в руках (0.02 = -2% скорости за доску)")]
+    public float speedPenaltyPerPlank = 0.02f;
+    [Tooltip("Минимальный множитель скорости, даже если досок очень много")]
+    public float minCarryMultiplier = 0.6f;
 
     public Vector3[] Goals;
 
@@ -39,13 +45,13 @@ public class Bot : MonoBehaviour, ICharacter,IKillable
         Animation = GetComponent<AnimationsControl>();
         GameManager.Instance.RegistrRunner(transform);
     }
-    public void Spawn(Transform Finish,Vector3[] WayPoints)
-    { 
+    public void Spawn(Transform Finish, Vector3[] WayPoints)
+    {
         Goals = WayPoints;
         Destination = Finish.position;
 
         //Skin = Skins[Random.Range(0,Skins.Length)];
-        GameObject Model = Instantiate(Skins[Random.Range(0,Skins.Length)],transform.position,transform.rotation,AnimatorParent);
+        GameObject Model = Instantiate(Skins[Random.Range(0, Skins.Length)], transform.position, transform.rotation, AnimatorParent);
         Model.name = "mixamorig:Hips";
 
         Animation.Rebind();
@@ -66,50 +72,50 @@ public class Bot : MonoBehaviour, ICharacter,IKillable
     }
     public void Update()
     {
-        
+
         if (currentWaypoint == Goals.Length)
         {
-           ReacedTheFinish();
-           return;
+            ReacedTheFinish();
+            return;
         }
-        if(!RunIsStarted) return;
+        if (!RunIsStarted) return;
 
-        if(ShortCutting)
+        if (ShortCutting)
         {
             ShortCut();
             return;
         }
 
         float sqrDist = GetDistance(Goals[currentWaypoint]);
-        
+
         if (sqrDist < 64)
         {
-           currentWaypoint++;
+            currentWaypoint++;
 
             if (currentWaypoint >= Goals.Length)
-            return;
+                return;
 
-           BestForShortCut = CheckForBestPointForShortCut();
+            BestForShortCut = CheckForBestPointForShortCut();
 
-           Debug.Log("ReachPoint");
+            Debug.Log("ReachPoint");
 
-            if(BestForShortCut > currentWaypoint)
-        {
-            currentWaypoint = BestForShortCut;
-            ShortCutting = true;
-            Agent.enabled = false;
+            if (BestForShortCut > currentWaypoint)
+            {
+                currentWaypoint = BestForShortCut;
+                ShortCutting = true;
+                Agent.enabled = false;
+            }
         }
-        }    
     }
 
-      public void IsFailing()
-      {
-          Animation.SetFailing();
-      }
+    public void IsFailing()
+    {
+        Animation.SetFailing();
+    }
 
-      public void CheckPlanks()
-      {
-        if(PlanksInfo.CollectedPlanks.Count > 0)
+    public void CheckPlanks()
+    {
+        if (PlanksInfo.CollectedPlanks.Count > 0)
         {
             Animation.SetRunningWithPlanks();
         }
@@ -117,49 +123,64 @@ public class Bot : MonoBehaviour, ICharacter,IKillable
         {
             Animation.SetRunning();
         }
-      }
+
+        UpdateAgentSpeed(); 
+    }
+
+    private float CarryMultiplier()
+    {
+        return Mathf.Max(minCarryMultiplier, 1f - PlanksInfo.CollectedPlanks.Count * speedPenaltyPerPlank);
+    }
+
+    private void UpdateAgentSpeed()
+    {
+        if (Agent != null)
+        {
+            Agent.speed = Speed * SpeedBonus * CarryMultiplier();
+        }
+    }
 
     public void ChangeSpeedBonus(float Bonus)
     {
         SpeedBonus = Mathf.Clamp(SpeedBonus + Bonus, 1f, 3f);
-        Agent.speed = Speed * SpeedBonus;
+        UpdateAgentSpeed();
     }
 
     void ReacedTheFinish()
     {
-        if(RunIsStarted)
+        if (RunIsStarted)
         {
-        Agent.enabled = false;
-        Animation.SetDance();
-        RunIsStarted = false;
+            Agent.enabled = false;
+            Animation.SetDance();
+            RunIsStarted = false;
 
-        GameManager.Instance.UnRegisterRunner(transform);
+            GameManager.Instance.UnRegisterRunner(transform);
 
-        StartCoroutine(GoToFinalPoint());
+            StartCoroutine(GoToFinalPoint());
         }
     }
 
     IEnumerator GoToFinalPoint()
     {
         Vector3 Target = Finish.Instance.GetFreePoint();
-        while(GetDistance(Target) > 4)
+        while (GetDistance(Target) > 4)
         {
-        Move(Target);
-        yield return null;
+            Move(Target);
+            yield return null;
         }
 
         PlanksInfo.RemoveAllPlanks();
 
         Vector3 direction = Destination - transform.position;
         direction.y = 0f;
-         transform.rotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.LookRotation(direction);
     }
 
     float GetDistance(Vector3 Point)
     {
         Vector3 dir = Point - transform.position;
         dir.y = 0;
-        
+
         return dir.sqrMagnitude;
     }
 
@@ -167,17 +188,17 @@ public class Bot : MonoBehaviour, ICharacter,IKillable
     {
         int BestPointIndex = currentWaypoint;
         int StartIndexToCheck = currentWaypoint + 2;
-        if(StartIndexToCheck > Goals.Length - 3) return BestPointIndex;
+        if (StartIndexToCheck > Goals.Length - 3) return BestPointIndex;
 
-        for(int i = StartIndexToCheck; i < Goals.Length - 3;i++)
+        for (int i = StartIndexToCheck; i < Goals.Length - 3; i++)
         {
             float Dist = Vector3.Distance(transform.position, Goals[i]);
-            if(Dist > PlanksInfo.CollectedPlanks.Count * (2)) continue;
+            if (Dist > PlanksInfo.CollectedPlanks.Count * (2)) continue;
 
-            if(i > BestPointIndex)
+            if (i > BestPointIndex)
             {
                 BestPointIndex = i;
-            }                   
+            }
         }
 
         return BestPointIndex;
@@ -186,42 +207,42 @@ public class Bot : MonoBehaviour, ICharacter,IKillable
     void ShortCut()
     {
         Move(Goals[currentWaypoint]);
-            
+
         float sqrDist = GetDistance(Goals[currentWaypoint]);
-        if(sqrDist < 64)
+        if (sqrDist < 64)
         {
             ShortCutting = false;
             Agent.enabled = true;
             Agent.Warp(transform.position);
-            Agent.SetDestination(Destination); 
+            Agent.SetDestination(Destination);
         }
     }
 
     void Move(Vector3 Target)
     {
 
-    Vector3 pos = Vector3.MoveTowards(transform.position,Target,Agent.speed * Time.deltaTime);  
-    Vector3 direction = Target - transform.position;
+        Vector3 pos = Vector3.MoveTowards(transform.position, Target, Agent.speed * Time.deltaTime);
+        Vector3 direction = Target - transform.position;
 
-    direction.y = 0f;
-    
-    if (direction != Vector3.zero)
-       transform.rotation = Quaternion.LookRotation(direction);
+        direction.y = 0f;
 
-    transform.position = pos;
-    Agent.nextPosition = pos;
+        if (direction != Vector3.zero)
+            transform.rotation = Quaternion.LookRotation(direction);
+
+        transform.position = pos;
+        Agent.nextPosition = pos;
     }
 
     public void GetKnockedOut(Vector3 launchDirection)
     {
-        if (IsKnockedOut) return; // уже улетает — повторно не реагируем
+        if (IsKnockedOut) return; 
 
         IsKnockedOut = true;
         RunIsStarted = false;
         ShortCutting = false;
 
         if (Agent != null) Agent.enabled = false;
-        if (BridgeInfo != null) BridgeInfo.enabled = false; // чтобы не мешал своей логикой моста/прыжка/падения
+        if (BridgeInfo != null) BridgeInfo.enabled = false; 
 
         GameManager.Instance.UnRegisterRunner(transform);
 
@@ -271,7 +292,7 @@ public class Bot : MonoBehaviour, ICharacter,IKillable
         IsKnockedOut = false;
         RunIsStarted = true;
 
-        if (BridgeInfo != null) BridgeInfo.enabled = true; // возвращаем обычную логику моста
+        if (BridgeInfo != null) BridgeInfo.enabled = true; 
 
         if (Agent != null)
         {
@@ -281,6 +302,6 @@ public class Bot : MonoBehaviour, ICharacter,IKillable
         }
 
         GameManager.Instance.RegistrRunner(transform);
-        CheckPlanks(); // вернёт Running или RunningWithPlanks в зависимости от того, есть ли доски
+        CheckPlanks(); 
     }
 }

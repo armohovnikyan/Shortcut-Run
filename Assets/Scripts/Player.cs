@@ -6,15 +6,21 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour, ICharacter
 {
     [Header("Настройки движения")]
-    public float forwardSpeed = 7f;   
-    public float turnSpeed = 90f;  
+    public float forwardSpeed = 7f;
+    public float turnSpeed = 90f;
 
-    public float SpeedBonus = 1; 
-    public float MaxSpeedBonus = 3;  
+    public float SpeedBonus = 1;
+    public float MaxSpeedBonus = 3;
+
+    [Header("Штраф скорости за доски в руках")]
+    [Tooltip("Насколько замедляется персонаж за КАЖДУЮ доску в руках (0.02 = -2% скорости за доску)")]
+    public float speedPenaltyPerPlank = 0.02f;
+    [Tooltip("Минимальный множитель скорости, даже если досок очень много")]
+    public float minCarryMultiplier = 0.6f;
 
     private CharacterController _characterController;
     private bool _isGameStarted = false;
-    private float _currentTurnInput = 0f; 
+    private float _currentTurnInput = 0f;
     public int Place;
     public AnimationsControl Animation;
     [SerializeField] TMP_Text PlaceText;
@@ -34,9 +40,9 @@ public class PlayerMovement : MonoBehaviour, ICharacter
         StartCoroutine(StartCountdownRoutine());
     }
 
-      void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Finish"))
+        if (other.CompareTag("Finish"))
         {
             Finished();
         }
@@ -49,24 +55,24 @@ public class PlayerMovement : MonoBehaviour, ICharacter
 
     void Finished()
     {
-        if(Place == 1)
+        if (Place == 1)
         {
             //FirstPlaceLogic
         }
         else
         {
-           StartCoroutine(GoToFinalPoint());
-           cameraFollow.RaceEnded();
-           _isGameStarted = false;
+            StartCoroutine(GoToFinalPoint());
+            cameraFollow.RaceEnded();
+            _isGameStarted = false;
         }
     }
-        IEnumerator GoToFinalPoint()
+    IEnumerator GoToFinalPoint()
     {
         Vector3 Target = Finish.Instance.GetFreePoint();
-        while(GetDistance(Target) > 4)
+        while (GetDistance(Target) > 4)
         {
-        Move(Target);
-        yield return null;
+            Move(Target);
+            yield return null;
         }
 
         PlanksInfo.RemoveAllPlanks();
@@ -78,27 +84,27 @@ public class PlayerMovement : MonoBehaviour, ICharacter
         Animation.SetIdle();
     }
 
-        float GetDistance(Vector3 Point)
+    float GetDistance(Vector3 Point)
     {
         Vector3 dir = Point - transform.position;
         dir.y = 0;
-        
+
         return dir.sqrMagnitude;
     }
 
-     void Move(Vector3 Target)
+    void Move(Vector3 Target)
     {
 
-    Vector3 pos = Vector3.MoveTowards(transform.position,Target,5 * Time.deltaTime);  
-    Vector3 direction = Target - transform.position;
+        Vector3 pos = Vector3.MoveTowards(transform.position, Target, 5 * Time.deltaTime);
+        Vector3 direction = Target - transform.position;
 
-    direction.y = 0f;
-    
-    if (direction != Vector3.zero)
-       transform.rotation = Quaternion.LookRotation(direction);
+        direction.y = 0f;
 
-    transform.position = pos;
-    PlanksInfo.RemoveAllPlanks();
+        if (direction != Vector3.zero)
+            transform.rotation = Quaternion.LookRotation(direction);
+
+        transform.position = pos;
+        PlanksInfo.RemoveAllPlanks();
     }
 
     void Update()
@@ -112,14 +118,14 @@ public class PlayerMovement : MonoBehaviour, ICharacter
         PlaceText.text = Place.ToString();
     }
 
-      public void IsFailing()
-      {
-      Animation.SetFailing();
-      }
+    public void IsFailing()
+    {
+        Animation.SetFailing();
+    }
 
-      public void CheckPlanks()
-      {
-        if(PlanksInfo.CollectedPlanks.Count > 0)
+    public void CheckPlanks()
+    {
+        if (PlanksInfo.CollectedPlanks.Count > 0)
         {
             Animation.SetRunningWithPlanks();
         }
@@ -127,7 +133,7 @@ public class PlayerMovement : MonoBehaviour, ICharacter
         {
             Animation.SetRunning();
         }
-      }
+    }
 
     void HandleInput()
     {
@@ -146,11 +152,11 @@ public class PlayerMovement : MonoBehaviour, ICharacter
         {
             if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
             {
-                _currentTurnInput = -1f; 
+                _currentTurnInput = -1f;
             }
             else if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
             {
-                _currentTurnInput = 1f;  
+                _currentTurnInput = 1f;
             }
         }
     }
@@ -163,7 +169,10 @@ public class PlayerMovement : MonoBehaviour, ICharacter
             transform.Rotate(0, rotationAmount, 0);
         }
 
-        Vector3 moveDirection = transform.forward * forwardSpeed * SpeedBonus;
+        int plankCount = PlanksInfo != null ? PlanksInfo.CollectedPlanks.Count : 0;
+        float carryMultiplier = Mathf.Max(minCarryMultiplier, 1f - plankCount * speedPenaltyPerPlank);
+
+        Vector3 moveDirection = transform.forward * forwardSpeed * SpeedBonus * carryMultiplier;
 
         if (!_characterController.isGrounded)
         {
