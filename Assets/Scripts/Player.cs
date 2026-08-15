@@ -159,6 +159,8 @@ public class PlayerMovement : MonoBehaviour, ICharacter
                 _currentTurnInput = 1f;
             }
         }
+
+        PlanksInfo.SwingForce(_currentTurnInput);
     }
 
     void MoveAndRotatePlayer()
