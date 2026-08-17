@@ -7553,6 +7553,8 @@ MonoBehaviour:
   turnSpeed: 90
   SpeedBonus: 1
   MaxSpeedBonus: 2
+  speedPenaltyPerPlank: 0.02
+  minCarryMultiplier: 0.6
   Place: 0
   Animation: {fileID: 1769505868}
   PlaceText: {fileID: 2102341871}
@@ -7618,6 +7620,9 @@ MonoBehaviour:
   rayOriginHeight: 0.5
   offRoadDebounce: 0.05
   onRoadDebounce: 0.05
+  _state: 0
+  grabRoadDistance: 10
+  climbDuration: 0.5
   jumpHeight: 5
   jumpTroHeight: 10
   jumpDuration: 1
@@ -7640,6 +7645,9 @@ MonoBehaviour:
   plankTag: Plank
   CollectedPlanks: []
   plankHeight: 0.15
+  MaxOffset: 0.5
+  SwingDirection: 1
+  force: 1
 --- !u!114 &1769505871
 MonoBehaviour:
   m_ObjectHideFlags: 0

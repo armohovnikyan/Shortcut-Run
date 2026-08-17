@@ -26,17 +26,14 @@ public class BridgeBuilder : MonoBehaviour
     public float offRoadDebounce = 0.05f;
     [Tooltip("Сколько секунд подряд есть дорога, чтобы считать возврат на дорогу")]
     public float onRoadDebounce = 0.05f;
-    private enum GroundState { OnRoad, Bridging, Jump, Falling, OnTrampoline, ClimbUp }
-    private GroundState _state = GroundState.OnRoad;
+    public enum GroundState { OnRoad, Bridging, Jump, Falling, OnTrampoline, ClimbUp }
+    public GroundState _state = GroundState.OnRoad;
 
     [Header("Зацепиться за дорогу в прыжке")]
     [Tooltip("На какое расстояние ВПЕРЕДИ ищем дорогу, если под ногами пусто")]
-    public float grabRoadDistance = 2f;
-    [Tooltip("Толщина луча поиска (допуск в стороны от направления взгляда)")]
-    public float grabRoadCastRadius = 0.5f;
+    public float grabRoadDistance = 8;
     [Tooltip("Сколько секунд длится подтягивание на дорогу")]
     public float climbDuration = 0.25f;
-
     private Vector3 _climbStartPos;
     private Vector3 _climbTargetPos;
     private float _climbStartTime;
@@ -70,8 +67,6 @@ public class BridgeBuilder : MonoBehaviour
 
     void LateUpdate()
     {
-        CheckGroundState();
-
         if (_state != GroundState.Falling && _state != GroundState.ClimbUp)
         {
             MoveToY(_fixedBridgeY + footOffset);
@@ -87,7 +82,10 @@ public class BridgeBuilder : MonoBehaviour
         if (_state == GroundState.ClimbUp)
         {
             HandleClimb();
+            return;
         }
+
+        CheckGroundState();
     }
     bool isTrampoline;
     private void CheckGroundState()
@@ -227,18 +225,29 @@ public class BridgeBuilder : MonoBehaviour
 
         if (elapsed >= (_currentJumpIsTrampoline ? jumpTroDuration : jumpDuration))
         {
-            if (!_currentJumpIsTrampoline)
-            {
+            
                 if (TryFindNearbyRoad(out Vector3 grabPoint))
                 {
                     StartClimb(grabPoint);
+                    Debug.Log("climbing!!!!!!!!!!!!!!!!");
                     return;
                 }
+            
+            if(_currentJumpIsTrampoline)
+            {
+              if(PlankCollector.CollectedPlanks.Count != 0)
+                {
+                    _state = GroundState.Bridging;
+                    _lastPlankSpawnXZ = new Vector2(transform.position.x, transform.position.z);
+                    Debug.Log($"[Bridge] -> Bridging, fixedY={_fixedBridgeY:F2}, planksInHand={PlankCollector.CollectedPlanks.Count}");
+                }
             }
-
+            else
+            {
             _state = GroundState.Falling;
             MainScript.IsFailing();
             return;
+            }
         }
 
         float t = elapsed / (_currentJumpIsTrampoline ? jumpTroDuration : jumpDuration);
@@ -246,24 +255,26 @@ public class BridgeBuilder : MonoBehaviour
         MoveToY(_fixedBridgeY + footOffset + arc);
     }
 
-    private bool TryFindNearbyRoad(out Vector3 grabPoint)
+   private bool TryFindNearbyRoad(out Vector3 grabPoint)
+{
+    grabPoint = default;
+
+    Vector3 origin = new Vector3(transform.position.x,0,transform.position.z);
+    if (Physics.Raycast(
+    origin,
+    transform.forward,
+    out RaycastHit hitInfo,
+    grabRoadDistance,
+    roadLayer,
+    QueryTriggerInteraction.Collide))   
     {
-        grabPoint = default;
-
-        bool hit = Physics.SphereCast(
-            transform.position,
-            grabRoadCastRadius,
-            transform.forward,
-            out RaycastHit hitInfo,
-            grabRoadDistance,
-            roadLayer
-        );
-
-        if (!hit) return false;
-
         grabPoint = hitInfo.point;
         return true;
     }
+
+    return false;
+}
+
 
     private void StartClimb(Vector3 grabPoint)
     {

@@ -205,6 +205,8 @@ MonoBehaviour:
   - {fileID: 5382459569070341312, guid: 529e52475367294469b6b10916075413, type: 3}
   SpeedBonus: 1
   Speed: 9
+  speedPenaltyPerPlank: 0.02
+  minCarryMultiplier: 0.6
   Goals: []
   knockoutHeight: 10
   knockoutDistance: 8
@@ -295,6 +297,9 @@ MonoBehaviour:
   rayOriginHeight: 0.5
   offRoadDebounce: 0.05
   onRoadDebounce: 0.05
+  grabRoadDistance: 2
+  grabRoadCastRadius: 0.5
+  climbDuration: 0.25
   jumpHeight: 0.4
   jumpTroHeight: 2
   jumpDuration: 0.35
@@ -313,10 +318,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlankCollector
   plankPrefab: {fileID: 5653736026493962404, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
+  ParticlePrefab: {fileID: 8647897871954950044, guid: 3f6ea2bceb1acbb4dbb558fcc15a8be2, type: 3}
   stackPosition: {fileID: 2746448709709606715}
   plankTag: Plank
   CollectedPlanks: []
   plankHeight: 0.15
+  MaxOffset: 0.5
+  SwingDirection: 1
+  force: 1
 --- !u!1 &5181734612418514705
 GameObject:
   m_ObjectHideFlags: 0
