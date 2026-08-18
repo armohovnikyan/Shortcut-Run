@@ -13,6 +13,7 @@ public class AnimationsControl : MonoBehaviour
     public void SetRunning()
     {
        Animator.SetBool("Running", true);
+       Animator.SetBool("Jump", false);
        Animator.SetBool("Failing", false); 
        Animator.SetBool("HavePlanks", false);
        Animator.SetBool("Idle", false);
@@ -46,4 +47,17 @@ public class AnimationsControl : MonoBehaviour
        Animator.SetBool("Failing", true); 
        Animator.SetBool("Running", false);
     }
+
+    public void SetJump()
+   {
+      Animator.SetBool("Jump", true); 
+      Animator.SetBool("Running", false);
+      Animator.SetBool("HavePlanks", false);
+   }
+
+   public void SetClimbing(bool Climbing)
+   {
+       Animator.SetBool("Jump", !Climbing); 
+       Animator.SetBool("Climbing", Climbing);
+   }
 }

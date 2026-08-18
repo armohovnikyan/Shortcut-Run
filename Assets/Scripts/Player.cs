@@ -135,6 +135,16 @@ public class PlayerMovement : MonoBehaviour, ICharacter
         }
     }
 
+    public void Jump()
+    {
+      Animation.SetJump();  
+    }
+
+    public void Climb(bool Climbing)
+    {
+        Animation.SetClimbing(Climbing);
+    }
+
     void HandleInput()
     {
         _currentTurnInput = 0f;

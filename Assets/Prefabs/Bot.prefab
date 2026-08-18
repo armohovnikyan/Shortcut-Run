@@ -297,14 +297,15 @@ MonoBehaviour:
   rayOriginHeight: 0.5
   offRoadDebounce: 0.05
   onRoadDebounce: 0.05
+  _state: 0
   grabRoadDistance: 2
-  grabRoadCastRadius: 0.5
   climbDuration: 0.25
   jumpHeight: 0.4
   jumpTroHeight: 2
   jumpDuration: 0.35
   jumpTroDuration: 2
   FeetPos: {fileID: 7206080679617950510}
+  ParticleEffect: {fileID: 8647897871954950044, guid: 3f6ea2bceb1acbb4dbb558fcc15a8be2, type: 3}
 --- !u!114 &7093006970486976231
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -318,7 +319,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlankCollector
   plankPrefab: {fileID: 5653736026493962404, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
-  ParticlePrefab: {fileID: 8647897871954950044, guid: 3f6ea2bceb1acbb4dbb558fcc15a8be2, type: 3}
   stackPosition: {fileID: 2746448709709606715}
   plankTag: Plank
   CollectedPlanks: []

@@ -146,6 +146,16 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
         UpdateAgentSpeed();
     }
 
+    public void Jump()
+    {
+      Animation.SetJump();  
+    }
+
+     public void Climb(bool Climbing)
+    {
+        Animation.SetClimbing(Climbing);
+    }
+
     void ReacedTheFinish()
     {
         if (RunIsStarted)

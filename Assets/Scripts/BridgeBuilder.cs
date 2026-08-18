@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 
@@ -55,7 +55,7 @@ public class BridgeBuilder : MonoBehaviour
     private Vector3 _debugRayEnd;
     PlankCollector PlankCollector;
     [SerializeField] Transform FeetPos;
-
+    [SerializeField] GameObject ParticleEffect;
     private float _jumpStartTime;
 
     void Start()
@@ -88,6 +88,24 @@ public class BridgeBuilder : MonoBehaviour
         CheckGroundState();
     }
     bool isTrampoline;
+
+    bool IsOnRoad()
+    {
+        Vector3 feetPos = FeetPos.position;
+        Vector3 origin = feetPos + Vector3.up * rayOriginHeight;
+
+        RaycastHit hit;
+
+        bool hitRoad = Physics.Raycast(
+            origin,
+            Vector3.down,
+            out hit,
+            rayOriginHeight + groundCheckDistance,
+            roadLayer
+            );
+
+            return hitRoad;
+    }
     private void CheckGroundState()
     {
         Vector3 feetPos = FeetPos.position;
@@ -202,7 +220,9 @@ public class BridgeBuilder : MonoBehaviour
         BoxCollider plankCol = plankFromHand.GetComponent<BoxCollider>();
         plankCol.size = new Vector3(1.5f, 1, 2);
         plankCol.enabled = true;
-        plankFromHand.layer = LayerMask.NameToLayer("Road"); ;
+        plankFromHand.layer = LayerMask.NameToLayer("Road");
+
+        Instantiate(ParticleEffect, plankFromHand.transform.position, plankFromHand.transform.rotation * Quaternion.Euler(0,90,0));
 
         _lastPlankSpawnXZ = new Vector2(plankFromHand.transform.position.x, plankFromHand.transform.position.z);
         MainScript.CheckPlanks();
@@ -214,6 +234,7 @@ public class BridgeBuilder : MonoBehaviour
     private void StartJump(bool trampoline)
     {
         _currentJumpIsTrampoline = trampoline;
+        MainScript.Jump();
         _state = GroundState.Jump;
         _jumpStartTime = Time.time;
     }
@@ -226,7 +247,7 @@ public class BridgeBuilder : MonoBehaviour
         if (elapsed >= (_currentJumpIsTrampoline ? jumpTroDuration : jumpDuration))
         {
             
-                if (TryFindNearbyRoad(out Vector3 grabPoint))
+                if (!IsOnRoad() && TryFindNearbyRoad(out Vector3 grabPoint))
                 {
                     StartClimb(grabPoint);
                     Debug.Log("climbing!!!!!!!!!!!!!!!!");
@@ -280,6 +301,7 @@ public class BridgeBuilder : MonoBehaviour
     {
         _state = GroundState.ClimbUp;
         _climbStartPos = transform.position;
+        MainScript.Climb(true);
         _climbTargetPos = new Vector3(grabPoint.x, grabPoint.y + footOffset, grabPoint.z);
         _climbStartTime = Time.time;
     }
@@ -295,6 +317,7 @@ public class BridgeBuilder : MonoBehaviour
         {
             _fixedBridgeY = _climbTargetPos.y - footOffset;
             _state = GroundState.OnRoad;
+            MainScript.Climb(false);
             MainScript.CheckPlanks(); 
         }
     }
