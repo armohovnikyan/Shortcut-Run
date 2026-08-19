@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 public class PlankCollector : MonoBehaviour
 {
 
@@ -10,11 +11,16 @@ public class PlankCollector : MonoBehaviour
     public string plankTag = "Plank";
     public List<GameObject> CollectedPlanks = new List<GameObject>();
     public float plankHeight = 0.15f;
+    [SerializeField] TextOfColeectedPlanks CollecteddPlanksTxT;
+    int CollectedPlanksCount;
+
     ICharacter MainScript;
     void Start()
     {
         MainScript = GetComponent<ICharacter>();
     }
+
+    
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag(plankTag))
@@ -29,12 +35,21 @@ public class PlankCollector : MonoBehaviour
         newPlank.GetComponent<Collider>().enabled = false;
         newPlank.transform.SetParent(stackPosition);
 
-        float spawnYOffset = CollectedPlanks.Count * (0.2f + 0.03f);
+        float spawnYOffset = CollectedPlanks.Count * (0.2f);
         newPlank.transform.localPosition = new Vector3(0, spawnYOffset, 0);
         newPlank.transform.localRotation = Quaternion.identity;
 
+
         CollectedPlanks.Add(newPlank);
         MainScript.CheckPlanks();
+
+         if(MainScript is PlayerMovement)
+        {
+            CollectedPlanksCount++;
+            Timer = 0;
+
+            CollecteddPlanksTxT.SetText(CollectedPlanksCount,spawnYOffset * 4 + 1);
+        }
     }
 
     public void RemoveAllPlanks()
@@ -46,11 +61,30 @@ public class PlankCollector : MonoBehaviour
 
         CollectedPlanks.Clear();
     }
+    float Timer;
 
-        void Update()
+    void Update()
     {
          StackWavering();
+         if(MainScript is PlayerMovement)
+         {
+            if(Timer < 1 && CollectedPlanksCount > 0)
+            {
+                Timer += Time.deltaTime;
+            }
+            else 
+            {
+                HideNumberOfPickedPlanks();
+            }
+         }
     }
+
+    void HideNumberOfPickedPlanks()
+    {
+        CollecteddPlanksTxT.Fading();
+        CollectedPlanksCount = 0;
+    }
+
 
     [SerializeField]float MaxOffset = 0.5f;
     [SerializeField]float SwingDirection = 1;
@@ -105,7 +139,7 @@ public class PlankCollector : MonoBehaviour
             * SwingDirection
             * force;
 
-        float baseY = i * 0.23f;
+        float baseY = i * 0.2f;
 
         Vector3 target = new Vector3(
             offset,
