@@ -22,6 +22,7 @@ public class PlayerMovement : MonoBehaviour, ICharacter
     private bool _isGameStarted = false;
     private float _currentTurnInput = 0f;
     public int Place;
+    [SerializeField] ParticleSystem FastRunParticleEffect;
     public AnimationsControl Animation;
     [SerializeField] TMP_Text PlaceText;
 
@@ -51,6 +52,17 @@ public class PlayerMovement : MonoBehaviour, ICharacter
     public void ChangeSpeedBonus(float Bonus)
     {
         SpeedBonus = Mathf.Clamp(SpeedBonus + Bonus, 1f, MaxSpeedBonus);
+
+        if(SpeedBonus > MaxSpeedBonus - 0.5f)
+        {
+           var emision = FastRunParticleEffect.emission;
+           emision.enabled = true;
+        }
+        else
+        {
+            var emision = FastRunParticleEffect.emission;
+            emision.enabled = false;
+        }
     }
 
     void Finished()

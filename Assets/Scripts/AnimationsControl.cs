@@ -21,6 +21,7 @@ public class AnimationsControl : MonoBehaviour
      public void SetRunningWithPlanks()
     {
        Animator.SetBool("HavePlanks", true);
+       Animator.SetBool("Jump", false);
        Animator.SetBool("Failing", false); 
        Animator.SetBool("Running", true);
        Animator.SetBool("Idle", false);
