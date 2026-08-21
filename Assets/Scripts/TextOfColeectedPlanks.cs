@@ -22,22 +22,21 @@ public class TextOfColeectedPlanks : MonoBehaviour
 
     public void SetText(int count,float Y)
     {
-        text.text = "+" + count.ToString();
-        Vector3 pos = rectTransform.position;
-        pos.y = Y;
-        rectTransform.position = pos;
+         text.text = "+" + count.ToString();
+         Vector3 pos = rectTransform.position;
+         pos.y = Y;   
+         SetAlpha(1f);
+         rectTransform.position = pos;
          if (fadeRoutine != null){
          StopCoroutine(fadeRoutine);
          }
-        fadeRoutine = null;
+         fadeRoutine = null;
     }
 
     public void Fading()
     {
         if (fadeRoutine != null)
             StopCoroutine(fadeRoutine);
-
-        gameObject.SetActive(true);
         SetAlpha(1f);
         fadeRoutine = StartCoroutine(FadeRoutine());
     }
@@ -63,15 +62,12 @@ public class TextOfColeectedPlanks : MonoBehaviour
 
         rectTransform.anchoredPosition = endPos;
         SetAlpha(0f);
-
-        if (disableAfterFade)
-            gameObject.SetActive(false);
     }
 
     void SetAlpha(float a)
     {
-        Color c = text.color;
-        c.a = a;
-        text.color = c;
+       Color c = text.color;
+       c.a = a;
+       text.color = c;
     }
 }

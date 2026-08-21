@@ -211,7 +211,7 @@ MonoBehaviour:
   knockoutHeight: 10
   knockoutDistance: 8
   knockoutDuration: 2
-  currentWaypoint: 2
+  currentWaypoint: 8
   ShortCutting: 0
   PointToCut: 0
   BestForShortCut: 0
@@ -323,6 +323,7 @@ MonoBehaviour:
   plankTag: Plank
   CollectedPlanks: []
   plankHeight: 0.15
+  CollecteddPlanksTxT: {fileID: 0}
   MaxOffset: 0.5
   SwingDirection: 1
   force: 1
@@ -352,7 +353,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 2.49, z: 1.59}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2841982155933429758}

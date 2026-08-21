@@ -27,6 +27,7 @@ public class RoadGenerating : MonoBehaviour
     private MeshRenderer meshRenderer;
 
     private NavMeshSurface navSurface;
+    public BotsManager botsManager;
     int sampleCount;
 
     void OnEnable()
@@ -35,6 +36,8 @@ public class RoadGenerating : MonoBehaviour
     meshFilter = GetComponent<MeshFilter>();
     meshRenderer = GetComponent<MeshRenderer>();
     navSurface = GetComponent<NavMeshSurface>();
+
+    
     Spline.Changed += OnSplineChanged;
     GenerateRoad();
     }

@@ -35,7 +35,7 @@ public class PlankCollector : MonoBehaviour
         newPlank.GetComponent<Collider>().enabled = false;
         newPlank.transform.SetParent(stackPosition);
 
-        float spawnYOffset = CollectedPlanks.Count * (0.2f);
+        float spawnYOffset = CollectedPlanks.Count * 0.1f;
         newPlank.transform.localPosition = new Vector3(0, spawnYOffset, 0);
         newPlank.transform.localRotation = Quaternion.identity;
 
@@ -43,7 +43,7 @@ public class PlankCollector : MonoBehaviour
         CollectedPlanks.Add(newPlank);
         MainScript.CheckPlanks();
 
-         if(MainScript is PlayerMovement)
+        if(MainScript is PlayerMovement)
         {
             CollectedPlanksCount++;
             Timer = 0;
@@ -66,9 +66,9 @@ public class PlankCollector : MonoBehaviour
     void Update()
     {
          StackWavering();
-         if(MainScript is PlayerMovement)
+         if(MainScript is PlayerMovement && CollectedPlanksCount > 0)
          {
-            if(Timer < 1 && CollectedPlanksCount > 0)
+            if(Timer < 1)
             {
                 Timer += Time.deltaTime;
             }
@@ -91,12 +91,12 @@ public class PlankCollector : MonoBehaviour
     [SerializeField] float force = 1;
     public void SwingForce(float side)
     {                                     
-        force = Mathf.Clamp(force - 0.0002f,0,1);
+        force = Mathf.Clamp(force - 0.0003f,0f,1f);
         
         if(side != 0)
         {
-        SwingDirection = -side;
-        force = 1;
+           force = 1;
+           SwingDirection = -side;
         }
        
     }
@@ -106,14 +106,15 @@ public class PlankCollector : MonoBehaviour
         return;
 
     int startIndex = CollectedPlanks.Count / 3;
+    
 
     for (int i = 0; i < startIndex; i++)
     {
         if (CollectedPlanks[i] == null)
             continue;
-
-        float baseY = i * 0.23f;
-
+    
+        float baseY = i * 0.1f;
+    
         CollectedPlanks[i].transform.localPosition =
             new Vector3(0, baseY, 0);
     }
@@ -132,14 +133,16 @@ public class PlankCollector : MonoBehaviour
         float heightMultiplier =
             Mathf.Pow(normalizedHeight, 2);
 
-        float offset =
-            math.sin(Time.time) *
-            MaxOffset
-            * heightMultiplier
-            * SwingDirection
-            * force;
+        float currentMaxOffset = MaxOffset * Mathf.Clamp(CollectedPlanks.Count / 20,0f,1f);
 
-        float baseY = i * 0.2f;
+        float offset =
+            math.sin(Time.time * 4) *
+            (currentMaxOffset * force)
+            * heightMultiplier
+            * SwingDirection;
+
+        float baseY = i * 0.1f;
+
 
         Vector3 target = new Vector3(
             offset,
@@ -151,7 +154,7 @@ public class PlankCollector : MonoBehaviour
             Vector3.Lerp(
                 plank.transform.localPosition,
                 target,
-                Time.deltaTime * 15f
+                Time.deltaTime * 25f
             );
     }
 }

@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Splines;
 using Unity.Mathematics;
+using System.Linq;
+
 public class BotsManager : MonoBehaviour
 {
     public static BotsManager Instance;
@@ -9,7 +11,7 @@ public class BotsManager : MonoBehaviour
     public List<Transform> SpawnPositionsForBots = new List<Transform>();
     public Material[] ColorsForBot;
     [SerializeField] GameObject BotPrefab;
-    [SerializeField] SplineContainer Road;
+    [SerializeField] SplineContainer[] Roads;
     [SerializeField] Vector3[] Points;
     public int BotsCount;
     int sampleCount = 24;
@@ -20,14 +22,20 @@ public class BotsManager : MonoBehaviour
 
      public void GetAllSplinePoints()
     {
+        int CountOfPointsForEach = sampleCount / Roads.Count();
 
         Vector3[] points = new Vector3[sampleCount];
+        int NumberOfRoad = 0;
 
-        for (int i = 0; i < sampleCount; i++)
+        foreach(SplineContainer road in Roads)
         {
-            float t = i / (float)(sampleCount - 1); // 0 to 1
-            float3 localPos = Road.EvaluatePosition(t);
-            points[i] = localPos;
+          for (int i = 0; i < CountOfPointsForEach; i++)
+          {
+              float t = i / (float)(CountOfPointsForEach - 1); // 0 to 1
+              float3 localPos = road.EvaluatePosition(t);
+              points[i + (NumberOfRoad * CountOfPointsForEach)] = localPos;
+          }
+          NumberOfRoad++;
         }
 
         Points = points;
@@ -55,11 +63,6 @@ public class BotsManager : MonoBehaviour
             BotsList.Add(botScript);
             botScript.Spawn(GameManager.Instance.Finish,Points);
         }
-    }
-
-     Material GetRandomColor()
-    {
-       return ColorsForBot[UnityEngine.Random.Range(0,ColorsForBot.Length)];
     }
 
     public void StartTheRun()

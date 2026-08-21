@@ -73,7 +73,7 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
     public void Update()
     {
 
-        if (currentWaypoint == Goals.Length)
+        if (currentWaypoint == Goals.Length - 1)
         {
             ReacedTheFinish();
             return;
@@ -88,7 +88,7 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
 
         float sqrDist = GetDistance(Goals[currentWaypoint]);
 
-        if (sqrDist < 64)
+        if (sqrDist < 81)
         {
             currentWaypoint++;
 
