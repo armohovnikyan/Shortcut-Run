@@ -324,6 +324,7 @@ MonoBehaviour:
   CollectedPlanks: []
   plankHeight: 0.15
   CollecteddPlanksTxT: {fileID: 0}
+  AddedPlankEffect: {fileID: 1359781558408469809, guid: 9cebe06d07ca36041bd3c750669a21b7, type: 3}
   MaxOffset: 0.5
   SwingDirection: 1
   force: 1

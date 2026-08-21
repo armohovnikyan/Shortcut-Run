@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Mathematics;
-using Unity.VisualScripting;
+
 public class PlankCollector : MonoBehaviour
 {
 
@@ -12,6 +12,7 @@ public class PlankCollector : MonoBehaviour
     public List<GameObject> CollectedPlanks = new List<GameObject>();
     public float plankHeight = 0.15f;
     [SerializeField] TextOfColeectedPlanks CollecteddPlanksTxT;
+    [SerializeField] GameObject AddedPlankEffect;
     int CollectedPlanksCount;
 
     ICharacter MainScript;
@@ -39,6 +40,7 @@ public class PlankCollector : MonoBehaviour
         newPlank.transform.localPosition = new Vector3(0, spawnYOffset, 0);
         newPlank.transform.localRotation = Quaternion.identity;
 
+        Instantiate(AddedPlankEffect,newPlank.transform.position,transform.rotation,stackPosition);
 
         CollectedPlanks.Add(newPlank);
         MainScript.CheckPlanks();
