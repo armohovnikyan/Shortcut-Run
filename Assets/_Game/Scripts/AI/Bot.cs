@@ -112,7 +112,7 @@ public class Bot : MonoBehaviour, ICharacter
         Animation.SetDance();
         RunIsStarted = false;
 
-        GameManager.Instance.UnRegisterRunner(transform);
+        //GameManager.Instance.UnregisterRunner(transform);
 
         StartCoroutine(GoToFinalPoint());
         }

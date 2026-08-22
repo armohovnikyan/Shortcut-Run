@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour, ICharacter
+public class Player : MonoBehaviour, ICharacter
 {
     [Header("Настройки движения")]
     public float forwardSpeed = 7f;   
@@ -25,7 +25,7 @@ public class PlayerMovement : MonoBehaviour, ICharacter
         _characterController = GetComponent<CharacterController>();
         Animation = GetComponent<AnimationsControl>();
         PlanksInfo = GetComponent<PlankStacker>();
-        GameManager.Instance.RegistrRunner(transform);
+        GameManager.Instance.RegisterRunner(transform);
 
         Animation.SetIdle();
         StartCoroutine(StartCountdownRoutine());
