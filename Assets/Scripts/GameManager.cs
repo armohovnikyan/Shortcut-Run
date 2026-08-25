@@ -5,14 +5,13 @@ public struct Place
 {
     public float Distance;
     public Transform RunnerTransform;
-
-    public bool Passed;
 }
 
 public class Runner
 {
         public Transform RunnerTransform;
         public bool Passed;
+        public bool InRace;
 }
 public class GameManager : MonoBehaviour
 {
@@ -27,16 +26,23 @@ public class GameManager : MonoBehaviour
 
     public void RegistrRunner(Transform RunnerTransform)
     {
-        Runners.Add(new Runner{RunnerTransform = RunnerTransform, Passed = false});
+        Runners.Add(new Runner{RunnerTransform = RunnerTransform, Passed = false,InRace = true});
     }
 
-    public void UnRegisterRunner(Transform RunnerTransform)
+    public void UnRegisterRunner(Transform RunnerTransform,bool Passed)
     {
         for (int i = 0; i < Runners.Count; i++)
         {
             if(Runners[i].RunnerTransform == RunnerTransform)
             {
-                Runners[i].Passed = true;
+                if(Passed)
+                {
+                Runners[i].Passed = Passed;
+                }
+                else
+                {                              
+                Runners[i].InRace = Passed;
+                }
                 return;
             }
         }
@@ -54,6 +60,11 @@ public class GameManager : MonoBehaviour
          {
              dir = Vector3.zero;
          } 
+
+         if(!Runner.InRace)
+            {
+                dir = Vector3.positiveInfinity;
+            }
         Distances.Add(new Place { Distance = dir.sqrMagnitude, RunnerTransform = Runner.RunnerTransform});
         }
 

@@ -71,8 +71,8 @@ public class RoadGenerating : MonoBehaviour
         MeshCollider collider = GetComponent<MeshCollider>();
         if (collider != null) collider.sharedMesh = mesh;
 
-         if (navSurface != null)
-            navSurface.BuildNavMesh();
+         //if (navSurface != null)
+         //   navSurface.BuildNavMesh();
     }
 
 

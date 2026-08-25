@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Splines;
 using Unity.Mathematics;
 using System.Linq;
-
+using Unity.AI.Navigation;
 public class BotsManager : MonoBehaviour
 {
     public static BotsManager Instance;
@@ -13,11 +13,13 @@ public class BotsManager : MonoBehaviour
     [SerializeField] GameObject BotPrefab;
     [SerializeField] SplineContainer[] Roads;
     [SerializeField] Vector3[] Points;
+    private NavMeshSurface navSurface;
     public int BotsCount;
     int sampleCount = 24;
     void Awake()
     {
       Instance = this;  
+      navSurface = GetComponent<NavMeshSurface>();
     }
 
      public void GetAllSplinePoints()
@@ -53,6 +55,11 @@ public class BotsManager : MonoBehaviour
     }
 }
 
+    public void BakeSurface()
+    {
+        
+    }
+
     public void Start()
     {
         GetAllSplinePoints();
@@ -67,6 +74,7 @@ public class BotsManager : MonoBehaviour
 
     public void StartTheRun()
     {
+         navSurface.BuildNavMesh();
         foreach(Bot bot in BotsList)
         {
              bot.StartRun();

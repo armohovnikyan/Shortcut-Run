@@ -164,7 +164,7 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
             Animation.SetDance();
             RunIsStarted = false;
 
-            GameManager.Instance.UnRegisterRunner(transform);
+            GameManager.Instance.UnRegisterRunner(transform,true);
 
             StartCoroutine(GoToFinalPoint());
         }
@@ -254,7 +254,7 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
         if (Agent != null) Agent.enabled = false;
         if (BridgeInfo != null) BridgeInfo.enabled = false; 
 
-        GameManager.Instance.UnRegisterRunner(transform);
+        GameManager.Instance.UnRegisterRunner(transform,false);
 
         StartCoroutine(KnockoutRoutine(launchDirection));
     }
@@ -278,23 +278,10 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
             transform.position = startPos + horizontal + Vector3.up * height;
 
             yield return null;
-        }
-
-        bool landedOnRoad = Physics.Raycast(
-            transform.position + Vector3.up * 0.5f,
-            Vector3.down,
-            5f,
-            BridgeInfo.roadLayer
-        );
-
-        if (landedOnRoad)
-        {
-            ResumeRunning();
-        }
-        else
-        {
+        }    
+        
             gameObject.SetActive(false);
-        }
+        
     }
 
     private void ResumeRunning()
