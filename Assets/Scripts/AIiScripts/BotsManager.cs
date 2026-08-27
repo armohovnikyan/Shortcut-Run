@@ -15,7 +15,7 @@ public class BotsManager : MonoBehaviour
     [SerializeField] Vector3[] Points;
     private NavMeshSurface navSurface;
     public int BotsCount;
-    int sampleCount = 24;
+    public int sampleCount = 24;
     void Awake()
     {
       Instance = this;  

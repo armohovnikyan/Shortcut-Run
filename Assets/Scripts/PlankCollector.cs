@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using System;
+using Unity.VisualScripting;
 
 public class PlankCollector : MonoBehaviour
 {
@@ -94,6 +96,7 @@ public class PlankCollector : MonoBehaviour
     public void SwingForce(float side)
     {                                     
         force = Mathf.Clamp(force - 0.0003f,0f,1f);
+        SwingDirection = 0;
         
         if(side != 0)
         {
@@ -137,11 +140,23 @@ public class PlankCollector : MonoBehaviour
 
         float currentMaxOffset = MaxOffset * Mathf.Clamp(CollectedPlanks.Count / 20,0f,1f);
 
-        float offset =
-            math.sin(Time.time * 4) *
+        float sin = 0;
+        if( SwingDirection == 0)
+        {
+           sin =  math.sin(Time.time * 4);
+
+            //CurrentSin = Mathf.MoveTowards(CurrentSin,sin,80 * Time.deltaTime);
+        }
+        else
+        {
+           sin = SwingDirection == 1 ? 1 :  -1; 
+          // CurrentSin = Mathf.MoveTowards(CurrentSin,sin,80 * Time.deltaTime);
+        }
+
+        float offset = 
+            sin *
             (currentMaxOffset * force)
-            * heightMultiplier
-            * SwingDirection;
+            * heightMultiplier;
 
         float baseY = i * 0.1f;
 
