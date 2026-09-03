@@ -47,7 +47,6 @@ public class BotsManager : MonoBehaviour
 
     public void Initialize()
     {
-        Debug.Log(BotsCount);
         GetAllSplinePoints();
         for(int i = 0; i < BotsCount;i++)
         {

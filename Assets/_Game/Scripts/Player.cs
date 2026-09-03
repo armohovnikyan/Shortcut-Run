@@ -6,17 +6,16 @@ using UnityEngine.InputSystem;
 public class Player : MonoBehaviour, ICharacter
 {
     [Header("Настройки движения")]
-    public float forwardSpeed = 7f;   
-    public float turnSpeed = 90f;    
+    public float forwardSpeed = 7f;
+    public float turnSpeed = 90f;
 
     private CharacterController _characterController;
     private bool _isGameStarted = false;
-    private float _currentTurnInput = 0f; 
+    private float _currentTurnInput = 0f;
     public int Place;
     public AnimationsControl Animation;
-    [SerializeField] TMP_Text PlaceText;
 
-    public CameraFollow cameraFollow;
+    //public CameraFollow cameraFollow;
 
     PlankStacker PlanksInfo;
 
@@ -28,37 +27,29 @@ public class Player : MonoBehaviour, ICharacter
         GameManager.Instance.RegisterRunner(transform);
 
         Animation.SetIdle();
-        StartCoroutine(StartCountdownRoutine());
     }
 
-      void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Finish"))
+        if (other.CompareTag("Finish"))
         {
-            Finished();
+            GameManager.Instance.RaiseOnFinished(Place);
+        }
+        if (other.CompareTag("DeathRow"))
+        {
+            Debug.Log("Died");
+            GameManager.Instance.RaiseOnDeath();
         }
     }
 
-    void Finished()
-    {
-        if(Place == 1)
-        {
-            //FirstPlaceLogic
-        }
-        else
-        {
-           StartCoroutine(GoToFinalPoint());
-           cameraFollow.RaceEnded();
-           _isGameStarted = false;
-        }
-    }
-        IEnumerator GoToFinalPoint()
+    
+    IEnumerator GoToFinalPoint()
     {
         Vector3 Target = Finish.Instance.GetFreePoint();
-        while(GetDistance(Target) > 4)
+        while (GetDistance(Target) > 4)
         {
-        Move(Target);
-        yield return null;
+            Move(Target);
+            yield return null;
         }
 
         PlanksInfo.RemoveAllPlanks();
@@ -70,48 +61,45 @@ public class Player : MonoBehaviour, ICharacter
         Animation.SetIdle();
     }
 
-        float GetDistance(Vector3 Point)
+    float GetDistance(Vector3 Point)
     {
         Vector3 dir = Point - transform.position;
         dir.y = 0;
-        
+
         return dir.sqrMagnitude;
     }
 
-     void Move(Vector3 Target)
+    void Move(Vector3 Target)
     {
 
-    Vector3 pos = Vector3.MoveTowards(transform.position,Target,5 * Time.deltaTime);  
-    Vector3 direction = Target - transform.position;
+        Vector3 pos = Vector3.MoveTowards(transform.position, Target, 5 * Time.deltaTime);
+        Vector3 direction = Target - transform.position;
 
-    direction.y = 0f;
-    
-    if (direction != Vector3.zero)
-       transform.rotation = Quaternion.LookRotation(direction);
+        direction.y = 0f;
 
-    transform.position = pos;
-    PlanksInfo.RemoveAllPlanks();
+        if (direction != Vector3.zero)
+            transform.rotation = Quaternion.LookRotation(direction);
+
+        transform.position = pos;
+        PlanksInfo.RemoveAllPlanks();
     }
 
     void Update()
     {
-        if (!_isGameStarted) return;
+        if (GameManager.Instance.GameFlow != GameFlow.Playing) return;
 
         HandleInput();
         MoveAndRotatePlayer();
 
-        Place = GameManager.Instance.GetMyPlace(transform);
-        PlaceText.text = Place.ToString();
+    }
+    public void IsFailing()
+    {
+        Animation.SetFailing();
     }
 
-     public void IsFailing()
-      {
-          Animation.SetFailing();
-      }
-
-      public void CheckPlanks()
-      {
-        if(PlanksInfo.CollectedPlanks.Count > 0)
+    public void CheckPlanks()
+    {
+        if (PlanksInfo.CollectedPlanks.Count > 0)
         {
             Animation.SetRunningWithPlanks();
         }
@@ -119,7 +107,7 @@ public class Player : MonoBehaviour, ICharacter
         {
             Animation.SetRunning();
         }
-      }
+    }
 
     void HandleInput()
     {
@@ -138,11 +126,11 @@ public class Player : MonoBehaviour, ICharacter
         {
             if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
             {
-                _currentTurnInput = -1f; 
+                _currentTurnInput = -1f;
             }
             else if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
             {
-                _currentTurnInput = 1f;  
+                _currentTurnInput = 1f;
             }
         }
     }
@@ -163,13 +151,5 @@ public class Player : MonoBehaviour, ICharacter
         }
 
         _characterController.Move(moveDirection * Time.deltaTime);
-    }
-
-    private IEnumerator StartCountdownRoutine()
-    {
-        yield return new WaitForSeconds(3f);
-        BotsManager.Instance.StartTheRun();
-        Animation.SetRunning();
-        _isGameStarted = true;
     }
 }

@@ -49,8 +49,12 @@ MonoBehaviour:
   P_WonCoins: {fileID: 0}
   P_Settings: {fileID: 0}
   P_ExitGame: {fileID: 0}
+  P_GameStart: {fileID: 0}
+  P_PlayerPlace: {fileID: 0}
+  P_Countdown: {fileID: 0}
   P_Victory: {fileID: 0}
   P_GameOver: {fileID: 0}
+  P_FirstPlace: {fileID: 0}
   B_Play: {fileID: 0}
   B_Retry: {fileID: 0}
   B_Deny: {fileID: 0}
@@ -71,6 +75,56 @@ MonoBehaviour:
   TMP_Level_Board: {fileID: 0}
   TMP_Level_OfflineEarn: {fileID: 0}
   TMP_PlayerPlace: {fileID: 0}
+  TMP_PlaceAbbreviation: {fileID: 0}
+  TMP_Countdown: {fileID: 0}
   TMP_EarnedCoins: {fileID: 0}
   TMP_WonCoins: {fileID: 0}
-  TMP_CollectedBoards: {fileID: 0}
+  duration: 0.65
+  curveNumber:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 4.5714283
+      outSlope: 4.5714283
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.0252105
+    - serializedVersion: 3
+      time: 0.99165034
+      value: 0.014300853
+      inSlope: -6.0277896
+      outSlope: -6.0277896
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.046202794
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  curveGoText:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 4.5714283
+      outSlope: 4.5714283
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.0252105
+    - serializedVersion: 3
+      time: 0.99165034
+      value: 0.014300853
+      inSlope: -6.0277896
+      outSlope: -6.0277896
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.046202794
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

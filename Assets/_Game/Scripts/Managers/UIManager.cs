@@ -1,6 +1,6 @@
+﻿using System;
 using System.Collections;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,8 +13,15 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject P_WonCoins;
     [SerializeField] GameObject P_Settings;
     [SerializeField] GameObject P_ExitGame;
+    [Header("Game Flow Panels")]
+    [SerializeField] GameObject P_GameStart;
+    [SerializeField] GameObject P_PlayerPlace;
+    [SerializeField] GameObject P_Countdown;
     [SerializeField] GameObject P_Victory;
     [SerializeField] GameObject P_GameOver;
+    [SerializeField] GameObject P_FirstPlace;
+
+    //[SerializeField] GameObject P_Game;
     //B stands for Button
     [Space]
     [Header("Buttons")]
@@ -41,11 +48,24 @@ public class UIManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI TMP_Level_OfflineEarn;
     [SerializeField] TextMeshProUGUI TMP_PlayerPlace;
     [SerializeField] TextMeshProUGUI TMP_PlaceAbbreviation;
+    [SerializeField] TextMeshProUGUI TMP_Countdown;
     [SerializeField] TextMeshProUGUI TMP_EarnedCoins;
     [SerializeField] TextMeshProUGUI TMP_WonCoins;
-    [SerializeField] TextMeshProUGUI TMP_CollectedBoards;
+    //[SerializeField] TextMeshProUGUI TMP_CollectedBoards;
 
+    [SerializeField] private float duration = 0.65f;
+    [SerializeField] AnimationCurve curveNumber;
+    [SerializeField] AnimationCurve curveGoText;
     float collectedCoins, earnedCoins;
+    
+
+    Coroutine countdownRoutine;
+    UIAnimation countdownAnimation;
+    UIAnimation hintPanelAnimation;
+
+    public event Action OnCountdownFinished;
+    public event Action OnDeath;
+    public void RaiseOnDeath() => OnDeath?.Invoke();
     #region Singleton
     private static UIManager _instance;
     public static UIManager Instance
@@ -57,7 +77,7 @@ public class UIManager : MonoBehaviour
                 _instance = FindFirstObjectByType<UIManager>();
                 if (_instance == null)
                 {
-                    Debug.LogError("AuidoManager not found in the scene!");
+                    Debug.LogError("UIManager not found in the scene!");
                 }
             }
             return _instance;
@@ -73,15 +93,22 @@ public class UIManager : MonoBehaviour
         _instance = this;
     }
     #endregion
+
+
     private void Start()
     {
+        countdownAnimation = new UIAnimation(TMP_Countdown, duration, curveNumber, curveGoText);
+        //hintPanelAnimation = new UIAnimation();
         P_MainMenu?.SetActive(false);
         P_GamePlay?.SetActive(false);
+
         P_WonCoins?.SetActive(false);
+        P_Settings?.SetActive(false);
         P_ExitGame?.SetActive(false);
+        
         P_Victory?.SetActive(false);
         P_GameOver?.SetActive(false);
-        P_Settings?.SetActive(false);
+        P_PlayerPlace?.SetActive(false);
         Initialize();
     }
 
@@ -95,10 +122,11 @@ public class UIManager : MonoBehaviour
         //}
         //else
         P_MainMenu.SetActive(true);
-
+        OnDeath -= AfterDeath;
+        OnDeath += AfterDeath;
     }
 
-    public void SetPlayersPlace(int place)
+    public void SetPlayerPlace(int place)
     {
         TMP_PlayerPlace.text = place.ToString();
         switch (place)
@@ -147,26 +175,63 @@ public class UIManager : MonoBehaviour
         B_GetCoinsAfterFinishing.onClick.AddListener(OnGetRewardedCoins);
         B_GetWonCoins.onClick.AddListener(OnGetRewardedCoins);
     }
+    public void StartCountdown()
+    {
+        if (countdownRoutine != null)
+        {
+            StopCoroutine(countdownRoutine);
+        }
+        countdownRoutine = StartCoroutine(CountdownCoroutine());
+    }
+    private void Update()
+    {
+        TrackPlace();
+    }
+    void TrackPlace()
+    {
+        Transform player = GameManager.Instance.GetPlayerTransform();
+        int place = GameManager.Instance.GetMyPlace(player);
+        SetPlayerPlace(place);
+    }
     void OnPlay()
     {
         GameManager.Instance.RaiseOnStart();
         P_MainMenu?.SetActive(false);
         P_GamePlay?.SetActive(true);
-
+        StartCountdown();
     }
-
-    void InPlay()
+    void AfterDeath()
     {
-        //coroutine
-    }
-    void OnRestart()
-    {
-
+        P_GameStart?.SetActive(false);
+        P_GameOver?.SetActive(true);
     }
     void OnRetry()
     {
+        Debug.Log("Opened panel");
+        GameManager.Instance.RaiseOnRestart();
+        P_GameOver?.SetActive(false);
         P_GamePlay?.SetActive(false);
         P_MainMenu?.SetActive(true);
+    }
+    void OnLevelCompleteAtFirstPlace()
+    {
+        P_Countdown?.SetActive(false);
+        P_PlayerPlace?.SetActive(false);
+        P_Victory?.SetActive(true);
+        //get coins from economy manager
+    }
+    void OnLevelCompleteAtLowPlaces()
+    {
+        P_Countdown?.SetActive(false);
+        P_FirstPlace?.SetActive(false);
+        P_Victory?.SetActive(true);
+        //get coins from economy manager
+    }
+    void OnCoinsGet()
+    {
+        //get coins and set in the economy manager
+        GameManager.Instance.RaiseOnRestart();
+        //close panels
     }
     void ExitGame()
     {
@@ -200,16 +265,20 @@ public class UIManager : MonoBehaviour
     void OnGetRewardedCoins()
     {
         //set rewarded coins.
-        P_GamePlay?.SetActive(false);
-        P_MainMenu?.SetActive(true);
-
+        //P_GamePlay?.SetActive(false);
+        //P_MainMenu?.SetActive(true);
+        //get coins and set in the economy manager
+        GameManager.Instance.RaiseOnRestart();
+        //close panels
     }
     void OnGetWonCoins()
     {
         //set rewarded coins
-        P_WonCoins?.SetActive(false);
-        P_MainMenu?.SetActive(true);
-
+        //P_WonCoins?.SetActive(false);
+        //P_MainMenu?.SetActive(true);
+        //get coins and set in the economy manager
+        GameManager.Instance.RaiseOnRestart();
+        //close panels
     }
     void OnBoardLevelUp()
     {
@@ -226,11 +295,19 @@ public class UIManager : MonoBehaviour
         // save changed name
     }
 
-    IEnumerator OnStart()
+    IEnumerator CountdownCoroutine()
     {
-        yield break;
-        //start countdown 
-        //start hint panel 
+        P_Countdown?.SetActive(true);
+        for (int i = 3; i > 0; i--)
+        {
+            yield return countdownAnimation.PlayNumber(i);
+            //yield return new WaitForSeconds(interval);
+        }
+
+        yield return countdownAnimation.PlayGo();
+        P_Countdown?.SetActive(false);
+        P_PlayerPlace?.SetActive(true);
+        OnCountdownFinished();
     }
 }
 

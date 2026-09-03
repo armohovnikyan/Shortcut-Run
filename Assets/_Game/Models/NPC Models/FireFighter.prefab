@@ -253,16 +253,16 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -3982702926990315986, guid: 2d8c2a259e5171a4d96991a710e0cf53, type: 3}
-  - {fileID: 807127720501808570, guid: 2d8c2a259e5171a4d96991a710e0cf53, type: 3}
-  - {fileID: 8627802631119627231, guid: 2d8c2a259e5171a4d96991a710e0cf53, type: 3}
-  - {fileID: 4819164463573397646, guid: 2d8c2a259e5171a4d96991a710e0cf53, type: 3}
-  - {fileID: 3688885754278757677, guid: 2d8c2a259e5171a4d96991a710e0cf53, type: 3}
-  - {fileID: -902308575120955281, guid: 2d8c2a259e5171a4d96991a710e0cf53, type: 3}
-  - {fileID: 4400875959840592639, guid: 2d8c2a259e5171a4d96991a710e0cf53, type: 3}
-  - {fileID: 4359609545401035197, guid: 2d8c2a259e5171a4d96991a710e0cf53, type: 3}
-  - {fileID: -6411348385769539693, guid: 2d8c2a259e5171a4d96991a710e0cf53, type: 3}
-  - {fileID: -6652950648657251626, guid: 2d8c2a259e5171a4d96991a710e0cf53, type: 3}
+  - {fileID: -3982702926990315986, guid: 58d82151e778a7642bee8c15263d8f88, type: 3}
+  - {fileID: 807127720501808570, guid: 58d82151e778a7642bee8c15263d8f88, type: 3}
+  - {fileID: 8627802631119627231, guid: 58d82151e778a7642bee8c15263d8f88, type: 3}
+  - {fileID: 4819164463573397646, guid: 58d82151e778a7642bee8c15263d8f88, type: 3}
+  - {fileID: 3688885754278757677, guid: 58d82151e778a7642bee8c15263d8f88, type: 3}
+  - {fileID: -902308575120955281, guid: 58d82151e778a7642bee8c15263d8f88, type: 3}
+  - {fileID: 4400875959840592639, guid: 58d82151e778a7642bee8c15263d8f88, type: 3}
+  - {fileID: 4359609545401035197, guid: 58d82151e778a7642bee8c15263d8f88, type: 3}
+  - {fileID: -6411348385769539693, guid: 58d82151e778a7642bee8c15263d8f88, type: 3}
+  - {fileID: -6652950648657251626, guid: 58d82151e778a7642bee8c15263d8f88, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -289,7 +289,7 @@ SkinnedMeshRenderer:
   m_Quality: 0
   m_UpdateWhenOffscreen: 0
   m_SkinnedMotionVectors: 1
-  m_Mesh: {fileID: 373087988783925570, guid: 2d8c2a259e5171a4d96991a710e0cf53, type: 3}
+  m_Mesh: {fileID: 373087988783925570, guid: 58d82151e778a7642bee8c15263d8f88, type: 3}
   m_Bones:
   - {fileID: 3087955903850622516}
   - {fileID: 1878743798489611131}
@@ -314,7 +314,7 @@ SkinnedMeshRenderer:
   - {fileID: 7468307030831535605}
   - {fileID: 5299158488895756780}
   m_BlendShapeWeights: []
-  m_RootBone: {fileID: 0}
+  m_RootBone: {fileID: 9116277254546037471}
   m_AABB:
     m_Center: {x: 0.017573953, y: 0.17967662, z: 0.018373698}
     m_Extent: {x: 0.4832481, y: 1.1426312, z: 0.4161143}

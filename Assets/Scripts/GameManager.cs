@@ -14,9 +14,15 @@
 //        public Transform RunnerTransform;
 //        public bool Passed;
 //}
+// Updated upstream
 //public class GameManagerr : MonoBehaviour
 //{
 //    public static GameManagerr Instance;
+//=======
+//public class GameManager : MonoBehaviour
+//{
+//    public static GameManager Instance;
+// >>>>>>> Stashed changes
 //    public Transform Finish;
 //    public List<Runner> Runners = new List<Runner>();
 //    List<Place> Distances = new List<Place>();
