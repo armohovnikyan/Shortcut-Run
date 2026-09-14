@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour, ICharacter
+public class PlayerController : MonoBehaviour, ICharacter
 {
     [Header("Настройки движения")]
     public float forwardSpeed = 7f;
@@ -28,13 +28,13 @@ public class PlayerMovement : MonoBehaviour, ICharacter
 
     public CameraFollow cameraFollow;
 
-    PlankCollector PlanksInfo;
+    Plank PlanksInfo;
 
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
         Animation = GetComponent<AnimationsControl>();
-        PlanksInfo = GetComponent<PlankCollector>();
+        PlanksInfo = GetComponent<Plank>();
         GameManager.Instance.RegistrRunner(transform);
 
         Animation.SetIdle();
@@ -53,10 +53,10 @@ public class PlayerMovement : MonoBehaviour, ICharacter
     {
         SpeedBonus = Mathf.Clamp(SpeedBonus + Bonus, 1f, MaxSpeedBonus);
 
-        if(SpeedBonus > MaxSpeedBonus - 0.5f)
+        if (SpeedBonus > MaxSpeedBonus - 0.5f)
         {
-           var emision = FastRunParticleEffect.emission;
-           emision.enabled = true;
+            var emision = FastRunParticleEffect.emission;
+            emision.enabled = true;
         }
         else
         {
@@ -149,7 +149,7 @@ public class PlayerMovement : MonoBehaviour, ICharacter
 
     public void Jump()
     {
-      Animation.SetJump();  
+        Animation.SetJump();
     }
 
     public void Climb(bool Climbing)
@@ -209,7 +209,7 @@ public class PlayerMovement : MonoBehaviour, ICharacter
     private IEnumerator StartCountdownRoutine()
     {
         yield return new WaitForSeconds(3f);
-        BotsManager.Instance.StartTheRun();
+        BotController.Instance.StartTheRun();
         Animation.SetRunning();
         _isGameStarted = true;
     }

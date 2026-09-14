@@ -6789,8 +6789,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 626492443}
-  - component: {fileID: 626492442}
   - component: {fileID: 626492444}
+  - component: {fileID: 626492445}
   m_Layer: 0
   m_Name: BotsManageer
   m_TagString: Untagged
@@ -6798,35 +6798,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &626492442
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 626492441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e3fe6899b3d85e4890bb3f9d4e6313d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BotsManager
-  BotsList: []
-  SpawnPositionsForBots:
-  - {fileID: 1121732168}
-  - {fileID: 905473072}
-  - {fileID: 2021009603}
-  ColorsForBot:
-  - {fileID: 2100000, guid: a3d6377bc9b91b54abd89fbb27e8c55c, type: 2}
-  - {fileID: 2100000, guid: 202ad769281b04d41aed6c2611c2bdb7, type: 2}
-  - {fileID: 2100000, guid: ce27e456de3a838459756e88cf3e4f6d, type: 2}
-  - {fileID: 2100000, guid: 6140c3574165dba41b629c4a94fc816d, type: 2}
-  - {fileID: 2100000, guid: 0cec33e13948c84499850ef1a8620d3f, type: 2}
-  BotPrefab: {fileID: 2184587977272286700, guid: 203c7614423ec1c46817d5623dac2c07, type: 3}
-  Roads:
-  - {fileID: 1701175916}
-  - {fileID: 1451393695}
-  Points: []
-  BotsCount: 3
 --- !u!4 &626492443
 Transform:
   m_ObjectHideFlags: 0
@@ -6874,6 +6845,32 @@ MonoBehaviour:
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 6de49e219734eeb4faa969f5ad923e53, type: 2}
   m_BuildHeightMesh: 0
+--- !u!114 &626492445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 626492441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0d5e6c19890c294db9792873c2c7732, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotController
+  BotsList: []
+  SpawnPositionsForBots:
+  - {fileID: 1121732168}
+  - {fileID: 905473072}
+  - {fileID: 2021009603}
+  ColorsForBot: []
+  BotPrefab: {fileID: 2184587977272286700, guid: 203c7614423ec1c46817d5623dac2c07, type: 3}
+  Roads:
+  - {fileID: 1701175916}
+  - {fileID: 1451393695}
+  - {fileID: 1907003370}
+  Points: []
+  BotsCount: 3
+  sampleCount: 24
 --- !u!1 &627576442
 GameObject:
   m_ObjectHideFlags: 0
@@ -10597,7 +10594,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffd6fcdb87fd6fe4988db1d614599613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  Finish: {fileID: 883514996}
+  Finish: {fileID: 1828991493}
 --- !u!4 &1404653062
 Transform:
   m_ObjectHideFlags: 0
@@ -10744,8 +10741,8 @@ GameObject:
   - component: {fileID: 1451393697}
   - component: {fileID: 1451393696}
   - component: {fileID: 1451393695}
-  - component: {fileID: 1451393694}
   - component: {fileID: 1451393693}
+  - component: {fileID: 1451393699}
   m_Layer: 6
   m_Name: Road (2)
   m_TagString: Untagged
@@ -10775,25 +10772,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
---- !u!114 &1451393694
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1451393692}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cecef5081bb43ed4fba2f3803347b5b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RoadGenerating
-  roadWidth: 16
-  roadThickness: 1
-  resolution: 150
-  uvTilingPerUnit: 0.2
-  topMaterial: {fileID: 2100000, guid: 1d57db5d384e51a47a8d9ae120700f53, type: 2}
-  sideMaterial: {fileID: 2100000, guid: 22194c14e68a0644b9ea54af6973937a, type: 2}
-  botsManager: {fileID: 0}
 --- !u!114 &1451393695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10966,6 +10944,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1451393699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1451393692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20a74cfefdc559b4fbfba208dd8a53d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelManager
+  roadWidth: 4
+  roadThickness: 0.3
+  resolution: 200
+  uvTilingPerUnit: 0.25
+  topMaterial: {fileID: 0}
+  sideMaterial: {fileID: 0}
+  botsManager: {fileID: 0}
 --- !u!4 &1466829481 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7114116107316184023, guid: 8f4d7d1e78d692f4186c734b6424dac8, type: 3}
@@ -11967,8 +11964,8 @@ GameObject:
   - component: {fileID: 1701175918}
   - component: {fileID: 1701175917}
   - component: {fileID: 1701175916}
-  - component: {fileID: 1701175915}
   - component: {fileID: 1701175920}
+  - component: {fileID: 1701175921}
   m_Layer: 6
   m_Name: Road
   m_TagString: Untagged
@@ -11976,25 +11973,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1701175915
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1701175914}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cecef5081bb43ed4fba2f3803347b5b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RoadGenerating
-  roadWidth: 16
-  roadThickness: 1
-  resolution: 150
-  uvTilingPerUnit: 0.2
-  topMaterial: {fileID: 2100000, guid: 1d57db5d384e51a47a8d9ae120700f53, type: 2}
-  sideMaterial: {fileID: 2100000, guid: 22194c14e68a0644b9ea54af6973937a, type: 2}
-  botsManager: {fileID: 0}
 --- !u!114 &1701175916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12354,6 +12332,25 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
+--- !u!114 &1701175921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1701175914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20a74cfefdc559b4fbfba208dd8a53d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelManager
+  roadWidth: 4
+  roadThickness: 0.3
+  resolution: 200
+  uvTilingPerUnit: 0.25
+  topMaterial: {fileID: 0}
+  sideMaterial: {fileID: 0}
+  botsManager: {fileID: 0}
 --- !u!1001 &1701702377
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12735,12 +12732,13 @@ GameObject:
   m_Component:
   - component: {fileID: 1769505862}
   - component: {fileID: 1769505863}
-  - component: {fileID: 1769505866}
   - component: {fileID: 1769505867}
   - component: {fileID: 1769505868}
-  - component: {fileID: 1769505870}
-  - component: {fileID: 1769505869}
   - component: {fileID: 1769505871}
+  - component: {fileID: 1769505875}
+  - component: {fileID: 1769505874}
+  - component: {fileID: 1769505873}
+  - component: {fileID: 1769505872}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -12793,29 +12791,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1.17, z: 0}
---- !u!114 &1769505866
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1769505861}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d85ce1e813878d443bd8ed82e54f28fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  forwardSpeed: 10
-  turnSpeed: 90
-  SpeedBonus: 1
-  MaxSpeedBonus: 2
-  speedPenaltyPerPlank: 0.02
-  minCarryMultiplier: 0.6
-  Place: 0
-  FastRunParticleEffect: {fileID: 480279492}
-  Animation: {fileID: 1769505868}
-  PlaceText: {fileID: 2102341871}
-  cameraFollow: {fileID: 1547552714}
 --- !u!54 &1769505867
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -12856,58 +12831,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimationsControl
   Animator: {fileID: 7633918342262935377}
---- !u!114 &1769505869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1769505861}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e41c4b7e586a2f4086bbb0d2dca0b40, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BridjBuilder
-  footOffset: 1
-  bodyRigidbody: {fileID: 1769505867}
-  roadLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  groundCheckDistance: 1.2
-  rayOriginHeight: 0.5
-  offRoadDebounce: 0.05
-  onRoadDebounce: 0.05
-  _state: 0
-  grabRoadDistance: 10
-  climbDuration: 0.5
-  jumpHeight: 5
-  jumpTroHeight: 10
-  jumpDuration: 1
-  jumpTroDuration: 2
-  FeetPos: {fileID: 374494319}
-  ParticleEffect: {fileID: 8647897871954950044, guid: 3f6ea2bceb1acbb4dbb558fcc15a8be2, type: 3}
---- !u!114 &1769505870
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1769505861}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0fa96bf4eed50442b1d83f8840d6600, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlankCollector
-  plankPrefab: {fileID: 5653736026493962404, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
-  stackPosition: {fileID: 1679506033}
-  plankTag: Plank
-  CollectedPlanks: []
-  plankHeight: 0.15
-  CollecteddPlanksTxT: {fileID: 6279645486584522740}
-  AddedPlankEffect: {fileID: 1359781558408469809, guid: 9cebe06d07ca36041bd3c750669a21b7, type: 3}
-  MaxOffset: 0.3
-  SwingDirection: 1
-  force: 1
 --- !u!114 &1769505871
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12921,6 +12844,94 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerKiller
   botTag: Bot
+--- !u!114 &1769505872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769505861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7358954812bdf244dbaf40caaeea0178, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationsControl
+  Animator: {fileID: 0}
+--- !u!114 &1769505873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769505861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3dd305649a19134cb7693c024c0b460, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovment
+  footOffset: 1
+  bodyRigidbody: {fileID: 0}
+  roadLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  groundCheckDistance: 1.2
+  rayOriginHeight: 0.5
+  offRoadDebounce: 0.05
+  onRoadDebounce: 0.05
+  _state: 0
+  grabRoadDistance: 8
+  climbDuration: 0.25
+  jumpHeight: 1
+  jumpTroHeight: 2
+  jumpDuration: 1
+  jumpTroDuration: 2
+  FeetPos: {fileID: 374494319}
+  ParticleEffect: {fileID: 0}
+--- !u!114 &1769505874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769505861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66d775d4eed7adf438ccc31955289b83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Plank
+  plankPrefab: {fileID: 5653736026493962404, guid: 8f4d7d1e78d692f4186c734b6424dac8, type: 3}
+  stackPosition: {fileID: 1679506033}
+  plankTag: Plank
+  CollectedPlanks: []
+  plankHeight: 0.15
+  CollecteddPlanksTxT: {fileID: 0}
+  AddedPlankEffect: {fileID: 0}
+  MaxOffset: 0.5
+  SwingDirection: 1
+  force: 1
+--- !u!114 &1769505875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769505861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7864701a062b3184f98d61d370f18ee7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  forwardSpeed: 7
+  turnSpeed: 90
+  SpeedBonus: 1
+  MaxSpeedBonus: 3
+  speedPenaltyPerPlank: 0.02
+  minCarryMultiplier: 0.6
+  Place: 0
+  FastRunParticleEffect: {fileID: 0}
+  Animation: {fileID: 0}
+  PlaceText: {fileID: 0}
+  cameraFollow: {fileID: 1547552714}
 --- !u!4 &1783811291 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7114116107316184023, guid: 8f4d7d1e78d692f4186c734b6424dac8, type: 3}
@@ -13088,6 +13099,7 @@ GameObject:
   - component: {fileID: 1828991493}
   - component: {fileID: 1828991494}
   - component: {fileID: 1828991495}
+  - component: {fileID: 1828991496}
   m_Layer: 6
   m_Name: FinishPlatform
   m_TagString: Finish
@@ -13159,6 +13171,33 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.0000008, y: 6, z: 1.000001}
   m_Center: {x: 0.00000005960469, y: 4.33, z: -0.21}
+--- !u!54 &1828991496
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1828991489}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &1833263981
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13369,8 +13408,8 @@ GameObject:
   - component: {fileID: 1907003372}
   - component: {fileID: 1907003371}
   - component: {fileID: 1907003370}
-  - component: {fileID: 1907003369}
   - component: {fileID: 1907003368}
+  - component: {fileID: 1907003374}
   m_Layer: 6
   m_Name: Road (1)
   m_TagString: Untagged
@@ -13400,25 +13439,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
---- !u!114 &1907003369
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1907003367}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cecef5081bb43ed4fba2f3803347b5b9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RoadGenerating
-  roadWidth: 16
-  roadThickness: 1
-  resolution: 150
-  uvTilingPerUnit: 0.2
-  topMaterial: {fileID: 2100000, guid: 1d57db5d384e51a47a8d9ae120700f53, type: 2}
-  sideMaterial: {fileID: 2100000, guid: 22194c14e68a0644b9ea54af6973937a, type: 2}
-  botsManager: {fileID: 0}
 --- !u!114 &1907003370
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13591,6 +13611,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1907003374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1907003367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20a74cfefdc559b4fbfba208dd8a53d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelManager
+  roadWidth: 4
+  roadThickness: 0.3
+  resolution: 200
+  uvTilingPerUnit: 0.25
+  topMaterial: {fileID: 0}
+  sideMaterial: {fileID: 0}
+  botsManager: {fileID: 0}
 --- !u!1001 &1909950748
 PrefabInstance:
   m_ObjectHideFlags: 0

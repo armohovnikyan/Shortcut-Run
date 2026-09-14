@@ -4,14 +4,14 @@ using UnityEngine.AI;
 using System.Collections.Generic;
 using System.Collections;
 
-public class Bot : MonoBehaviour, ICharacter, IKillable
+public class BotMovement : MonoBehaviour, ICharacter, IKillAble
 {
     public NavMeshAgent Agent;
-    public PlankCollector PlanksInfo;
+    public Plank PlanksInfo;
     public Vector3 Destination;
     public bool RunIsStarted;
     public AnimationsControl Animation;
-    public BridgeBuilder BridgeInfo;
+    public PlayerMovment BridgeInfo;
 
     public GameObject Skin;
     public Transform AnimatorParent;
@@ -41,8 +41,9 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
     void Start()
     {
         Agent = GetComponent<NavMeshAgent>();
-        PlanksInfo = GetComponent<PlankCollector>();
+        PlanksInfo = GetComponent<Plank>();
         Animation = GetComponent<AnimationsControl>();
+        BridgeInfo = GetComponent<PlayerMovment>();
         GameManager.Instance.RegistrRunner(transform);
     }
     public void Spawn(Transform Finish, Vector3[] WayPoints)
@@ -124,7 +125,7 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
             Animation.SetRunning();
         }
 
-        UpdateAgentSpeed(); 
+        UpdateAgentSpeed();
     }
 
     private float CarryMultiplier()
@@ -148,10 +149,10 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
 
     public void Jump()
     {
-      Animation.SetJump();  
+        Animation.SetJump();
     }
 
-     public void Climb(bool Climbing)
+    public void Climb(bool Climbing)
     {
         Animation.SetClimbing(Climbing);
     }
@@ -164,7 +165,7 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
             Animation.SetDance();
             RunIsStarted = false;
 
-            GameManager.Instance.UnRegisterRunner(transform,true);
+            GameManager.Instance.UnRegisterRunner(transform, true);
 
             StartCoroutine(GoToFinalPoint());
         }
@@ -245,16 +246,16 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
 
     public void GetKnockedOut(Vector3 launchDirection)
     {
-        if (IsKnockedOut) return; 
+        if (IsKnockedOut) return;
 
         IsKnockedOut = true;
         RunIsStarted = false;
         ShortCutting = false;
 
         if (Agent != null) Agent.enabled = false;
-        if (BridgeInfo != null) BridgeInfo.enabled = false; 
+        if (BridgeInfo != null) BridgeInfo.enabled = false;
 
-        GameManager.Instance.UnRegisterRunner(transform,false);
+        GameManager.Instance.UnRegisterRunner(transform, false);
 
         StartCoroutine(KnockoutRoutine(launchDirection));
     }
@@ -278,10 +279,10 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
             transform.position = startPos + horizontal + Vector3.up * height;
 
             yield return null;
-        }    
-        
-            gameObject.SetActive(false);
-        
+        }
+
+        gameObject.SetActive(false);
+
     }
 
     private void ResumeRunning()
@@ -289,7 +290,7 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
         IsKnockedOut = false;
         RunIsStarted = true;
 
-        if (BridgeInfo != null) BridgeInfo.enabled = true; 
+        if (BridgeInfo != null) BridgeInfo.enabled = true;
 
         if (Agent != null)
         {
@@ -299,6 +300,6 @@ public class Bot : MonoBehaviour, ICharacter, IKillable
         }
 
         GameManager.Instance.RegistrRunner(transform);
-        CheckPlanks(); 
+        CheckPlanks();
     }
 }

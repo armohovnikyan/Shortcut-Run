@@ -9,9 +9,9 @@ public struct Place
 
 public class Runner
 {
-        public Transform RunnerTransform;
-        public bool Passed;
-        public bool InRace;
+    public Transform RunnerTransform;
+    public bool Passed;
+    public bool InRace;
 }
 public class GameManager : MonoBehaviour
 {
@@ -21,27 +21,27 @@ public class GameManager : MonoBehaviour
     List<Place> Distances = new List<Place>();
     void Awake()
     {
-      Instance = this;  
+        Instance = this;
     }
 
     public void RegistrRunner(Transform RunnerTransform)
     {
-        Runners.Add(new Runner{RunnerTransform = RunnerTransform, Passed = false,InRace = true});
+        Runners.Add(new Runner { RunnerTransform = RunnerTransform, Passed = false, InRace = true });
     }
 
-    public void UnRegisterRunner(Transform RunnerTransform,bool Passed)
+    public void UnRegisterRunner(Transform RunnerTransform, bool Passed)
     {
         for (int i = 0; i < Runners.Count; i++)
         {
-            if(Runners[i].RunnerTransform == RunnerTransform)
+            if (Runners[i].RunnerTransform == RunnerTransform)
             {
-                if(Passed)
+                if (Passed)
                 {
-                Runners[i].Passed = Passed;
+                    Runners[i].Passed = Passed;
                 }
                 else
-                {                              
-                Runners[i].InRace = Passed;
+                {
+                    Runners[i].InRace = Passed;
                 }
                 return;
             }
@@ -51,24 +51,24 @@ public class GameManager : MonoBehaviour
     void FixedUpdate()
     {
         Distances.Clear();
-        foreach(Runner Runner in Runners)
+        foreach (Runner Runner in Runners)
         {
-        Vector3 dir = Finish.position - Runner.RunnerTransform.position;
-        dir.y = 0;
-        
-         if(Runner.Passed)
-         {
-             dir = Vector3.zero;
-         } 
+            Vector3 dir = Finish.position - Runner.RunnerTransform.position;
+            dir.y = 0;
 
-         if(!Runner.InRace)
+            if (Runner.Passed)
+            {
+                dir = Vector3.zero;
+            }
+
+            if (!Runner.InRace)
             {
                 dir = Vector3.positiveInfinity;
             }
-        Distances.Add(new Place { Distance = dir.sqrMagnitude, RunnerTransform = Runner.RunnerTransform});
+            Distances.Add(new Place { Distance = dir.sqrMagnitude, RunnerTransform = Runner.RunnerTransform });
         }
 
-         Distances.Sort((a, b) => a.Distance.CompareTo(b.Distance));
+        Distances.Sort((a, b) => a.Distance.CompareTo(b.Distance));
     }
 
     public int GetMyPlace(Transform myTransform)
@@ -77,7 +77,7 @@ public class GameManager : MonoBehaviour
         {
             if (Distances[i].RunnerTransform == myTransform)
             {
-                return i + 1; 
+                return i + 1;
             }
         }
 

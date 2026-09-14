@@ -5,7 +5,7 @@ using Unity.AI.Navigation;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 [RequireComponent(typeof(SplineContainer))]
-public class RoadGenerating : MonoBehaviour
+public class LevelManager : MonoBehaviour
 {
     [Header("Shape")]
     public float roadWidth = 4f;
@@ -27,19 +27,19 @@ public class RoadGenerating : MonoBehaviour
     private MeshRenderer meshRenderer;
 
     private NavMeshSurface navSurface;
-    public BotsManager botsManager;
+    public BotController botsManager;
     int sampleCount;
 
     void OnEnable()
     {
-    splineContainer = GetComponent<SplineContainer>();
-    meshFilter = GetComponent<MeshFilter>();
-    meshRenderer = GetComponent<MeshRenderer>();
-    navSurface = GetComponent<NavMeshSurface>();
+        splineContainer = GetComponent<SplineContainer>();
+        meshFilter = GetComponent<MeshFilter>();
+        meshRenderer = GetComponent<MeshRenderer>();
+        navSurface = GetComponent<NavMeshSurface>();
 
-    
-    Spline.Changed += OnSplineChanged;
-    GenerateRoad();
+
+        Spline.Changed += OnSplineChanged;
+        GenerateRoad();
     }
     void OnDisable() => Spline.Changed -= OnSplineChanged;
 
@@ -71,8 +71,8 @@ public class RoadGenerating : MonoBehaviour
         MeshCollider collider = GetComponent<MeshCollider>();
         if (collider != null) collider.sharedMesh = mesh;
 
-         //if (navSurface != null)
-         //   navSurface.BuildNavMesh();
+        //if (navSurface != null)
+        //   navSurface.BuildNavMesh();
     }
 
 

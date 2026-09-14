@@ -9,7 +9,7 @@ public class PlayerKiller : MonoBehaviour
     {
         if (!other.CompareTag(botTag)) return;
 
-        IKillable killable = other.GetComponentInParent<IKillable>();
+        IKillAble killable = other.GetComponentInParent<IKillAble>();
         if (killable == null) return;
 
 
@@ -18,7 +18,7 @@ public class PlayerKiller : MonoBehaviour
 
         if (hitDirection.sqrMagnitude < 0.0001f)
         {
-            hitDirection = transform.forward; 
+            hitDirection = transform.forward;
         }
 
         killable.GetKnockedOut(hitDirection.normalized);

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public interface IKillable
+public interface IKillAble
 {
     void GetKnockedOut(Vector3 launchDirection);
 }

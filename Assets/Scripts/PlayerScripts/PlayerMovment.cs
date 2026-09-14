@@ -2,47 +2,47 @@ using Unity.Mathematics;
 using UnityEngine;
 
 
-public class BridgeBuilder : MonoBehaviour
+public class PlayerMovment : MonoBehaviour
 {
 
-    [Header("Тело игрока (замена CharacterController)")]
-    [Tooltip("Расстояние по Y от pivot (transform.position) до ступней игрока. " +
-             "Раньше бралось из CharacterController.center/height — теперь задаётся вручную. " +
-             "Формула перевода: footOffset = height/2 - center.y (для типового CharacterController).")]
+    [Header("Player Body")]
+    [Tooltip("Y-distance from the pivot (transform.position) to the player's feet. " +
+             "It used to be derived from CharacterController.center/height; now it is set manually. " +
+             "Translation formula: footOffset = height/2 - center.y (for a typical CharacterController).")]
     public float footOffset = 1f;
 
-    [Tooltip("Необязательно. Если на игроке есть НЕ-кинематический Rigidbody, " +
-             "коррекция высоты пойдёт через Rigidbody.MovePosition (лучше дружит с физикой). " +
-             "Если Rigidbody нет или он кинематический — двигаем transform напрямую. " +
-             "Если поле не назначено в инспекторе, скрипт попробует найти Rigidbody сам.")]
+    [Tooltip("Not necessarily. If the player has a non-kinematic Rigidbody..., " +
+             "Height correction will be handled via Rigidbody.MovePosition (it plays better with physics). " +
+             "If there is no Rigidbody or it is kinematic, move the transform directly.. " +
+             "If the field is not assigned in the Inspector, the script will attempt to find the Rigidbody itself.")]
     public Rigidbody bodyRigidbody;
 
-    [Header("Слои (замена isGrounded)")]
-    [Tooltip("Сюда добавить ТОЛЬКО слой главной дороги. Слой досок класть НЕЛЬЗЯ")]
+    [Header("Layers (replacement for isGrounded)")]
+    [Tooltip("Add ONLY the main road layer here. Do NOT lay the plank layer.")]
     public LayerMask roadLayer;
     public float groundCheckDistance = 1.2f;
     public float rayOriginHeight = 0.5f;
-    [Tooltip("Сколько секунд подряд нет дороги под ногами, чтобы считать сход с дороги")]
+    [Tooltip("How many consecutive seconds without the ground beneath one's feet constitute leaving the path?")]
     public float offRoadDebounce = 0.05f;
-    [Tooltip("Сколько секунд подряд есть дорога, чтобы считать возврат на дорогу")]
+    [Tooltip("How many consecutive seconds must the vehicle be on the road to count as a return to the road?")]
     public float onRoadDebounce = 0.05f;
     public enum GroundState { OnRoad, Bridging, Jump, Falling, OnTrampoline, ClimbUp }
     public GroundState _state = GroundState.OnRoad;
 
-    [Header("Зацепиться за дорогу в прыжке")]
-    [Tooltip("На какое расстояние ВПЕРЕДИ ищем дорогу, если под ногами пусто")]
+    [Header("Catch the road in mid-air")]
+    [Tooltip("How far ahead should we look for the path when there is nothing beneath our feet?")]
     public float grabRoadDistance = 8;
-    [Tooltip("Сколько секунд длится подтягивание на дорогу")]
+    [Tooltip("How many seconds does a pull-up take?")]
     public float climbDuration = 0.25f;
     private Vector3 _climbStartPos;
     private Vector3 _climbTargetPos;
     private float _climbStartTime;
 
-    [Header("Прыжок перед падением (пока нет анимации)")]
-    [Tooltip("Насколько высоко подпрыгивает персонаж, метры")]
+    [Header("Jump before falling (no animation yet)")]
+    [Tooltip("How high the character jumps (in meters)")]
     public float jumpHeight = 1;
     public float jumpTroHeight = 2;
-    [Tooltip("Сколько секунд длится прыжок целиком (вверх и обратно вниз)")]
+    [Tooltip("How many seconds does the entire jump (up and back down) last?")]
     public float jumpDuration = 1f;
     public float jumpTroDuration = 2f;
     private float _fixedBridgeY;
@@ -53,7 +53,7 @@ public class BridgeBuilder : MonoBehaviour
     private bool _debugLastHitRoad;
     private Vector3 _debugRayOrigin;
     private Vector3 _debugRayEnd;
-    PlankCollector PlankCollector;
+    Plank PlankCollector;
     [SerializeField] Transform FeetPos;
     [SerializeField] GameObject ParticleEffect;
     private float _jumpStartTime;
@@ -62,7 +62,7 @@ public class BridgeBuilder : MonoBehaviour
     {
         MainScript = GetComponent<ICharacter>();
         Debug.Log(MainScript);
-        PlankCollector = GetComponent<PlankCollector>();
+        PlankCollector = GetComponent<Plank>();
     }
 
     void LateUpdate()
@@ -104,7 +104,7 @@ public class BridgeBuilder : MonoBehaviour
             roadLayer
             );
 
-            return hitRoad;
+        return hitRoad;
     }
     private void CheckGroundState()
     {
@@ -145,7 +145,7 @@ public class BridgeBuilder : MonoBehaviour
             if (_state != GroundState.OnRoad)
             {
                 _state = GroundState.OnRoad;
-                MainScript.CheckPlanks(); 
+                MainScript.CheckPlanks();
                 Debug.Log($"[Bridge] -> OnRoad (Y={transform.position.y:F2})");
             }
 
@@ -222,7 +222,7 @@ public class BridgeBuilder : MonoBehaviour
         plankCol.enabled = true;
         plankFromHand.layer = LayerMask.NameToLayer("Road");
 
-        Instantiate(ParticleEffect, plankFromHand.transform.position, plankFromHand.transform.rotation * Quaternion.Euler(0,90,0));
+        Instantiate(ParticleEffect, plankFromHand.transform.position, plankFromHand.transform.rotation * Quaternion.Euler(0, 90, 0));
 
         _lastPlankSpawnXZ = new Vector2(plankFromHand.transform.position.x, plankFromHand.transform.position.z);
         MainScript.CheckPlanks();
@@ -240,61 +240,68 @@ public class BridgeBuilder : MonoBehaviour
     }
 
 
-        private void HandleJump()
-        {
+    private void HandleJump()
+    {
+        float duration = _currentJumpIsTrampoline ? jumpTroDuration : jumpDuration;
         float elapsed = Time.time - _jumpStartTime;
 
-        if (elapsed >= (_currentJumpIsTrampoline ? jumpTroDuration : jumpDuration))
+        if (elapsed >= duration)
         {
-            
-                if (!IsOnRoad() && TryFindNearbyRoad(out Vector3 grabPoint))
-                {
-                    StartClimb(grabPoint);
-                    Debug.Log("climbing!!!!!!!!!!!!!!!!");
-                    return;
-                }
-            
-            if(_currentJumpIsTrampoline)
+            // 1. Приземлились прямо на дорогу — просто продолжаем бежать
+            if (IsOnRoad())
             {
-              if(PlankCollector.CollectedPlanks.Count != 0)
-                {
-                    _state = GroundState.Bridging;
-                    _lastPlankSpawnXZ = new Vector2(transform.position.x, transform.position.z);
-                    Debug.Log($"[Bridge] -> Bridging, fixedY={_fixedBridgeY:F2}, planksInHand={PlankCollector.CollectedPlanks.Count}");
-                }
+                _state = GroundState.OnRoad;
+                MainScript.CheckPlanks();
+                return;
             }
-            else
+
+            // 2. Дороги под ногами нет, но она есть впереди — подтягиваемся
+            if (TryFindNearbyRoad(out Vector3 grabPoint))
             {
+                StartClimb(grabPoint);
+                Debug.Log("climbing!!!!!!!!!!!!!!!!");
+                return;
+            }
+
+            // 3. Батут, дороги нет, но остались доски — строим мост
+            if (_currentJumpIsTrampoline && PlankCollector.CollectedPlanks.Count != 0)
+            {
+                _state = GroundState.Bridging;
+                _lastPlankSpawnXZ = new Vector2(transform.position.x, transform.position.z);
+                Debug.Log($"[Bridge] -> Bridging, fixedY={_fixedBridgeY:F2}, planksInHand={PlankCollector.CollectedPlanks.Count}");
+                return;
+            }
+
+            // 4. Ни один вариант не сработал — только теперь падаем
             _state = GroundState.Falling;
             MainScript.IsFailing();
             return;
-            }
         }
 
-        float t = elapsed / (_currentJumpIsTrampoline ? jumpTroDuration : jumpDuration);
-        float arc = 4f * (_currentJumpIsTrampoline ? jumpTroHeight : jumpHeight) * t * (1f - t); 
+        float t = elapsed / duration;
+        float arc = 4f * (_currentJumpIsTrampoline ? jumpTroHeight : jumpHeight) * t * (1f - t);
         MoveToY(_fixedBridgeY + footOffset + arc);
     }
 
-   private bool TryFindNearbyRoad(out Vector3 grabPoint)
-{
-    grabPoint = default;
-
-    Vector3 origin = new Vector3(transform.position.x,0,transform.position.z);
-    if (Physics.Raycast(
-    origin,
-    transform.forward,
-    out RaycastHit hitInfo,
-    grabRoadDistance,
-    roadLayer,
-    QueryTriggerInteraction.Collide))   
+    private bool TryFindNearbyRoad(out Vector3 grabPoint)
     {
-        grabPoint = hitInfo.point;
-        return true;
-    }
+        grabPoint = default;
 
-    return false;
-}
+        Vector3 origin = new Vector3(transform.position.x, 0, transform.position.z);
+        if (Physics.Raycast(
+        origin,
+        transform.forward,
+        out RaycastHit hitInfo,
+        grabRoadDistance,
+        roadLayer,
+        QueryTriggerInteraction.Collide))
+        {
+            grabPoint = hitInfo.point;
+            return true;
+        }
+
+        return false;
+    }
 
 
     private void StartClimb(Vector3 grabPoint)
@@ -318,7 +325,7 @@ public class BridgeBuilder : MonoBehaviour
             _fixedBridgeY = _climbTargetPos.y - footOffset;
             _state = GroundState.OnRoad;
             MainScript.Climb(false);
-            MainScript.CheckPlanks(); 
+            MainScript.CheckPlanks();
         }
     }
 }

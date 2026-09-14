@@ -66,12 +66,13 @@ GameObject:
   - component: {fileID: 654820424583567175}
   - component: {fileID: 5500804039402002570}
   - component: {fileID: 9163748589445064941}
-  - component: {fileID: 5472210351097824604}
   - component: {fileID: -738052061939968443}
   - component: {fileID: 8935432448099405616}
   - component: {fileID: 6644383046303221742}
-  - component: {fileID: 795105875540512225}
-  - component: {fileID: 7093006970486976231}
+  - component: {fileID: 3293066957583326749}
+  - component: {fileID: 2254250130976904876}
+  - component: {fileID: 4923110513782995980}
+  - component: {fileID: 7940007584729865544}
   m_Layer: 7
   m_Name: Bot
   m_TagString: Bot
@@ -175,46 +176,6 @@ NavMeshAgent:
   m_BaseOffset: 0.5
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &5472210351097824604
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2184587977272286700}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d817bc5f08f35e4192d588d3bc197c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Bot
-  Agent: {fileID: 9163748589445064941}
-  PlanksInfo: {fileID: 7093006970486976231}
-  Destination: {x: 0, y: 0, z: 0}
-  RunIsStarted: 0
-  Animation: {fileID: 8935432448099405616}
-  BridgeInfo: {fileID: 795105875540512225}
-  Skin: {fileID: 0}
-  AnimatorParent: {fileID: 4426473191563027653}
-  Skins:
-  - {fileID: 5586249567006100042, guid: e1390885a58068647a716eff973cb2f9, type: 3}
-  - {fileID: 92201884710793243, guid: fdf0b9bf88adea041b902bffb2cd2785, type: 3}
-  - {fileID: 900391091961989459, guid: 9c60f01d7c2f13f4ca0ed4d159df5a98, type: 3}
-  - {fileID: 6944505587883810610, guid: 7d6bf3f91ab3be042bb500b9a7c565bc, type: 3}
-  - {fileID: 4691649751598740091, guid: dae268f71084ca04893c986693bb6b85, type: 3}
-  - {fileID: 5382459569070341312, guid: 529e52475367294469b6b10916075413, type: 3}
-  - {fileID: 5382459569070341312, guid: 529e52475367294469b6b10916075413, type: 3}
-  SpeedBonus: 1
-  Speed: 9
-  speedPenaltyPerPlank: 0.02
-  minCarryMultiplier: 0.6
-  Goals: []
-  knockoutHeight: 10
-  knockoutDistance: 8
-  knockoutDuration: 2
-  currentWaypoint: 8
-  ShortCutting: 0
-  PointToCut: 0
-  BestForShortCut: 0
 --- !u!54 &-738052061939968443
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -276,7 +237,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 3.06, z: 1}
   m_Center: {x: 0, y: 2.02, z: 0}
---- !u!114 &795105875540512225
+--- !u!114 &3293066957583326749
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -285,28 +246,50 @@ MonoBehaviour:
   m_GameObject: {fileID: 2184587977272286700}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e41c4b7e586a2f4086bbb0d2dca0b40, type: 3}
+  m_Script: {fileID: 11500000, guid: 66d775d4eed7adf438ccc31955289b83, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BridjBuilder
+  m_EditorClassIdentifier: Assembly-CSharp::Plank
+  plankPrefab: {fileID: 0}
+  stackPosition: {fileID: 0}
+  plankTag: Plank
+  CollectedPlanks: []
+  plankHeight: 0.15
+  CollecteddPlanksTxT: {fileID: 0}
+  AddedPlankEffect: {fileID: 0}
+  MaxOffset: 0.5
+  SwingDirection: 1
+  force: 1
+--- !u!114 &2254250130976904876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2184587977272286700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3dd305649a19134cb7693c024c0b460, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovment
   footOffset: 1
-  bodyRigidbody: {fileID: -738052061939968443}
+  bodyRigidbody: {fileID: 0}
   roadLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   groundCheckDistance: 1.2
   rayOriginHeight: 0.5
   offRoadDebounce: 0.05
   onRoadDebounce: 0.05
   _state: 0
-  grabRoadDistance: 2
+  grabRoadDistance: 8
   climbDuration: 0.25
-  jumpHeight: 0.4
+  jumpHeight: 1
   jumpTroHeight: 2
-  jumpDuration: 0.35
+  jumpDuration: 1
   jumpTroDuration: 2
-  FeetPos: {fileID: 7206080679617950510}
-  ParticleEffect: {fileID: 8647897871954950044, guid: 3f6ea2bceb1acbb4dbb558fcc15a8be2, type: 3}
---- !u!114 &7093006970486976231
+  FeetPos: {fileID: 0}
+  ParticleEffect: {fileID: 0}
+--- !u!114 &4923110513782995980
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -315,19 +298,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 2184587977272286700}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0fa96bf4eed50442b1d83f8840d6600, type: 3}
+  m_Script: {fileID: 11500000, guid: 7358954812bdf244dbaf40caaeea0178, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlankCollector
-  plankPrefab: {fileID: 5653736026493962404, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
-  stackPosition: {fileID: 2746448709709606715}
-  plankTag: Plank
-  CollectedPlanks: []
-  plankHeight: 0.15
-  CollecteddPlanksTxT: {fileID: 0}
-  AddedPlankEffect: {fileID: 1359781558408469809, guid: 9cebe06d07ca36041bd3c750669a21b7, type: 3}
-  MaxOffset: 0.5
-  SwingDirection: 1
-  force: 1
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationsControl
+  Animator: {fileID: 0}
+--- !u!114 &7940007584729865544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2184587977272286700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 414a870c33b89424db688107ee611dcb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotAI
 --- !u!1 &5181734612418514705
 GameObject:
   m_ObjectHideFlags: 0
