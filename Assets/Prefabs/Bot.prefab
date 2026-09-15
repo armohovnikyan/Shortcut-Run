@@ -250,13 +250,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66d775d4eed7adf438ccc31955289b83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Plank
-  plankPrefab: {fileID: 0}
-  stackPosition: {fileID: 0}
+  plankPrefab: {fileID: 5653736026493962404, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
+  stackPosition: {fileID: 2746448709709606715}
   plankTag: Plank
   CollectedPlanks: []
   plankHeight: 0.15
   CollecteddPlanksTxT: {fileID: 0}
-  AddedPlankEffect: {fileID: 0}
+  AddedPlankEffect: {fileID: 1359781558408469809, guid: 9cebe06d07ca36041bd3c750669a21b7, type: 3}
   MaxOffset: 0.5
   SwingDirection: 1
   force: 1
@@ -289,7 +289,7 @@ MonoBehaviour:
   jumpDuration: 1
   jumpTroDuration: 2
   FeetPos: {fileID: 7206080679617950510}
-  ParticleEffect: {fileID: 0}
+  ParticleEffect: {fileID: 8647897871954950044, guid: 3f6ea2bceb1acbb4dbb558fcc15a8be2, type: 3}
 --- !u!114 &4923110513782995980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -327,15 +327,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2eb377cf8fda7e438d457c5dc79307d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BotMovement
-  Agent: {fileID: 0}
-  PlanksInfo: {fileID: 0}
+  Agent: {fileID: 9163748589445064941}
+  PlanksInfo: {fileID: 3293066957583326749}
   Destination: {x: 0, y: 0, z: 0}
   RunIsStarted: 0
-  Animation: {fileID: 0}
-  BridgeInfo: {fileID: 0}
-  Skin: {fileID: 0}
-  AnimatorParent: {fileID: 0}
-  Skins: []
+  Animation: {fileID: 4923110513782995980}
+  BridgeInfo: {fileID: 2254250130976904876}
+  Skin: {fileID: 2184587977272286700}
+  AnimatorParent: {fileID: 4426473191563027653}
+  Skins:
+  - {fileID: 919132149155446097, guid: 8cecb827a75c903418540c3732726c6f, type: 3}
+  - {fileID: 919132149155446097, guid: a7d89feeff8a5f54d99640f8b8cf687f, type: 3}
+  - {fileID: 919132149155446097, guid: 56ccd590b937d4146b8065000f5d45b2, type: 3}
+  - {fileID: 919132149155446097, guid: 2d8c2a259e5171a4d96991a710e0cf53, type: 3}
+  - {fileID: 919132149155446097, guid: 1008afbe82635d841811b550388b93f2, type: 3}
+  - {fileID: 919132149155446097, guid: 830b94cb58dc01e4c8519481ec9c1bed, type: 3}
   SpeedBonus: 1
   Speed: 1
   speedPenaltyPerPlank: 0.02

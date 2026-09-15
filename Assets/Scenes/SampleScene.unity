@@ -6862,6 +6862,7 @@ MonoBehaviour:
   - {fileID: 1121732168}
   - {fileID: 905473072}
   - {fileID: 2021009603}
+  - {fileID: 2021009603}
   ColorsForBot: []
   BotPrefab: {fileID: 2184587977272286700, guid: 203c7614423ec1c46817d5623dac2c07, type: 3}
   Roads:
@@ -10574,7 +10575,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1404653062}
-  - component: {fileID: 1404653061}
+  - component: {fileID: 1404653063}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -10582,19 +10583,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1404653061
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1404653060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffd6fcdb87fd6fe4988db1d614599613, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  Finish: {fileID: 1828991493}
 --- !u!4 &1404653062
 Transform:
   m_ObjectHideFlags: 0
@@ -10610,6 +10598,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1404653063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1404653060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec22cf2c3cd7e7347af873d497cb90b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  Finish: {fileID: 883514996}
 --- !u!4 &1406340430 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7114116107316184023, guid: 8f4d7d1e78d692f4186c734b6424dac8, type: 3}
@@ -12344,13 +12345,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20a74cfefdc559b4fbfba208dd8a53d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelManager
-  roadWidth: 4
+  roadWidth: 12
   roadThickness: 0.3
   resolution: 200
   uvTilingPerUnit: 0.25
-  topMaterial: {fileID: 0}
-  sideMaterial: {fileID: 0}
-  botsManager: {fileID: 0}
+  topMaterial: {fileID: 2100000, guid: 1d57db5d384e51a47a8d9ae120700f53, type: 2}
+  sideMaterial: {fileID: 2100000, guid: 22194c14e68a0644b9ea54af6973937a, type: 2}
+  botsManager: {fileID: 626492445}
 --- !u!1001 &1701702377
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12856,7 +12857,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7358954812bdf244dbaf40caaeea0178, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimationsControl
-  Animator: {fileID: 0}
+  Animator: {fileID: 7633918342262935377}
 --- !u!114 &1769505873
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12870,7 +12871,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovment
   footOffset: 1
-  bodyRigidbody: {fileID: 0}
+  bodyRigidbody: {fileID: 1769505867}
   roadLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -12886,7 +12887,7 @@ MonoBehaviour:
   jumpDuration: 1
   jumpTroDuration: 2
   FeetPos: {fileID: 374494319}
-  ParticleEffect: {fileID: 0}
+  ParticleEffect: {fileID: 8647897871954950044, guid: 3f6ea2bceb1acbb4dbb558fcc15a8be2, type: 3}
 --- !u!114 &1769505874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12899,13 +12900,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66d775d4eed7adf438ccc31955289b83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Plank
-  plankPrefab: {fileID: 5653736026493962404, guid: 8f4d7d1e78d692f4186c734b6424dac8, type: 3}
+  plankPrefab: {fileID: 5653736026493962404, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
   stackPosition: {fileID: 1679506033}
   plankTag: Plank
   CollectedPlanks: []
   plankHeight: 0.15
-  CollecteddPlanksTxT: {fileID: 0}
-  AddedPlankEffect: {fileID: 0}
+  CollecteddPlanksTxT: {fileID: 6279645486584522740}
+  AddedPlankEffect: {fileID: 1359781558408469809, guid: 9cebe06d07ca36041bd3c750669a21b7, type: 3}
   MaxOffset: 0.5
   SwingDirection: 1
   force: 1
@@ -12928,9 +12929,9 @@ MonoBehaviour:
   speedPenaltyPerPlank: 0.02
   minCarryMultiplier: 0.6
   Place: 0
-  FastRunParticleEffect: {fileID: 0}
-  Animation: {fileID: 0}
-  PlaceText: {fileID: 0}
+  FastRunParticleEffect: {fileID: 480279492}
+  Animation: {fileID: 1769505868}
+  PlaceText: {fileID: 1983892149}
   cameraFollow: {fileID: 1547552714}
 --- !u!4 &1783811291 stripped
 Transform:

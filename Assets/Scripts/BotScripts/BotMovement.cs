@@ -51,7 +51,7 @@ public class BotMovement : MonoBehaviour, ICharacter, IKillAble
         Goals = WayPoints;
         Destination = Finish.position;
 
-        //Skin = Skins[Random.Range(0,Skins.Length)];
+        Skin = Skins[Random.Range(0,Skins.Length)];
         GameObject Model = Instantiate(Skins[Random.Range(0, Skins.Length)], transform.position, transform.rotation, AnimatorParent);
         Model.name = "mixamorig:Hips";
 
