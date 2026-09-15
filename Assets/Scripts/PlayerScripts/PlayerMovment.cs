@@ -61,8 +61,13 @@ public class PlayerMovment : MonoBehaviour
     void Start()
     {
         MainScript = GetComponent<ICharacter>();
-        Debug.Log(MainScript);
         PlankCollector = GetComponent<Plank>();
+
+        if (MainScript == null)
+            Debug.LogError($"[PlayerMovment] На объекте {gameObject.name} нет компонента, реализующего ICharacter (PlayerController или BotMovement)!", this);
+
+        if (PlankCollector == null)
+            Debug.LogError($"[PlayerMovment] На объекте {gameObject.name} нет компонента Plank!", this);
     }
 
     void LateUpdate()
