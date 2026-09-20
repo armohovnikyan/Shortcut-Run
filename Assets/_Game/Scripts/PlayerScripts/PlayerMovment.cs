@@ -48,7 +48,7 @@ public class PlayerMovment : MonoBehaviour
     private float _fixedBridgeY;
     private float _offRoadTimer;
 
-    public ICharacter MainScript;
+    public IRunner MainScript;
 
     private bool _debugLastHitRoad;
     private Vector3 _debugRayOrigin;
@@ -60,7 +60,7 @@ public class PlayerMovment : MonoBehaviour
 
     void Start()
     {
-        MainScript = GetComponent<ICharacter>();
+        MainScript = GetComponent<IRunner>();
         PlankCollector = GetComponent<Plank>();
 
         if (MainScript == null)

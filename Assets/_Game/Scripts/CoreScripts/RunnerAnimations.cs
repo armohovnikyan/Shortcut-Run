@@ -1,7 +1,7 @@
 using UnityEditor.Animations;
 using UnityEngine;
 
-public class AnimationsControl : MonoBehaviour
+public class RunnerAnimations : MonoBehaviour
 {
     public Animator Animator;
 

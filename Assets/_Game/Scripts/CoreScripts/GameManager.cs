@@ -7,7 +7,7 @@ public struct Place
     public Transform RunnerTransform;
 }
 
-public class Runner
+public class Runnerr
 {
     public Transform RunnerTransform;
     public bool Passed;
@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public Transform Finish;
-    public List<Runner> Runners = new List<Runner>();
+    public List<Runnerr> Runners = new List<Runnerr>();
     List<Place> Distances = new List<Place>();
     void Awake()
     {
@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
 
     public void RegistrRunner(Transform RunnerTransform)
     {
-        Runners.Add(new Runner { RunnerTransform = RunnerTransform, Passed = false, InRace = true });
+        Runners.Add(new Runnerr { RunnerTransform = RunnerTransform, Passed = false, InRace = true });
     }
 
     public void UnRegisterRunner(Transform RunnerTransform, bool Passed)
@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour
     void FixedUpdate()
     {
         Distances.Clear();
-        foreach (Runner Runner in Runners)
+        foreach (Runnerr Runner in Runners)
         {
             Vector3 dir = Finish.position - Runner.RunnerTransform.position;
             dir.y = 0;

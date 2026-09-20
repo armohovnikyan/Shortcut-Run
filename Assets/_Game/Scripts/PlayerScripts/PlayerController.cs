@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerController : MonoBehaviour, ICharacter
+public class PlayerController : MonoBehaviour, IRunner
 {
     [Header("Настройки движения")]
     public float forwardSpeed = 7f;
@@ -23,7 +23,7 @@ public class PlayerController : MonoBehaviour, ICharacter
     private float _currentTurnInput = 0f;
     public int Place;
     [SerializeField] ParticleSystem FastRunParticleEffect;
-    public AnimationsControl Animation;
+    public RunnerAnimations Animation;
     [SerializeField] TMP_Text PlaceText;
 
     public CameraFollow cameraFollow;
@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour, ICharacter
     void Start()
     {
         _characterController = GetComponent<CharacterController>();
-        Animation = GetComponent<AnimationsControl>();
+        Animation = GetComponent<RunnerAnimations>();
         PlanksInfo = GetComponent<Plank>();
         GameManager.Instance.RegistrRunner(transform);
 

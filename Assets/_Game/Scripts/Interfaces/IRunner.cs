@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 
-public interface ICharacter
+public interface IRunner
 {
   void IsFailing();
   void CheckPlanks(); 

@@ -4,13 +4,13 @@ using UnityEngine.AI;
 using System.Collections.Generic;
 using System.Collections;
 
-public class BotMovement : MonoBehaviour, ICharacter, IKillAble
+public class BotMovement : MonoBehaviour, IRunner, IKillAble
 {
     public NavMeshAgent Agent;
     public Plank PlanksInfo;
     public Vector3 Destination;
     public bool RunIsStarted;
-    public AnimationsControl Animation;
+    public RunnerAnimations Animation;
     public PlayerMovment BridgeInfo;
 
     public GameObject Skin;
@@ -42,7 +42,7 @@ public class BotMovement : MonoBehaviour, ICharacter, IKillAble
     {
         Agent = GetComponent<NavMeshAgent>();
         PlanksInfo = GetComponent<Plank>();
-        Animation = GetComponent<AnimationsControl>();
+        Animation = GetComponent<RunnerAnimations>();
         BridgeInfo = GetComponent<PlayerMovment>();
         GameManager.Instance.RegistrRunner(transform);
     }

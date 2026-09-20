@@ -17,10 +17,10 @@ public class Plank : MonoBehaviour
     [SerializeField] GameObject AddedPlankEffect;
     int CollectedPlanksCount;
 
-    ICharacter MainScript;
+    IRunner MainScript;
     void Start()
     {
-        MainScript = GetComponent<ICharacter>();
+        MainScript = GetComponent<IRunner>();
     }
 
 

@@ -4,10 +4,10 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - Plank
-  - PlacedPlank
   - Tramp
-  - Bot
+  - NPC
+  - CollectableBoard
+  - PlaceableBoard
   layers:
   - Default
   - TransparentFX
