@@ -5,18 +5,14 @@ public class CollectableBoard : BaseBoard
     private bool interactable = true;
     private float timerDuration = 2.8f; 
     private Coroutine timerRoutine = null;
-    private string targetTag => boardData.TargetTag;
-    protected override void Awake()
-    {
-        base.Awake();
-    }
+    private string targetTag => boardSO.TargetTag;
 
     private void OnCollisionEnter(Collision target)
     {
         if (!interactable) return;
         if (target.gameObject.CompareTag(targetTag))
         {
-            ChangeBoolState(interactable);
+            interactable = !interactable;   
             ChangeObjectState(interactable);
             StartTimer();
         }
@@ -33,9 +29,9 @@ public class CollectableBoard : BaseBoard
             StopCoroutine(timerRoutine);
             timerRoutine = null;
         }
-        timerRoutine = StartCoroutine(ResetToInteractable(timerDuration));
+        timerRoutine = StartCoroutine(ResetInteractableStatus(timerDuration));
     }
-    private IEnumerator ResetToInteractable(float duration) 
+    private IEnumerator ResetInteractableStatus(float duration) 
     {
         float timeRemaining = duration;
         while (timeRemaining > 0)
@@ -43,12 +39,8 @@ public class CollectableBoard : BaseBoard
             timeRemaining -= Time.unscaledDeltaTime;
             yield return null;
         }
-        ChangeBoolState(interactable);
+        interactable = !interactable;
         ChangeObjectState(interactable);
     } 
 
-    private void ChangeBoolState(bool variable)
-    {
-        variable = !variable;
-    }
 }

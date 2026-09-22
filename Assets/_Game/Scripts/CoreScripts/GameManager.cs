@@ -1,86 +1,96 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct Place
+public enum GameState
 {
-    public float Distance;
-    public Transform RunnerTransform;
+    InPause,
+    CanPlay,
+    InFinish//~
 }
-
-public class Runnerr
+public class GameManager: MonoBehaviour
 {
-    public Transform RunnerTransform;
-    public bool Passed;
-    public bool InRace;
+    
 }
-public class GameManager : MonoBehaviour
-{
-    public static GameManager Instance;
-    public Transform Finish;
-    public List<Runnerr> Runners = new List<Runnerr>();
-    List<Place> Distances = new List<Place>();
-    void Awake()
-    {
-        Instance = this;
-    }
+//public struct Place
+//{
+//    public float Distance;
+//    public Transform RunnerTransform;
+//}
 
-    public void RegistrRunner(Transform RunnerTransform)
-    {
-        Runners.Add(new Runnerr { RunnerTransform = RunnerTransform, Passed = false, InRace = true });
-    }
+//public class Runnerr
+//{
+//    public Transform RunnerTransform;
+//    public bool Passed;
+//    public bool InRace;
+//}
+//public class GameManager : MonoBehaviour
+//{
+//    public static GameManager Instance;
+//    public Transform Finish;
+//    public List<Runnerr> Runners = new List<Runnerr>();
+//    List<Place> Distances = new List<Place>();
+//    void Awake()
+//    {
+//        Instance = this;
+//    }
 
-    public void UnRegisterRunner(Transform RunnerTransform, bool Passed)
-    {
-        for (int i = 0; i < Runners.Count; i++)
-        {
-            if (Runners[i].RunnerTransform == RunnerTransform)
-            {
-                if (Passed)
-                {
-                    Runners[i].Passed = Passed;
-                }
-                else
-                {
-                    Runners[i].InRace = Passed;
-                }
-                return;
-            }
-        }
-    }
+//    public void RegistrRunner(Transform RunnerTransform)
+//    {
+//        Runners.Add(new Runnerr { RunnerTransform = RunnerTransform, Passed = false, InRace = true });
+//    }
 
-    void FixedUpdate()
-    {
-        Distances.Clear();
-        foreach (Runnerr Runner in Runners)
-        {
-            Vector3 dir = Finish.position - Runner.RunnerTransform.position;
-            dir.y = 0;
+//    public void UnRegisterRunner(Transform RunnerTransform, bool Passed)
+//    {
+//        for (int i = 0; i < Runners.Count; i++)
+//        {
+//            if (Runners[i].RunnerTransform == RunnerTransform)
+//            {
+//                if (Passed)
+//                {
+//                    Runners[i].Passed = Passed;
+//                }
+//                else
+//                {
+//                    Runners[i].InRace = Passed;
+//                }
+//                return;
+//            }
+//        }
+//    }
 
-            if (Runner.Passed)
-            {
-                dir = Vector3.zero;
-            }
+//    void FixedUpdate()
+//    {
+//        Distances.Clear();
+//        foreach (Runnerr Runner in Runners)
+//        {
+//            Vector3 dir = Finish.position - Runner.RunnerTransform.position;
+//            dir.y = 0;
 
-            if (!Runner.InRace)
-            {
-                dir = Vector3.positiveInfinity;
-            }
-            Distances.Add(new Place { Distance = dir.sqrMagnitude, RunnerTransform = Runner.RunnerTransform });
-        }
+//            if (Runner.Passed)
+//            {
+//                dir = Vector3.zero;
+//            }
 
-        Distances.Sort((a, b) => a.Distance.CompareTo(b.Distance));
-    }
+//            if (!Runner.InRace)
+//            {
+//                dir = Vector3.positiveInfinity;
+//            }
+//            Distances.Add(new Place { Distance = dir.sqrMagnitude, RunnerTransform = Runner.RunnerTransform });
+//        }
 
-    public int GetMyPlace(Transform myTransform)
-    {
-        for (int i = 0; i < Distances.Count; i++)
-        {
-            if (Distances[i].RunnerTransform == myTransform)
-            {
-                return i + 1;
-            }
-        }
+//        Distances.Sort((a, b) => a.Distance.CompareTo(b.Distance));
+//    }
 
-        return 0;
-    }
-}
+//    public int GetMyPlace(Transform myTransform)
+//    {
+//        for (int i = 0; i < Distances.Count; i++)
+//        {
+//            if (Distances[i].RunnerTransform == myTransform)
+//            {
+//                return i + 1;
+//            }
+//        }
+
+//        return 0;
+//    }
+//}

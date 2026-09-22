@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
 
+[RequireComponent(typeof(Runner))]
 public abstract class Runner : MonoBehaviour, IRunner
 {
     [Header("Speed")]
@@ -10,8 +11,8 @@ public abstract class Runner : MonoBehaviour, IRunner
     [SerializeField] protected float maxSpeedBonus = 3f;
     [Space]
     [Header("Carry penalty")]
-    [Tooltip("Speed lost per plank in hands (0.02 = -2% per plank)")]
-    [SerializeField] float speedPenaltyPerPlank = 0.02f;
+    [Tooltip("Speed lost per plank in hands (0.01 = -1% per plank)")]
+    [SerializeField] float speedPenaltyPerPlank = 0.01f;
     [Tooltip("Lowest carry multiplier, no matter how many planks")]
     [SerializeField] float minCarryMultiplier = 0.6f;
     [Space]
@@ -25,19 +26,18 @@ public abstract class Runner : MonoBehaviour, IRunner
     
     
     protected RunnerAnimations animations;
-    protected Plank planks;
-    protected List<BaseBoard> CollectedBoards = new List<BaseBoard>();
+    //protected Plank planks;
+
+    protected List<BaseBoard> collectedBoards = new List<BaseBoard>();
 
     public float SpeedBonus { get; private set; } = 1f;
     public bool IsRunning { get; protected set; }
 
     protected float CarryMultiplier =>
-        Mathf.Max(minCarryMultiplier, 1f - planks.CollectedPlanks.Count * speedPenaltyPerPlank);
+        Mathf.Max(minCarryMultiplier, 1f - collectedBoards.Count * speedPenaltyPerPlank);
 
-    /// <summary>Single source of truth for speed. The player reads it every frame, the bot writes it to the agent.</summary>
     public float CurrentSpeed => baseSpeed * SpeedBonus * CarryMultiplier;
 
-    /// <summary>Raised once when this runner crosses the finish. The run manager decides what happens next.</summary>
     public event Action<Runner> RunFinished;
 
     // ---------- Lifecycle ----------
@@ -45,30 +45,26 @@ public abstract class Runner : MonoBehaviour, IRunner
 
     protected virtual void Awake()
     {
-        animations = GetComponent<RunnerAnimations>();
-        planks = GetComponent<Plank>();
+        animations = new RunnerAnimations(GetComponent<Animator>());
+        //planks = GetComponent<Plank>();
     }
 
     protected virtual void Start()
     {
         // Moves to the run manager later.
-        GameManager.Instance.RegistrRunner(transform);
+        //GameManager.Instance.RegistrRunner(transform);
     }
 
     // ---------- Abstract: no sensible default ----------
 
-    /// <summary>Player: enable input. Bot: set the destination. Must set IsRunning = true.</summary>
-    public abstract void StartRun();
+    protected abstract void BeginRace();
 
-    /// <summary>Player: stop input, tell the camera. Bot: disable the agent.</summary>
-    protected abstract void StopMoving();
+    protected abstract void EndRace();
 
     // ---------- Virtual hooks: base knows WHEN, subclass decides WHAT ----------
 
-    /// <summary>Called after the speed bonus or the plank count changed.</summary>
     protected virtual void OnSpeedChanged() { }
 
-    /// <summary>Called only when a plank is picked up (not when placed). Player: update the counter UI.</summary>
     protected virtual void OnPlankCollected(int stackCount) { }
 
     // ---------- Shared behaviour (IRunner) ----------
@@ -81,43 +77,40 @@ public abstract class Runner : MonoBehaviour, IRunner
 
     public void CheckPlanks()
     {
-        if (planks.CollectedPlanks.Count > 0)
-            animations.SetRunningWithPlanks();
+        if (collectedBoards.Count > 0)
+            animations.SetRunningWithBoards();
         else
             animations.SetRunning();
 
-        // The carry multiplier depends on the plank count.
+        //The carry multiplier depends on the plank count.
         OnSpeedChanged();
     }
 
-    /// <summary>Called by Plank after a pickup; replaces the "is PlayerController" check.</summary>
     public void PlankCollected(int stackCount)
     {
         CheckPlanks();
         OnPlankCollected(stackCount);
     }
 
-    public void Jump() => animations.SetJump();
-    public void Climb(bool climbing) => animations.SetClimbing(climbing);
-    public void IsFailing() => animations.SetFailing();
+    public void Jump() => animations.SetJumping();
+    public void Climb() => animations.SetClimbing();
+    public void IsFailing() => animations.TriggerFalling();
 
     // ---------- Finish ----------
 
-    /// <summary>Both player (trigger) and bot (last waypoint) call this.</summary>
     protected void FinishRun()
     {
         if (!IsRunning) return;
 
         IsRunning = false;
-        StopMoving();
-        animations.SetDance();
+        EndRace();
+        animations.TriggerDancing();
         //------------
-        GameManager.Instance.UnRegisterRunner(transform, true);
+        //GameManager.Instance.UnRegisterRunner(transform, true);
         //------------
         RunFinished?.Invoke(this);
     }
 
-    /// <summary>Called by the run manager for runners that do not go to the bonus level.</summary>
     public void WalkToFinalPoint() => StartCoroutine(WalkToFinalPointRoutine());
 
     IEnumerator WalkToFinalPointRoutine()
@@ -130,7 +123,7 @@ public abstract class Runner : MonoBehaviour, IRunner
             yield return null;
         }
 
-        planks.RemoveAllPlanks();
+        //planks.RemoveAllPlanks();
 
         Vector3 direction = Finish.Instance.transform.position - transform.position;
         direction.y = 0f;
@@ -140,7 +133,6 @@ public abstract class Runner : MonoBehaviour, IRunner
 
     // ---------- Helpers ----------
 
-    /// <summary>Squared horizontal distance.</summary>
     protected float SqrDistanceXZ(Vector3 point)
     {
         Vector3 dir = point - transform.position;
@@ -148,7 +140,6 @@ public abstract class Runner : MonoBehaviour, IRunner
         return dir.sqrMagnitude;
     }
 
-    /// <summary>Shared move-and-face. A bot that needs its agent in sync sets Agent.nextPosition after calling it.</summary>
     protected void MoveTowards(Vector3 target, float speed)
     {
         Vector3 direction = target - transform.position;
@@ -158,5 +149,11 @@ public abstract class Runner : MonoBehaviour, IRunner
             transform.rotation = Quaternion.LookRotation(direction);
 
         transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+    }
+    
+    // ---- Destroy game object -------
+    public void DestroyRunner()
+    {
+        Destroy(this);
     }
 }

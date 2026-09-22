@@ -5,12 +5,12 @@ public class NPC : Runner
     {
         base.Awake();
     }
-    public override void StartRun()
+    protected override void BeginRace()
     {
 
     }
 
-    protected override void StopMoving()
+    protected override void EndRace()
     {
 
     }
