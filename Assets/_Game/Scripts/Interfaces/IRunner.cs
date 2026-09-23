@@ -7,6 +7,6 @@ public interface IRunner
   void IsFailing();
   void CheckPlanks(); 
   void Jump();
-  void Climb(bool Climbing);
+  void Climb();
   void ChangeSpeedBonus(float Bonus);
 }

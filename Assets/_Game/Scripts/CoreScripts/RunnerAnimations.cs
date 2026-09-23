@@ -1,64 +1,89 @@
-using UnityEditor.Animations;
 using UnityEngine;
 
-public class RunnerAnimations : MonoBehaviour
+public class RunnerAnimations
 {
-    public Animator Animator;
+    private readonly Animator _animator;
 
-    public void Rebind()
-   {
-      Animator.Rebind();
-   }
+    private static readonly int IsRunningHash = Animator.StringToHash("IsRunning");
 
-    public void SetRunning()
+    private static readonly int IsRunningWithBoardsHash = Animator.StringToHash("IsRunningWithBoards");
+
+    private static readonly int IsFallingHash = Animator.StringToHash("IsFalling");
+
+    private static readonly int IsJumpingHash = Animator.StringToHash("IsJumping");
+
+    private static readonly int IsClimbingHash = Animator.StringToHash("IsClimbing");
+
+    private static readonly int IsDancingHash = Animator.StringToHash("IsDancing");
+
+    private static readonly int IsIdleHash = Animator.StringToHash("IsIdle");
+
+    private static readonly int IsIdleWithBoardsHash = Animator.StringToHash("IsIdleWithBoards");
+
+
+    public RunnerAnimations(Animator animator)
     {
-       Animator.SetBool("Running", true);
-       Animator.SetBool("Jump", false);
-       Animator.SetBool("Failing", false); 
-       Animator.SetBool("HavePlanks", false);
-       Animator.SetBool("Idle", false);
+        _animator = animator;
     }
-     public void SetRunningWithPlanks()
+    public void Rebind()
     {
-       Animator.SetBool("HavePlanks", true);
-       Animator.SetBool("Jump", false);
-       Animator.SetBool("Failing", false); 
-       Animator.SetBool("Running", true);
-       Animator.SetBool("Idle", false);
+        _animator.Rebind();
     }
 
     public void SetIdle()
     {
-        Animator.SetBool("Idle", true);
-        Animator.SetBool("Failing", false); 
-        Animator.SetBool("Running", false);
-        Animator.SetBool("HavePlanks", false);
+        SetState(IsIdleHash);
     }
 
-      public void SetDance()
+    public void SetIdleWithBoards()
     {
-        Animator.SetTrigger("Dance");
-        Animator.SetBool("Idle", false);
-        Animator.SetBool("Failing", false); 
-        Animator.SetBool("Running", false);
+        SetState(IsIdleWithBoardsHash);
     }
 
-    public void SetFailing()
+    public void SetRunning()
     {
-       Animator.SetBool("Failing", true); 
-       Animator.SetBool("Running", false);
+        SetState(IsRunningHash);
     }
 
-    public void SetJump()
-   {
-      Animator.SetBool("Jump", true); 
-      Animator.SetBool("Running", false);
-      Animator.SetBool("HavePlanks", false);
-   }
+    public void SetRunningWithBoards()
+    {
+        SetState(IsRunningWithBoardsHash);
+    }
 
-   public void SetClimbing(bool Climbing)
-   {
-       Animator.SetBool("Jump", !Climbing); 
-       Animator.SetBool("Climbing", Climbing);
-   }
+    public void SetClimbing()
+    {
+        SetState(IsClimbingHash);
+    }
+
+    public void SetJumping()
+    {
+        SetState(IsJumpingHash);
+    }
+
+    public void TriggerFalling()
+    {
+        _animator.SetTrigger(IsFallingHash);
+    }
+
+    public void TriggerDancing()
+    {
+        _animator.SetTrigger(IsDancingHash);
+    }
+
+
+    private void SetState(int stateHash)
+    {
+        ResetStates();
+        _animator.SetBool(stateHash, true);
+    }
+
+    private void ResetStates()
+    {
+        _animator.SetBool(IsIdleHash, false);
+        _animator.SetBool(IsIdleWithBoardsHash, false);
+        _animator.SetBool(IsRunningHash, false);
+        _animator.SetBool(IsRunningWithBoardsHash, false);
+        _animator.SetBool(IsClimbingHash, false);
+        _animator.SetBool(IsJumpingHash, false);
+    }
 }
