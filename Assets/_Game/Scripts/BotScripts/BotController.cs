@@ -55,10 +55,10 @@ public class BotController : MonoBehaviour
         }
     }
 
-    public void BakeSurface()
-    {
+    //public void BakeSurface()
+    //{
 
-    }
+    //}
 
     public void Start()
     {

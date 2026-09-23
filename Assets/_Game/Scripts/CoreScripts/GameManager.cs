@@ -13,12 +13,18 @@ public class Runnerr
     public bool Passed;
     public bool InRace;
 }
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+
+    [Tooltip("Позиция финишной линии — используется для расчёта дистанции/мест в гонке. " +
+             "Не путать с Finish.Instance.StayPoints — это точки стоянки уже финишировавших бегунов")]
     public Transform Finish;
+
     public List<Runnerr> Runners = new List<Runnerr>();
     List<Place> Distances = new List<Place>();
+
     void Awake()
     {
         Instance = this;

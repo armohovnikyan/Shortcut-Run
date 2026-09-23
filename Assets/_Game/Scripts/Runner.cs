@@ -22,8 +22,8 @@ public abstract class Runner : MonoBehaviour, IRunner
     [Header("Board")]
     [SerializeField] protected Transform boardStackPosition;
     [SerializeField] protected float boardStackSpace = 0.15f; // space distance between stacked boards.
-    
-    
+
+
     protected RunnerAnimations animations;
     protected Plank planks;
     protected List<BaseBoard> CollectedBoards = new List<BaseBoard>();
@@ -53,6 +53,11 @@ public abstract class Runner : MonoBehaviour, IRunner
     {
         // Moves to the run manager later.
         GameManager.Instance.RegistrRunner(transform);
+
+        // Для всех бегунов пока одинаковый исход финиша — просто идём к точке стоянки.
+        // Если позже понадобится особая логика для 1-го места (бонус-уровень и т.п.) —
+        // именно здесь нужно будет её разветвить.
+        RunFinished += runner => runner.WalkToFinalPoint();
     }
 
     // ---------- Abstract: no sensible default ----------
