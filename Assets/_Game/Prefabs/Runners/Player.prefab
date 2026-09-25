@@ -291,6 +291,7 @@ Transform:
   - {fileID: 6039913865465362256}
   - {fileID: 5209131287807646589}
   - {fileID: 5323819438738752460}
+  - {fileID: 3996089458379515105}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &4597738470521180944
@@ -359,12 +360,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Player
   baseSpeed: 7
   maxSpeedBonus: 3
-  speedPenaltyPerPlank: 0.02
-  minCarryMultiplier: 0.6
   finishWalkSpeed: 5
   finishStopSqrDistance: 4
-  boardStackPosition: {fileID: 0}
+  boardStackPosition: {fileID: 5323819438738752460}
   boardStackSpace: 0.15
+  placeableBoardPrefab: {fileID: 9164896909096688938, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
+  boardCarrier:
+    speedPenaltyPerBoard: 0.02
+    minCarryMultiplier: 0.6
+  groundProbe:
+    roadLayer:
+      serializedVersion: 2
+      m_Bits: 64
+    rayOriginHeight: 0.5
+    groundCheckDistance: 1.2
+    grabRoadDistance: 8
+    maxClimbHeight: 2
+  motion:
+    offRoadDebounce: 0.05
+    jumpHeight: 1
+    jumpDuration: 1
+    climbDuration: 0.25
+    gravity: -20
+  placedBoardBonusPerSecond: 1.8
+  steering:
+    turnSpeed: 90
 --- !u!95 &7524668631405316882
 Animator:
   serializedVersion: 7
@@ -642,6 +662,100 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7675224192848943303}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2918168632843341826
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3996089458379515105}
+  - component: {fileID: 1303256511740937475}
+  - component: {fileID: 8505635948299361907}
+  - component: {fileID: 2397818205888105934}
+  m_Layer: 10
+  m_Name: BoardPickup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3996089458379515105
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2918168632843341826}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.752, z: 0.15}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8506778629970451194}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &1303256511740937475
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2918168632843341826}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 512
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 1527
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.65
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &8505635948299361907
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2918168632843341826}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &2397818205888105934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2918168632843341826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5df91515c5e8a46a97f8d6893658ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardPickup
 --- !u!1 &2945514844914970874
 GameObject:
   m_ObjectHideFlags: 0

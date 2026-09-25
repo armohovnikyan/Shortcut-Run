@@ -6,8 +6,6 @@ TagManager:
   tags:
   - Tramp
   - NPC
-  - CollectableBoard
-  - PlaceableBoard
   layers:
   - Default
   - TransparentFX
@@ -18,8 +16,8 @@ TagManager:
   - Road
   - BotsLayer
   - Player
-  - 
-  - 
+  - Board
+  - Pickup
   - 
   - 
   - 

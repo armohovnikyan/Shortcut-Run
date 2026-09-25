@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 4173925647872246139}
   - component: {fileID: 217363961767094453}
   - component: {fileID: 9164896909096688938}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlaceableBoard
-  m_TagString: PlaceableBoard
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -125,4 +125,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e09128fa8fe07a42b7b1956bb98b7b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlaceableBoard
-  boardData: {fileID: 0}

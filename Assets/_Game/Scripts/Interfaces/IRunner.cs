@@ -5,8 +5,7 @@ using UnityEngine;
 public interface IRunner
 {
   void IsFailing();
-  void CheckPlanks(); 
+  void CheckBoards(); 
   void Jump();
-  void Climb();
   void ChangeSpeedBonus(float Bonus);
 }

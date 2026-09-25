@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 1163440960291954725}
   - component: {fileID: 1435715921214730631}
   - component: {fileID: 3460147629257318786}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: CollectableBoard
-  m_TagString: CollectableBoard
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -125,4 +125,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d54aa15deb3ba04ca7f083038b25ed2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CollectableBoard
-  boardData: {fileID: 0}
+  boardSO: {fileID: 11400000, guid: c5c00504eff34b047895c732ee4d2482, type: 2}
