@@ -20,4 +20,10 @@ public class BoardStackShapeSO : ScriptableObject
             return total;
         }
     }
+
+#if UNITY_EDITOR
+    // Level objects aren't told when an asset is edited — stacks using this shape listen here.
+    public static event System.Action<BoardStackShapeSO> Changed;
+    private void OnValidate() => Changed?.Invoke(this);
+#endif
 }

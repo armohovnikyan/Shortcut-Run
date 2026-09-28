@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6624ec1106a1d847a8231e042bc77e0, type: 3}
+  m_Name: BoardStamp
+  m_EditorClassIdentifier: Assembly-CSharp::BoardStampSO
+  entries:
+  - shape: {fileID: 11400000, guid: e0fde2ce551ca6d4d8c471aa6a08643c, type: 2}
+    forward: 0
+    side: 0
+    facing: 90
+  - shape: {fileID: 11400000, guid: e0fde2ce551ca6d4d8c471aa6a08643c, type: 2}
+    forward: 1.5
+    side: 0
+    facing: 90
+  - shape: {fileID: 11400000, guid: e0fde2ce551ca6d4d8c471aa6a08643c, type: 2}
+    forward: 3
+    side: 0
+    facing: 90
+  - shape: {fileID: 11400000, guid: e0fa213e1947e024e9351ddf30b3a962, type: 2}
+    forward: 5
+    side: 0
+    facing: 0
