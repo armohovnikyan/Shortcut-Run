@@ -17,11 +17,19 @@ public class GameManager : MonoBehaviour
     [Tooltip("Coins a new player starts with. Only used the first time the game runs on a device.")]
     [SerializeField, Min(0)] private int startingCoins;
 
+    [Header("Upgrades")]
+    [SerializeField] private UpgradeSO boardUpgrade;
+    [SerializeField] private UpgradeSO offlineEarnUpgrade;
+
     [Tooltip("Print rewards and the wallet to the Console (no UI needed to test).")]
     [SerializeField] private bool logEvents = true;
 
     public RunManager Run => runManager;
     public Wallet Wallet { get; private set; }
+    public PlayerProfile Profile { get; private set; }
+    public GameSettings Settings { get; private set; }
+    public Upgrade BoardUpgrade { get; private set; }
+    public Upgrade OfflineEarnUpgrade { get; private set; }
     public int LevelNumber => levelLoader.LevelIndex + 1;
     /// <summary>Coins earned by the last run, waiting to be claimed. 0 = nothing to claim.</summary>
     public int PendingReward { get; private set; }
@@ -36,7 +44,16 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Wallet = new Wallet(startingCoins);
+        Profile = new PlayerProfile();
+        Settings = new GameSettings();
+
+        if (boardUpgrade == null || offlineEarnUpgrade == null)
+            Debug.LogError($"{name}: Game Manager is missing an Upgrade asset — that upgrade can't be bought.", this);
+        BoardUpgrade = new Upgrade(boardUpgrade);
+        OfflineEarnUpgrade = new Upgrade(offlineEarnUpgrade);
     }
+
+    private void OnDestroy() => Resume(); // never leave the editor / next scene frozen
 
     private void OnEnable()  => runManager.RunEnded += OnRunEnded;
     private void OnDisable() => runManager.RunEnded -= OnRunEnded;
@@ -61,9 +78,18 @@ public class GameManager : MonoBehaviour
         Log($"claimed — wallet: {Wallet.Coins}");
     }
 
-    /// <summary>Same level again (game-over panel).</summary>
+    /// <summary>Upgrade button: pays from the wallet and levels the upgrade up. False = can't afford / maxed.</summary>
+    public bool BuyUpgrade(Upgrade upgrade) => upgrade.TryBuy(Wallet);
+
+    /// <summary>Freezes the run (the "Back to menu?" question).</summary>
+    public void Pause() => Time.timeScale = 0f;
+
+    public void Resume() => Time.timeScale = 1f;
+
+    /// <summary>Same level again (game-over panel, or leaving a run to the menu).</summary>
     public void Replay()
     {
+        Resume();
         ClaimReward(); // never lose coins that were earned but not claimed
         runManager.Cleanup();
         ShowMenu(levelLoader.LoadCurrent());
@@ -72,6 +98,7 @@ public class GameManager : MonoBehaviour
     /// <summary>Next level (reward panel "Continue").</summary>
     public void NextLevel()
     {
+        Resume();
         ClaimReward();
         runManager.Cleanup();
         ShowMenu(levelLoader.LoadNext());
