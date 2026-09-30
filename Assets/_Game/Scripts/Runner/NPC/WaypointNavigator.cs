@@ -4,9 +4,9 @@ public enum NavigationState { FollowingRoute, Shortcutting, Finished }
 
 /// <summary>
 /// Pure state and math for checkpoint progress and the shortcut decision.
-/// Never touches NavMeshAgent or transform � NPC reads State/ShortcutTarget
-/// each frame and acts on them. Checkpoints are NOT the path the agent walks;
-/// they're only used to judge progress and spot shortcut opportunities.
+/// Never touches NavMeshAgent or transform — NPC reads State / CurrentCheckpoint each frame and acts.
+/// FollowingRoute: the agent walks to CurrentCheckpoint (always one just ahead, never the far end,
+/// so it can't pick "the other way round" a loop). Shortcutting: straight line to CurrentCheckpoint.
 /// </summary>
 public class WaypointNavigator
 {
@@ -17,7 +17,8 @@ public class WaypointNavigator
     private int _currentIndex;
 
     public NavigationState State { get; private set; } = NavigationState.FollowingRoute;
-    public Vector3 ShortcutTarget => _checkpoints[_currentIndex];
+    public int CurrentIndex => _currentIndex;
+    public Vector3 CurrentCheckpoint => _checkpoints[_currentIndex];
 
     public WaypointNavigator(Vector3[] checkpoints, int startIndex = 0,
         float checkpointReachedSqrDistance = 81f, float shortcutReachedSqrDistance = 64f)
@@ -28,17 +29,23 @@ public class WaypointNavigator
         _shortcutReachedSqrDistance = shortcutReachedSqrDistance;
     }
 
-    /// <summary>Call every frame while the race is running. May change State.</summary>
-    public void Tick(Vector3 currentPosition, int boardsHeld)
+    /// <summary>
+    /// Call every frame while the race is running. May change State.
+    /// bridgeReach = metres the boards in hand can cover.
+    /// </summary>
+    public void Tick(Vector3 currentPosition, float bridgeReach)
     {
         if (State == NavigationState.Finished) return;
 
         if (State == NavigationState.Shortcutting)
         {
-            if (SqrDistanceXZ(currentPosition, _checkpoints[_currentIndex]) < _shortcutReachedSqrDistance)
+            if (SqrDistanceXZ(currentPosition, CurrentCheckpoint) < _shortcutReachedSqrDistance)
                 State = NavigationState.FollowingRoute;
             return;
         }
+
+        if (SqrDistanceXZ(currentPosition, CurrentCheckpoint) >= _checkpointReachedSqrDistance)
+            return;
 
         if (_currentIndex >= _checkpoints.Length - 1)
         {
@@ -46,13 +53,9 @@ public class WaypointNavigator
             return;
         }
 
-        if (SqrDistanceXZ(currentPosition, _checkpoints[_currentIndex]) >= _checkpointReachedSqrDistance)
-            return;
-
         _currentIndex++;
-        if (_currentIndex >= _checkpoints.Length - 1) return; // Finished picked up next Tick
 
-        int bestIndex = FindBestShortcutIndex(currentPosition, boardsHeld);
+        int bestIndex = FindBestShortcutIndex(currentPosition, bridgeReach);
         if (bestIndex > _currentIndex)
         {
             _currentIndex = bestIndex;
@@ -60,7 +63,38 @@ public class WaypointNavigator
         }
     }
 
-    private int FindBestShortcutIndex(Vector3 currentPosition, int boardsHeld)
+    /// <summary>
+    /// The NavMesh has no path to the current checkpoint (a gap between road sections) —
+    /// cross it in a straight line instead, bridging or jumping like any shortcut.
+    /// </summary>
+    public void ForceShortcut()
+    {
+        if (State == NavigationState.FollowingRoute)
+            State = NavigationState.Shortcutting;
+    }
+
+    /// <summary>
+    /// First checkpoint still ahead of position: the nearest one, or the one after it if position
+    /// is already past it. Lets a runner that starts mid-track join the route instead of running back.
+    /// </summary>
+    public static int NextIndexFrom(Vector3[] checkpoints, Vector3 position)
+    {
+        int nearest = 0;
+        float bestSqr = float.MaxValue;
+        for (int i = 0; i < checkpoints.Length; i++)
+        {
+            float sqr = (checkpoints[i] - position).sqrMagnitude; // 3D: a loop passing above/below isn't "near"
+            if (sqr < bestSqr) { bestSqr = sqr; nearest = i; }
+        }
+
+        if (nearest >= checkpoints.Length - 1) return nearest;
+
+        Vector3 along = checkpoints[nearest + 1] - checkpoints[nearest];
+        Vector3 fromNearest = position - checkpoints[nearest];
+        return Vector3.Dot(fromNearest, along) > 0f ? nearest + 1 : nearest;
+    }
+
+    private int FindBestShortcutIndex(Vector3 currentPosition, float bridgeReach)
     {
         int bestIndex = _currentIndex;
         int startIndex = _currentIndex + 2;
@@ -69,7 +103,7 @@ public class WaypointNavigator
         for (int i = startIndex; i < _checkpoints.Length - 3; i++)
         {
             float dist = Vector3.Distance(currentPosition, _checkpoints[i]);
-            if (dist > boardsHeld * 2f) continue;
+            if (dist > bridgeReach) continue;
             if (i > bestIndex) bestIndex = i;
         }
 

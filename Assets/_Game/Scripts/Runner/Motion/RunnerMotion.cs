@@ -33,6 +33,8 @@ public class RunnerMotion
 
     public MotionState State { get; private set; }
     public bool IsOnPlacedBoard { get; private set; }
+    /// <summary>What was under the feet at the last Tick (road, placed board, jump pad, bonus platform). Null = nothing.</summary>
+    public Collider GroundCollider { get; private set; }
 
     public event Action Jumped;
     public event Action ClimbStarted;
@@ -62,6 +64,7 @@ public class RunnerMotion
 
         bool grounded = probe.TryGetGround(planned, out RaycastHit hit);
         IsOnPlacedBoard = grounded && hit.collider.TryGetComponent(out PlaceableBoard _);
+        GroundCollider = grounded ? hit.collider : null;
 
         switch (State)
         {

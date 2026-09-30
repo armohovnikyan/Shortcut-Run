@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Takes boards from the carrier and lays them under the runner, one every half board-width travelled.
-/// The placer decides the spacing, measured from the board itself.
+/// Takes boards from the carrier and lays them under the runner, one every board length plus gap
+/// (PlaceableBoard.BridgeStep). The spacing comes from the board itself.
 /// </summary>
 public class BridgeBuilder
 {
@@ -19,6 +19,12 @@ public class BridgeBuilder
     }
 
     public bool HasBoards => carrier.HasBoards;
+
+    /// <summary>Placed boards go under this (the level), so they're cleaned up with it. Null = scene root.</summary>
+    public Transform Parent { get; set; }
+
+    /// <summary>Metres of bridge one board covers — the same step TryPlace uses.</summary>
+    public static float StepLength(PlaceableBoard board) => Mathf.Max(MinStep, board.BridgeStep);
 
     /// <summary>Call when a new bridge starts, so the first board goes down immediately.</summary>
     public void Begin() => hasPlaced = false;
@@ -37,13 +43,13 @@ public class BridgeBuilder
     {
         if (!(carrier.TakeLast() is PlaceableBoard board)) return false;
 
-        board.transform.SetParent(null);
+        board.transform.SetParent(Parent);
 
         // Board is placed facing the runner's direction, so its local Z is the travel axis.
         Vector3 size = board.Size;
-        step = Mathf.Max(MinStep, size.z * 0.5f);
+        step = StepLength(board);
 
-        Vector3 position = new Vector3(feet.x, surfaceY - size.y * 0.5f, feet.z);
+        Vector3 position = new Vector3(feet.x, surfaceY - size.y * 1.5f, feet.z);
         board.transform.SetPositionAndRotation(position, Quaternion.LookRotation(forward));
         board.OnPlaced();
 

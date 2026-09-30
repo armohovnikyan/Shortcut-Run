@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b507cd1715393244994404f2e3a05d79, type: 3}
+  m_Name: RewardTable
+  m_EditorClassIdentifier: Assembly-CSharp::RewardTableSO
+  placeRewards: 640000004b0000003200000019000000140000000f0000000a000000
+  otherPlacesReward: 5
+  coinsPerBoard: 1

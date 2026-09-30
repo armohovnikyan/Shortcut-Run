@@ -29,3 +29,11 @@ MonoBehaviour:
     forward: 5
     side: 0
     facing: 0
+  - shape: {fileID: 11400000, guid: f166421d23dec434ca12ff0196ab65e5, type: 2}
+    forward: 8
+    side: 0
+    facing: 90
+  - shape: {fileID: 11400000, guid: 6fc43aa532cf6dd429b8c1b90bee78c9, type: 2}
+    forward: 12
+    side: 0.32
+    facing: 90

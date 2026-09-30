@@ -39,6 +39,17 @@ public class BoardCarrier
         return board;
     }
 
+    /// <summary>Finish flow: the boards in hand tumble off and vanish. Already placed boards stay.</summary>
+    public void DropAll(Transform parent)
+    {
+        foreach (BaseBoard board in _carriedBoards)
+        {
+            if (board is PlaceableBoard placeable) placeable.Drop(parent);
+            else if (board != null) UnityEngine.Object.Destroy(board.gameObject);
+        }
+        _carriedBoards.Clear();
+    }
+
     /// <summary>Destroys the boards still in hand. Already placed boards are not in the list, so they stay.</summary>
     public void RemoveAll()
     {

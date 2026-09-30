@@ -265,8 +265,9 @@ GameObject:
   - component: {fileID: 8506778629970451194}
   - component: {fileID: 4597738470521180944}
   - component: {fileID: 7094228048358270824}
-  - component: {fileID: 2875437547464627182}
   - component: {fileID: 7524668631405316882}
+  - component: {fileID: 2875437547464627182}
+  - component: {fileID: 4238872318644363486}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -341,50 +342,11 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &2875437547464627182
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1564009550072085038}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d85ce1e813878d443bd8ed82e54f28fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Player
-  baseSpeed: 7
-  maxSpeedBonus: 3
-  finishWalkSpeed: 5
-  finishStopSqrDistance: 4
-  boardStackPosition: {fileID: 5323819438738752460}
-  boardStackSpace: 0.15
-  placeableBoardPrefab: {fileID: 9164896909096688938, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
-  boardCarrier:
-    speedPenaltyPerBoard: 0.02
-    minCarryMultiplier: 0.6
-  groundProbe:
-    roadLayer:
-      serializedVersion: 2
-      m_Bits: 64
-    rayOriginHeight: 0.5
-    groundCheckDistance: 1.2
-    grabRoadDistance: 8
-    maxClimbHeight: 2
-  motion:
-    offRoadDebounce: 0.05
-    jumpHeight: 1
-    jumpDuration: 1
-    climbDuration: 0.25
-    gravity: -20
-  placedBoardBonusPerSecond: 1.8
-  steering:
-    turnSpeed: 90
 --- !u!95 &7524668631405316882
 Animator:
   serializedVersion: 7
@@ -407,6 +369,60 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &2875437547464627182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1564009550072085038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d85ce1e813878d443bd8ed82e54f28fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Player
+  baseSpeed: 7
+  maxSpeedBonus: 2
+  finishWalkSpeed: 5
+  finishStopDistance: 0.1
+  boardStackPosition: {fileID: 5323819438738752460}
+  boardStackSpace: 0.15
+  placeableBoardPrefab: {fileID: 9164896909096688938, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
+  boardCarrier:
+    speedPenaltyPerBoard: 0.001
+    minCarryMultiplier: 0.6
+  groundProbe:
+    roadLayer:
+      serializedVersion: 2
+      m_Bits: 64
+    rayOriginHeight: 0.5
+    groundCheckDistance: 1.2
+    grabRoadDistance: 10
+    maxClimbHeight: 2
+  motion:
+    offRoadDebounce: 0.05
+    jumpHeight: 3
+    jumpDuration: 2
+    climbDuration: 0.25
+    gravity: -20
+  placedBoardBonusPerSecond: 0.8
+  skinParent: {fileID: 0}
+  skinRootName: mixamorig:Hips
+  steering:
+    turnSpeed: 90
+--- !u!114 &4238872318644363486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1564009550072085038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 792a36e7c6457a34da00e0f52b6678ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TouchInputReader
+  sensitivity: 0.2
 --- !u!1 &1575037047777942567
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,9 +2,8 @@ using System;
 using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
-// Для всех бегунов пока одинаковый исход финиша — просто идём к точке стоянки.
-// Если позже понадобится особая логика для 1-го места (бонус-уровень и т.п.) —
-// именно здесь нужно будет её разветвить.
+// The runner only reports (Fell) and obeys (BeginRace, FinishAt). What a finish or a fall means —
+// place, bonus, game over — is decided by RunManager; the finish line is the level's FinishLine.
 public abstract class Runner : MonoBehaviour, IRunner
 {
     [Header("Speed")]
@@ -13,7 +12,10 @@ public abstract class Runner : MonoBehaviour, IRunner
     [Space]
     [Header("Finish walk")]
     [SerializeField] float finishWalkSpeed = 5f;
-    [SerializeField] float finishStopSqrDistance = 4f;
+    [Tooltip("How close to the stand point counts as arrived, in metres.")]
+    [SerializeField] float finishStopDistance = 0.1f;
+    [Tooltip("Bonus fall: how fast the runner is pulled back to the last platform's stand point.")]
+    [SerializeField] float dragBackSpeed = 25f;
     [Space]
     [Header("Board")]
     [SerializeField] protected Transform boardStackPosition;
@@ -26,9 +28,17 @@ public abstract class Runner : MonoBehaviour, IRunner
     [SerializeField] protected RunnerMotion motion = new RunnerMotion();
     [Tooltip("Speed bonus gained per second on placed boards, and lost per second anywhere else.")]
     [SerializeField] private float placedBoardBonusPerSecond = 1.8f;
+    [Space]
+    [Header("Skin")]
+    [Tooltip("Where a skin model is spawned. Empty = the object with the Animator.")]
+    [SerializeField] private Transform skinParent;
+    [Tooltip("Name the spawned model gets. Must match the root bone name the animations were made with (Mixamo: mixamorig:Hips). Empty = keep the prefab name.")]
+    [SerializeField] private string skinRootName = "mixamorig:Hips";
 
 
     protected RunnerAnimations animations;
+    private Animator animator;
+    private BridgeBuilder bridge;
 
     public float SpeedBonus { get; private set; } = 1f;
     public bool IsRunning { get; protected set; }
@@ -36,7 +46,16 @@ public abstract class Runner : MonoBehaviour, IRunner
 
     public float CurrentSpeed => baseSpeed * SpeedBonus * boardCarrier.CarryMultiplier;
 
-    public event Action<Runner> ReachedFinish;
+    /// <summary>Metres of gap the boards in hand can bridge right now.</summary>
+    public float BridgeReach => placeableBoardPrefab == null
+        ? 0f
+        : boardCarrier.Count * BridgeBuilder.StepLength(placeableBoardPrefab);
+
+    public int BoardCount => boardCarrier.Count;
+
+    /// <summary>What the runner is standing on. Null while bridging, jumping, climbing or falling.</summary>
+    public Collider GroundCollider => motion.State == MotionState.OnRoad ? motion.GroundCollider : null;
+
     public event Action<Runner> Fell;
 
     // ---------- Lifecycle ----------
@@ -44,9 +63,12 @@ public abstract class Runner : MonoBehaviour, IRunner
 
     protected virtual void Awake()
     {
-        animations = new RunnerAnimations(GetComponent<Animator>());
+        // InChildren: the Animator can sit on a child (NPC keeps it on the object the skins go under).
+        animator = GetComponentInChildren<Animator>();
+        animations = new RunnerAnimations(animator);
 
-        motion.Init(groundProbe, new BridgeBuilder(boardCarrier), transform.position);
+        bridge = new BridgeBuilder(boardCarrier);
+        motion.Init(groundProbe, bridge, transform.position);
         motion.Jumped += Jump;
         motion.ClimbStarted += OnClimbStarted;
         motion.Landed += CheckBoards;
@@ -54,14 +76,7 @@ public abstract class Runner : MonoBehaviour, IRunner
         motion.Fell += OnFell;
     }
 
-    protected virtual void Start()
-    {
-        // Moves to the run manager later.
-        GameManager.Instance.RegistrRunner(transform);
-
-
-        //ReachedFinish += runner => runner.WalkToFinalPoint();
-    }
+    protected virtual void Start() { }
 
     public void BeginRace()
     {
@@ -70,13 +85,6 @@ public abstract class Runner : MonoBehaviour, IRunner
         OnBeginRace();
     }
     protected abstract void OnBeginRace();
-
-    public void EndRace()
-    {
-        IsRunning = false;
-        StopMoving();
-        animations.TriggerDancing();
-    }
 
     protected abstract void StopMoving();
     protected virtual void OnSpeedChanged() { }
@@ -141,11 +149,44 @@ public abstract class Runner : MonoBehaviour, IRunner
         return final;
     }
 
+    /// <summary>Called by the spawner: bridges this runner builds belong to the level and are destroyed with it.</summary>
+    public void SetBoardParent(Transform parent) => bridge.Parent = parent;
+
+    /// <summary>
+    /// Called by the spawner right after Instantiate, before the race: puts the model under the
+    /// Animator and rebinds it, so the animations drive the new model's bones.
+    /// </summary>
+    public void ApplySkin(GameObject skinPrefab)
+    {
+        if (skinPrefab == null) return;
+        if (animator == null)
+        {
+            Debug.LogError($"{name}: can't apply a skin — no Animator on this runner or its children.", this);
+            return;
+        }
+
+        Transform parent = skinParent != null ? skinParent : animator.transform;
+        GameObject model = Instantiate(skinPrefab, parent.position, parent.rotation, parent);
+        if (!string.IsNullOrEmpty(skinRootName)) model.name = skinRootName;
+
+        // A model imported with its own Animator brings its Avatar: take it, drop the duplicate Animator.
+        if (model.TryGetComponent(out Animator modelAnimator))
+        {
+            if (modelAnimator.avatar != null) animator.avatar = modelAnimator.avatar;
+            modelAnimator.enabled = false;
+            Destroy(modelAnimator);
+        }
+
+        animations.Rebind(); // Rebind also resets parameters — set the pre-race state again
+        animations.SetIdle();
+    }
+
     /// <summary>Hand height control back to RunnerMotion after something else (NavMeshAgent) had it.</summary>
     protected void ResumeMotion() => motion.Resume(transform.position);
 
-    // Only reports, like ReachedFinish. The run manager decides what a fall means.
-    private void OnFell()
+    // Only reports. The run manager decides what a fall means (game over, or drag-back in the bonus).
+    // Protected: NPC also reports a knockout this way — it's out of the race either way.
+    protected void OnFell()
     {
         IsFailing();
         Fell?.Invoke(this);
@@ -153,31 +194,50 @@ public abstract class Runner : MonoBehaviour, IRunner
 
     // ---------- Finish ----------
 
-    // Subclass calls this from its own trigger/waypoint check. It only reports.
-    protected void NotifyReachedFinish()
+    /// <summary>
+    /// The finish flow: stop racing, drop the boards, walk to the stand point, face its direction,
+    /// then play the finish animation. `arrived` runs after that (RunManager opens the reward UI there).
+    /// </summary>
+    public void FinishAt(Transform standPoint, int place, Action arrived = null)
     {
-        ReachedFinish?.Invoke(this);
+        IsRunning = false;
+        StopMoving();
+        boardCarrier.DropAll(bridge.Parent);
+        animations.SetRunning(); // hands are empty now
+        StartCoroutine(FinishRoutine(standPoint, place, arrived, finishWalkSpeed, false));
     }
 
-    public void WalkToFinalPoint() => StartCoroutine(WalkToFinalPointRoutine());
-
-    IEnumerator WalkToFinalPointRoutine()
+    /// <summary>
+    /// Bonus fall: the runner is pulled from wherever it fell back to the stand point, still in its
+    /// fall animation, and only then plays the finish animation. Same ending as FinishAt.
+    /// </summary>
+    public void DragTo(Transform standPoint, int place, Action arrived = null)
     {
-        Vector3 target = Finish.Instance.GetFreePoint();
+        IsRunning = false;
+        StopMoving();
+        boardCarrier.DropAll(bridge.Parent);
+        StartCoroutine(FinishRoutine(standPoint, place, arrived, dragBackSpeed, true));
+    }
 
-        while (SqrDistanceXZ(target) > finishStopSqrDistance)
+    // walking: arrived = close on the ground plane. dragged: the runner is far below, so height counts too.
+    private IEnumerator FinishRoutine(Transform standPoint, int place, Action arrived, float speed, bool dragged)
+    {
+        float stopSqr = finishStopDistance * finishStopDistance;
+        while ((dragged ? (standPoint.position - transform.position).sqrMagnitude
+                        : SqrDistanceXZ(standPoint.position)) > stopSqr)
         {
-            MoveTowards(target, finishWalkSpeed);
+            MoveTowards(standPoint.position, speed);
             yield return null;
         }
 
-        boardCarrier.RemoveAll();
-
-        Vector3 direction = Finish.Instance.transform.position - transform.position;
-        direction.y = 0f;
-        if (direction != Vector3.zero)
-            transform.rotation = Quaternion.LookRotation(direction);
+        // Stand points are rotated in the level to face where the camera will look from.
+        transform.rotation = Quaternion.Euler(0f, standPoint.eulerAngles.y, 0f);
+        PlayFinishAnimation(place);
+        arrived?.Invoke();
     }
+
+    // 2nd place and below will get the "upset" animation here once it exists.
+    protected virtual void PlayFinishAnimation(int place) => animations.TriggerDancing();
 
     // ---------- Helpers ----------
 

@@ -14,6 +14,8 @@ public class Player : Runner
         base.Awake();
         _controller = GetComponent<CharacterController>();
         _input = GetComponent<IInputReader>();
+        if (_input == null)
+            Debug.LogError($"{name}: no input reader (e.g. TouchInputReader) on the Player — it can't steer.", this);
     }
 
     protected override void Start()
@@ -27,7 +29,7 @@ public class Player : Runner
         // working regardless of this check — only per-frame movement is gated.
         if (!IsRunning) return;
 
-        steering.Rotate(transform, _input.TurnInput, Time.deltaTime);
+        if (_input != null) steering.Rotate(transform, _input.TurnInput, Time.deltaTime);
 
         // Controller only pushes forward and handles collisions; RunnerMotion decides the height.
         Vector3 planned = transform.position + steering.ForwardStep(transform, CurrentSpeed, Time.deltaTime);

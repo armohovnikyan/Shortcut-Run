@@ -13,8 +13,7 @@ public class NPC : Runner, IKillAble
 
     private NavMeshAgent _agent;
     private WaypointNavigator _navigator;
-    private Vector3 _destination;
-    private bool _finishNotified;
+    private int _agentTargetIndex = -1; // checkpoint the agent is currently walking to
 
     public bool IsKnockedOut { get; private set; }
 
@@ -24,17 +23,23 @@ public class NPC : Runner, IKillAble
         _agent = GetComponent<NavMeshAgent>();
     }
 
-    /// <summary>Called once by the spawner right after Instantiate — NPC has no
-    /// other way to know its route or where the race actually ends.</summary>
-    public void SetPath(Vector3[] checkpoints, Vector3 destination)
+    /// <summary>Called once by the spawner right after Instantiate (Level.BuildNpcCheckpoints) —
+    /// NPC has no other way to know its route. The last checkpoint should lie past the finish line.
+    /// Joins the route at the next checkpoint ahead of where it was spawned, not at the track start.</summary>
+    public void SetPath(Vector3[] checkpoints)
     {
-        _destination = destination;
-        _navigator = new WaypointNavigator(checkpoints);
+        _navigator = new WaypointNavigator(checkpoints, WaypointNavigator.NextIndexFrom(checkpoints, transform.position));
+        _agentTargetIndex = -1;
     }
 
     protected override void OnBeginRace()
     {
-        _agent.SetDestination(_destination);
+        if (_navigator == null)
+        {
+            Debug.LogWarning($"{name}: no path — the spawner must call SetPath before the race starts.", this);
+            return;
+        }
+        FollowRoute();
     }
 
     protected override void StopMoving()
@@ -49,42 +54,52 @@ public class NPC : Runner, IKillAble
 
     private void Update()
     {
-        if (!IsRunning || _navigator == null) return;
+        // Knocked out: the knockout arc owns the transform — don't let FollowRoute re-enable the agent.
+        if (!IsRunning || _navigator == null || IsKnockedOut) return;
 
-        _navigator.Tick(transform.position, boardCarrier.Count);
+        _navigator.Tick(transform.position, BridgeReach);
 
-        switch (_navigator.State)
+        // Finishing is reported by the level's FinishLine, not here. Finished only means
+        // "last checkpoint reached" — the agent just keeps walking to it.
+        if (_navigator.State == NavigationState.Shortcutting)
+            Shortcut();
+        else
+            FollowRoute();
+    }
+
+    // Agent off = RunnerMotion owns the height (bridging, jumping) until the shortcut ends.
+    private void Shortcut()
+    {
+        if (_agent.enabled)
         {
-            case NavigationState.Finished:
-                // Guarded: State stays Finished every following frame, but the
-                // run manager should only be told once.
-                if (!_finishNotified)
-                {
-                    _finishNotified = true;
-                    NotifyReachedFinish();
-                }
-                break;
-
-            case NavigationState.Shortcutting:
-                // Agent off = RunnerMotion owns the height (bridging, jumping) until the shortcut ends.
-                if (_agent.enabled)
-                {
-                    _agent.enabled = false;
-                    ResumeMotion();
-                }
-                MoveTowards(_navigator.ShortcutTarget, CurrentSpeed);
-                transform.position = TickMotion(transform.position);
-                break;
-
-            case NavigationState.FollowingRoute:
-                if (!_agent.enabled)
-                {
-                    _agent.enabled = true;
-                    _agent.Warp(transform.position);
-                    _agent.SetDestination(_destination);
-                }
-                break;
+            _agent.enabled = false;
+            _agentTargetIndex = -1;
+            ResumeMotion();
         }
+        MoveTowards(_navigator.CurrentCheckpoint, CurrentSpeed);
+        transform.position = TickMotion(transform.position);
+    }
+
+    // The agent walks to the checkpoint just ahead — never straight to the finish, so it can't take
+    // "the other way round" a loop. No NavMesh path to it = a gap between sections: cross it as a shortcut.
+    private void FollowRoute()
+    {
+        if (!_agent.enabled)
+        {
+            _agent.enabled = true;
+            _agent.Warp(transform.position);
+        }
+        if (!_agent.isOnNavMesh) return;
+
+        if (_agentTargetIndex != _navigator.CurrentIndex)
+        {
+            _agentTargetIndex = _navigator.CurrentIndex;
+            _agent.SetDestination(_navigator.CurrentCheckpoint);
+            return; // path is computed over the next frames
+        }
+
+        if (!_agent.pathPending && _agent.pathStatus != NavMeshPathStatus.PathComplete)
+            _navigator.ForceShortcut();
     }
 
     // ---------- IKillAble ----------
@@ -95,6 +110,7 @@ public class NPC : Runner, IKillAble
 
         IsKnockedOut = true;
         _agent.enabled = false;
+        OnFell(); // out of the race — the run manager takes it out of the standings
         StartCoroutine(KnockoutRoutine(launchDirection));
     }
 

@@ -1,92 +1,110 @@
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-public struct Place
-{
-    public float Distance;
-    public Transform RunnerTransform;
-}
-
-public class Runnerr
-{
-    public Transform RunnerTransform;
-    public bool Passed;
-    public bool InRace;
-}
-
+/// <summary>
+/// Top-level game flow — the one place the UI talks to.
+/// Start: load the level and prepare the run = the menu (level, runners idle, camera on the player).
+/// Play → countdown → race. After the run: claim the reward, then Replay (same level) or NextLevel.
+/// Run details (countdown, places, multipliers) come from RunManager's events; UI listens to those directly.
+/// </summary>
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
+    [SerializeField] private LevelLoader levelLoader;
+    [SerializeField] private RunManager runManager;
 
-    [Tooltip("Позиция финишной линии — используется для расчёта дистанции/мест в гонке. " +
-             "Не путать с Finish.Instance.StayPoints — это точки стоянки уже финишировавших бегунов")]
-    public Transform Finish;
+    [Header("Economy")]
+    [SerializeField] private RewardTableSO rewardTable;
+    [Tooltip("Coins a new player starts with. Only used the first time the game runs on a device.")]
+    [SerializeField, Min(0)] private int startingCoins;
 
-    public List<Runnerr> Runners = new List<Runnerr>();
-    List<Place> Distances = new List<Place>();
+    [Tooltip("Print rewards and the wallet to the Console (no UI needed to test).")]
+    [SerializeField] private bool logEvents = true;
 
-    void Awake()
+    public RunManager Run => runManager;
+    public Wallet Wallet { get; private set; }
+    public int LevelNumber => levelLoader.LevelIndex + 1;
+    /// <summary>Coins earned by the last run, waiting to be claimed. 0 = nothing to claim.</summary>
+    public int PendingReward { get; private set; }
+
+    /// <summary>The menu is up: level loaded, runners waiting for Play.</summary>
+    public event Action MenuShown;
+    /// <summary>The player finished: open the reward panel. Result + coins to claim.</summary>
+    public event Action<RunResult, int> RewardReady;
+    /// <summary>The player fell during the race: open the game-over panel.</summary>
+    public event Action GameOver;
+
+    private void Awake()
     {
-        Instance = this;
+        Wallet = new Wallet(startingCoins);
     }
 
-    public void RegistrRunner(Transform RunnerTransform)
+    private void OnEnable()  => runManager.RunEnded += OnRunEnded;
+    private void OnDisable() => runManager.RunEnded -= OnRunEnded;
+
+    private void Start() => ShowMenu(levelLoader.LoadCurrent());
+
+    // ---------- UI entry points ----------
+
+    /// <summary>PLAY button.</summary>
+    public void Play() => runManager.StartRun();
+
+    /// <summary>Reward panel "Claim" button.</summary>
+    public void ClaimReward() => ClaimReward(1);
+
+    /// <summary>Claim with an extra factor (e.g. ×2 for watching an ad).</summary>
+    public void ClaimReward(int factor)
     {
-        Runners.Add(new Runnerr { RunnerTransform = RunnerTransform, Passed = false, InRace = true });
+        if (PendingReward <= 0) return;
+
+        Wallet.Add(PendingReward * Mathf.Max(1, factor));
+        PendingReward = 0;
+        Log($"claimed — wallet: {Wallet.Coins}");
     }
 
-    public void UnRegisterRunner(Transform RunnerTransform, bool Passed)
+    /// <summary>Same level again (game-over panel).</summary>
+    public void Replay()
     {
-        for (int i = 0; i < Runners.Count; i++)
+        ClaimReward(); // never lose coins that were earned but not claimed
+        runManager.Cleanup();
+        ShowMenu(levelLoader.LoadCurrent());
+    }
+
+    /// <summary>Next level (reward panel "Continue").</summary>
+    public void NextLevel()
+    {
+        ClaimReward();
+        runManager.Cleanup();
+        ShowMenu(levelLoader.LoadNext());
+    }
+
+    // ---------- Flow ----------
+
+    private void ShowMenu(Level level)
+    {
+        if (level == null) return;
+        runManager.Prepare(level);
+        MenuShown?.Invoke();
+    }
+
+    private void OnRunEnded(RunResult result)
+    {
+        if (!result.Finished)
         {
-            if (Runners[i].RunnerTransform == RunnerTransform)
-            {
-                if (Passed)
-                {
-                    Runners[i].Passed = Passed;
-                }
-                else
-                {
-                    Runners[i].InRace = Passed;
-                }
-                return;
-            }
+            Log("game over — no reward");
+            GameOver?.Invoke();
+            return;
         }
+
+        if (rewardTable == null)
+            Debug.LogError($"{name}: Game Manager has no Reward Table — every run pays 0 coins.", this);
+
+        PendingReward = RewardCalculator.Calculate(result, rewardTable);
+        Log($"reward: {PendingReward} coins (place {result.Place}, x{result.Multiplier}, {result.Boards} boards)");
+        RewardReady?.Invoke(result, PendingReward);
     }
 
-    void FixedUpdate()
+    private void Log(string message)
     {
-        Distances.Clear();
-        foreach (Runnerr Runner in Runners)
-        {
-            Vector3 dir = Finish.position - Runner.RunnerTransform.position;
-            dir.y = 0;
-
-            if (Runner.Passed)
-            {
-                dir = Vector3.zero;
-            }
-
-            if (!Runner.InRace)
-            {
-                dir = Vector3.positiveInfinity;
-            }
-            Distances.Add(new Place { Distance = dir.sqrMagnitude, RunnerTransform = Runner.RunnerTransform });
-        }
-
-        Distances.Sort((a, b) => a.Distance.CompareTo(b.Distance));
-    }
-
-    public int GetMyPlace(Transform myTransform)
-    {
-        for (int i = 0; i < Distances.Count; i++)
-        {
-            if (Distances[i].RunnerTransform == myTransform)
-            {
-                return i + 1;
-            }
-        }
-
-        return 0;
+        if (logEvents) Debug.Log($"[Game] {message}", this);
     }
 }

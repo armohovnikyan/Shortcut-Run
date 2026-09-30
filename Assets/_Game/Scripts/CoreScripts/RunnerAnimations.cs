@@ -60,13 +60,17 @@ public class RunnerAnimations
         SetState(IsJumpingHash);
     }
 
+    // Triggers clear the bools too: the controller enters every looping state from Any State
+    // while its bool is true, so a bool left on would pull the runner straight out of fall/dance.
     public void TriggerFalling()
     {
+        ResetStates();
         _animator.SetTrigger(IsFallingHash);
     }
 
     public void TriggerDancing()
     {
+        ResetStates();
         _animator.SetTrigger(IsDancingHash);
     }
 

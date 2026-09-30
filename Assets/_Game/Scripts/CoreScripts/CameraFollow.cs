@@ -7,9 +7,19 @@ public class CameraFollow : MonoBehaviour
     public float cameraSmoothSpeed = 5f;
     public float rotationSmoothSpeed = 5f; 
 
+    [Tooltip("Follows the player this run manager spawns.")]
+    [SerializeField] RunManager runManager;
+
     bool RaceFinished;
     Transform _playerTransform;
-    
+
+    // Minimal hook so runs can be tested. The full camera pass (pull back with boards, finish pos) comes later.
+    void OnEnable()  { if (runManager != null) runManager.PlayerSpawned += OnPlayerSpawned; }
+    void OnDisable() { if (runManager != null) runManager.PlayerSpawned -= OnPlayerSpawned; }
+    void OnPlayerSpawned(Player player) => SetTarget(player.transform);
+
+    public void SetTarget(Transform target) => _playerTransform = target;
+
     void LateUpdate()
     {
         if (_playerTransform == null) return;
