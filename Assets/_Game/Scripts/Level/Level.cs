@@ -24,6 +24,9 @@ public class Level : MonoBehaviour
     [SerializeField] private FinishLine finishLine;
     [Tooltip("Where finished runners stand, in finishing order (1st place = element 0).")]
     [SerializeField] private Transform[] standPoints;
+    [Tooltip("Centre of the finish platform, its blue arrow pointing where the camera looks from. The finish camera " +
+             "frames this point whichever stand point the player gets. Empty = the 1st place stand point.")]
+    [SerializeField] private Transform finishViewPoint;
     [Tooltip("Spawns the bonus multiplier platforms after the finish when the player comes 1st. " +
              "Empty = this level has no bonus: 1st place just finishes at x1.")]
     [SerializeField] private BonusPlatformSpawner bonusPlatforms;
@@ -37,13 +40,25 @@ public class Level : MonoBehaviour
     public int NpcCount => npcSpawns == null ? 0 : Mathf.Min(npcCount, npcSpawns.Length);
     public FinishLine FinishLine => finishLine;
     public Transform[] StandPoints => standPoints;
+    public Transform FinishViewPoint => finishViewPoint != null ? finishViewPoint
+        : standPoints != null && standPoints.Length > 0 ? standPoints[0] : finishLine.transform;
     public BonusPlatformSpawner BonusPlatforms => bonusPlatforms;
 
     /// <summary>Metres left to the finish along the track. Lower = further ahead in the race.</summary>
     public float GetRemainingDistance(Vector3 worldPosition) => Route.GetRemainingDistance(worldPosition);
 
-    /// <summary>A fresh checkpoint list for one NPC. Each loop's side is picked at random, so NPCs spread out.</summary>
-    public Vector3[] BuildNpcCheckpoints() => Route.SampleCheckpoints(checkpointSpacing, () => Random.value < 0.5f);
+    /// <summary>A fresh checkpoint list for one NPC. Each loop's side is picked at random, so NPCs spread out.
+    /// The finish line's centre is added last: the road can end before the finish trigger, and an NPC
+    /// that only walks to the road's end never crosses it.</summary>
+    public Vector3[] BuildNpcCheckpoints()
+    {
+        Vector3[] points = Route.SampleCheckpoints(checkpointSpacing, () => Random.value < 0.5f);
+        if (finishLine == null) return points;
+
+        System.Array.Resize(ref points, points.Length + 1);
+        points[points.Length - 1] = finishLine.GetComponent<Collider>().bounds.center;
+        return points;
+    }
 
     // Route preview: yellow = loops taken one way, cyan = the other way. Select the level to see it.
     private void OnDrawGizmosSelected()

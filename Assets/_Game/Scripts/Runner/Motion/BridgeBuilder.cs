@@ -43,7 +43,9 @@ public class BridgeBuilder
     {
         if (!(carrier.TakeLast() is PlaceableBoard board)) return false;
 
-        board.transform.SetParent(Parent);
+        // false = keep the board's own local scale, not the world scale it had in the hands
+        // (a scaled hand point would otherwise make placed boards — and the step between them — bigger).
+        board.transform.SetParent(Parent, false);
 
         // Board is placed facing the runner's direction, so its local Z is the travel axis.
         Vector3 size = board.Size;

@@ -262,13 +262,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1447962331}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.30070576, y: 0, z: 0, w: 0.953717}
-  m_LocalPosition: {x: 9.19, y: 9.162846, z: -24.28}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 35, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1447962335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -322,13 +322,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 1447962331}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df595dabc04b26d479b10700518da5eb, type: 3}
+  m_Script: {fileID: 11500000, guid: 6a5c18ad612e4a0dbb1dcdfc4defd98e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
-  cameraOffset: {x: 2, y: 3, z: 0}
-  cameraSmoothSpeed: 2
+  m_EditorClassIdentifier: Assembly-CSharp::StableCameraFollow
+  cameraOffset: {x: 0, y: 4, z: -2}
+  cameraSmoothSpeed: 10
   rotationSmoothSpeed: 10
-  runManager: {fileID: 927150803}
+  yawSmoothSpeed: 8
+  pitch: 28
+  boardsPerStep: 20
+  backPerStep: 2
+  upPerStep: 1.6
+  pitchPerStep: 1.5
+  maxSteps: 8
+  offsetSmoothSpeed: 2
+  lookHeight: 2
+  finishOffset: {x: 0, y: 6, z: 7}
+  finishMoveSpeed: 3
 --- !u!1001 &1535344460
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -343,35 +353,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2528562330620592331, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2528562330620592331, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2528562330620592331, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 620
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2528562330620592331, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -19.75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4007401525425593490, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4007401525425593490, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4007401525425593490, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 400
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4007401525425593490, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -30.25
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4742818064850176157, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_Pivot.x
@@ -455,35 +465,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5638055178005592601, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5638055178005592601, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5638055178005592601, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 400
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5638055178005592601, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -180.75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8109236374302946570, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8109236374302946570, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8109236374302946570, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 620
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8109236374302946570, guid: 9189cfd3eb220e746882de2b449b801f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -470.25
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -570,6 +580,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameBootstrap
   gameManager: {fileID: 1552032216}
   ui: {fileID: 1832241061}
+  gameCamera: {fileID: 1447962336}
 --- !u!1 &1784279040
 GameObject:
   m_ObjectHideFlags: 0
@@ -817,7 +828,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelLoader
   levelPrefabs:
-  - {fileID: 9213418989101578930, guid: 1b8f555a709a87c4288316f32340648d, type: 3}
+  - {fileID: 9213418989101578930, guid: be72932575dc3d2458c278c414a87959, type: 3}
   sceneLevel: {fileID: 0}
 --- !u!4 &1956142689
 Transform:

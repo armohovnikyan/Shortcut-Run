@@ -107,6 +107,12 @@ public class RunnerMotion
             return WithY(planned, groundY);
         }
 
+        // A placed board under the feet (own or another runner's bridge) is something to run on — boards
+        // are laid only over nothing. On our own fresh bridge this doesn't stop it: each new step lands
+        // past the end of the last board, where the ray finds nothing again.
+        // groundY isn't taken from the hit: placed boards sit slightly below the surface they were laid for.
+        if (grounded) return WithY(planned, groundY);
+
         if (bridge.NeedsBoard(planned))
         {
             if (bridge.TryPlace(planned, forward, groundY))

@@ -10,14 +10,20 @@ using UnityEditor.SceneManagement;
 // turn the whole pattern: offsets are rotated, and each stack's own Facing is added on top.
 // The child BoardStacks are owned by the stamp (one per entry, in entry order) — edit the pattern
 // asset, not the children. Editor-time only: at runtime everything stays where it was saved.
+// On a TrackPlatform instead (no track to bend along): the stamp is the platform's child, its own
+// Transform is free (Move / Rotate tools), and the entries are laid out flat in its frame —
+// forward = its blue arrow, side = its red arrow, each stack turned by its entry's Facing.
 [ExecuteAlways]
 public class TrackPlacedStamp : MonoBehaviour, ITrackPlaced
 {
     [SerializeField] private BoardStampSO stamp;
     [SerializeField] private CollectableBoard boardPrefab;
     [SerializeField] private TrackPlacement placement = TrackPlacement.Default;
+    [Tooltip("Set = this stamp sits on that platform, not on the road; the placement above is ignored.")]
+    [SerializeField] private TrackPlatform platform;
 
     public TrackPlacement Placement => placement;
+    public TrackPlatform Platform => platform;
     public BoardStampSO Stamp => stamp;
 
     // Placement of one entry: anchor + offset rotated by the stamp's turn, measured along the track.
@@ -71,6 +77,14 @@ public class TrackPlacedStamp : MonoBehaviour, ITrackPlaced
     // Runs when the component is added: find the road and snap onto it from wherever the object is now.
     private void Reset()
     {
+        // Added to an object already sitting on a platform: belong to that platform, not the road.
+        platform = GetComponentInParent<TrackPlatform>();
+        if (platform != null)
+        {
+            QueueSync();
+            return;
+        }
+
         placement.road = TrackMath.FindRoad(gameObject);
         if (placement.road != null)
         {
@@ -116,6 +130,36 @@ public class TrackPlacedStamp : MonoBehaviour, ITrackPlaced
         Sync();
     }
 
+    public void PlaceOnPlatform(TrackPlatform target, Vector3 position, Quaternion rotation, string undoName)
+    {
+        Undo.RecordObjects(new Object[] { this, transform }, undoName);
+        platform = target;
+        placement.road = null; // nothing to re-snap to; the board counter lists it under platforms
+        Undo.SetTransformParent(transform, target.transform, undoName);
+        transform.SetPositionAndRotation(position, rotation);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(transform);
+        Sync();
+    }
+
+    public void BackToRoad(string undoName)
+    {
+        if (platform == null) return;
+        Undo.RecordObjects(new Object[] { this, transform }, undoName);
+        Transform outside = platform.transform.parent;
+        platform = null;
+        Undo.SetTransformParent(transform, outside, undoName);
+
+        placement.road = TrackMath.FindRoad(gameObject);
+        if (placement.road != null)
+        {
+            placement.road.EnsureSectionIds();
+            if (TrackMath.TryProject(placement.road, transform.position, ref placement)) placement.side = 0f;
+        }
+        PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+        Sync();
+    }
+
     // Brings the children in line with the pattern and the road: one stack per entry, each configured
     // and moved. Every part only writes when something differs, so opening a level changes nothing.
     // Not recorded in undo — it's derived from the placement and the asset, and reruns after an undo.
@@ -130,7 +174,8 @@ public class TrackPlacedStamp : MonoBehaviour, ITrackPlaced
         if (!MatchStackCount(stacks, entries.Count)) return;
 
         // The stamp's own object sits at the anchor, so the track handles appear there.
-        if (TrackMath.TryEvaluate(placement, out Vector3 anchorPosition, out Quaternion anchorRotation))
+        // On a platform the anchor is wherever the stamp was put — nothing to evaluate.
+        if (platform == null && TrackMath.TryEvaluate(placement, out Vector3 anchorPosition, out Quaternion anchorRotation))
             MoveIfNeeded(transform, anchorPosition, anchorRotation);
 
         for (int i = 0; i < entries.Count; i++)
@@ -144,8 +189,15 @@ public class TrackPlacedStamp : MonoBehaviour, ITrackPlaced
                 EditorUtility.SetDirty(stacks[i].gameObject);
             }
 
-            if (TryGetEntryPlacement(entries[i], out TrackPlacement entryPlacement)
-                && TrackMath.TryEvaluate(entryPlacement, out Vector3 position, out Quaternion rotation))
+            if (platform != null)
+            {
+                // Flat pattern in the stamp's own frame: x = side (right), z = forward.
+                MoveLocalIfNeeded(stacks[i].transform,
+                    new Vector3(entries[i].side, 0f, entries[i].forward),
+                    Quaternion.Euler(0f, (float)entries[i].facing, 0f));
+            }
+            else if (TryGetEntryPlacement(entries[i], out TrackPlacement entryPlacement)
+                     && TrackMath.TryEvaluate(entryPlacement, out Vector3 position, out Quaternion rotation))
                 MoveIfNeeded(stacks[i].transform, position, rotation);
         }
     }
@@ -183,6 +235,17 @@ public class TrackPlacedStamp : MonoBehaviour, ITrackPlaced
 
         EditorSceneManager.MarkSceneDirty(gameObject.scene);
         return true;
+    }
+
+    private static void MoveLocalIfNeeded(Transform target, Vector3 localPosition, Quaternion localRotation)
+    {
+        bool moved = (target.localPosition - localPosition).sqrMagnitude > 1e-8f
+                     || Quaternion.Angle(target.localRotation, localRotation) > 0.01f;
+        if (!moved) return;
+
+        target.SetLocalPositionAndRotation(localPosition, localRotation);
+        EditorUtility.SetDirty(target);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(target);
     }
 
     private static void MoveIfNeeded(Transform target, Vector3 position, Quaternion rotation)

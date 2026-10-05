@@ -382,14 +382,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   baseSpeed: 7
-  maxSpeedBonus: 2
+  speedBoost:
+    boostedSpeed: 9
+    rampUpTime: 0.5
+    rampDownTime: 1
   finishWalkSpeed: 5
   finishStopDistance: 0.1
+  dragBackSpeed: 25
   boardStackPosition: {fileID: 5323819438738752460}
   boardStackSpace: 0.15
   placeableBoardPrefab: {fileID: 9164896909096688938, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
   boardCarrier:
-    speedPenaltyPerBoard: 0.001
+    speedPenaltyPerBoard: 0.0015
     minCarryMultiplier: 0.6
   groundProbe:
     roadLayer:
@@ -397,15 +401,14 @@ MonoBehaviour:
       m_Bits: 64
     rayOriginHeight: 0.5
     groundCheckDistance: 1.2
-    grabRoadDistance: 10
+    grabRoadDistance: 2.5
     maxClimbHeight: 2
   motion:
     offRoadDebounce: 0.05
     jumpHeight: 3
-    jumpDuration: 2
+    jumpDuration: 1
     climbDuration: 0.25
     gravity: -20
-  placedBoardBonusPerSecond: 0.8
   skinParent: {fileID: 0}
   skinRootName: mixamorig:Hips
   steering:
@@ -731,7 +734,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.65
+  m_Radius: 0.8
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &8505635948299361907
 Rigidbody:

@@ -9,12 +9,18 @@ public class GameBootstrap : MonoBehaviour
 {
     [SerializeField] private GameManager gameManager;
     [SerializeField] private UiRoot ui;
+    [Tooltip("The game camera. It gets the run manager from here, so it needs no references of its own.")]
+    [SerializeField] private StableCameraFollow gameCamera;
 
     private GameUiViewModel uiViewModel;
 
     // Start, not Awake: GameManager creates the wallet, profile and upgrades in its Awake.
     private void Start()
     {
+        // The camera first: it works without the UI, and tests often run without it.
+        if (gameCamera != null && gameManager != null) gameCamera.Bind(gameManager.Run);
+        else Debug.LogWarning($"{name}: Game Bootstrap has no Game Camera (or Game Manager) — the camera won't follow the player.", this);
+
         if (gameManager == null || ui == null)
         {
             Debug.LogError($"{name}: Game Bootstrap needs both a Game Manager and a UI — the UI can't work.", this);

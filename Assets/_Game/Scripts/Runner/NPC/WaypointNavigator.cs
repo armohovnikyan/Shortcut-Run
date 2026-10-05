@@ -13,6 +13,8 @@ public class WaypointNavigator
     private readonly Vector3[] _checkpoints;
     private readonly float _checkpointReachedSqrDistance;
     private readonly float _shortcutReachedSqrDistance;
+    private readonly float _minShortcutSaving;
+    private readonly float[] _routeDistance; // metres along the route from checkpoint 0 to each checkpoint
 
     private int _currentIndex;
 
@@ -21,12 +23,17 @@ public class WaypointNavigator
     public Vector3 CurrentCheckpoint => _checkpoints[_currentIndex];
 
     public WaypointNavigator(Vector3[] checkpoints, int startIndex = 0,
-        float checkpointReachedSqrDistance = 81f, float shortcutReachedSqrDistance = 64f)
+        float checkpointReachedSqrDistance = 81f, float shortcutReachedSqrDistance = 2.25f, float minShortcutSaving = 5f)
     {
         _checkpoints = checkpoints;
         _currentIndex = Mathf.Clamp(startIndex, 0, checkpoints.Length - 1);
         _checkpointReachedSqrDistance = checkpointReachedSqrDistance;
         _shortcutReachedSqrDistance = shortcutReachedSqrDistance;
+        _minShortcutSaving = minShortcutSaving;
+
+        _routeDistance = new float[checkpoints.Length];
+        for (int i = 1; i < checkpoints.Length; i++)
+            _routeDistance[i] = _routeDistance[i - 1] + Vector3.Distance(checkpoints[i - 1], checkpoints[i]);
     }
 
     /// <summary>
@@ -44,6 +51,16 @@ public class WaypointNavigator
             return;
         }
 
+        // Checked every frame, not only when a checkpoint is reached: the chance to cut across a loop
+        // opens and closes as the NPC runs and as its board count changes.
+        int bestIndex = FindBestShortcutIndex(currentPosition, bridgeReach);
+        if (bestIndex > _currentIndex)
+        {
+            _currentIndex = bestIndex;
+            State = NavigationState.Shortcutting;
+            return;
+        }
+
         if (SqrDistanceXZ(currentPosition, CurrentCheckpoint) >= _checkpointReachedSqrDistance)
             return;
 
@@ -54,13 +71,6 @@ public class WaypointNavigator
         }
 
         _currentIndex++;
-
-        int bestIndex = FindBestShortcutIndex(currentPosition, bridgeReach);
-        if (bestIndex > _currentIndex)
-        {
-            _currentIndex = bestIndex;
-            State = NavigationState.Shortcutting;
-        }
     }
 
     /// <summary>
@@ -71,6 +81,16 @@ public class WaypointNavigator
     {
         if (State == NavigationState.FollowingRoute)
             State = NavigationState.Shortcutting;
+    }
+
+    /// <summary>
+    /// The NPC is standing on real road again after crossing a gap — go back to following the route
+    /// from here. Normally ends a shortcut long before the checkpoint itself is reached.
+    /// </summary>
+    public void EndShortcut()
+    {
+        if (State == NavigationState.Shortcutting)
+            State = NavigationState.FollowingRoute;
     }
 
     /// <summary>
@@ -94,17 +114,22 @@ public class WaypointNavigator
         return Vector3.Dot(fromNearest, along) > 0f ? nearest + 1 : nearest;
     }
 
+    // Farthest checkpoint the boards in hand can reach in a straight line, if going straight saves at
+    // least _minShortcutSaving metres over following the road. Without the saving rule a straight road
+    // would count as a "shortcut" too. The last checkpoints (road end, finish) are always walked.
     private int FindBestShortcutIndex(Vector3 currentPosition, float bridgeReach)
     {
         int bestIndex = _currentIndex;
-        int startIndex = _currentIndex + 2;
-        if (startIndex > _checkpoints.Length - 3) return bestIndex;
+        if (bridgeReach <= 0f) return bestIndex;
 
-        for (int i = startIndex; i < _checkpoints.Length - 3; i++)
+        float toCurrent = Vector3.Distance(currentPosition, CurrentCheckpoint);
+        for (int i = _currentIndex + 1; i < _checkpoints.Length - 3; i++)
         {
-            float dist = Vector3.Distance(currentPosition, _checkpoints[i]);
-            if (dist > bridgeReach) continue;
-            if (i > bestIndex) bestIndex = i;
+            float straight = Vector3.Distance(currentPosition, _checkpoints[i]);
+            if (straight > bridgeReach) continue;
+
+            float alongRoute = toCurrent + _routeDistance[i] - _routeDistance[_currentIndex];
+            if (alongRoute - straight >= _minShortcutSaving) bestIndex = i;
         }
 
         return bestIndex;

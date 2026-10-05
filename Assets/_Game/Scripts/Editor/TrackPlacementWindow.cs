@@ -16,7 +16,16 @@ public class TrackPlacementWindow : EditorWindow
 
     // Where the prefab would land this frame (preview) — valid only while hasPreview.
     private bool hasPreview;
-    private TrackPlacement preview;
+    private Target preview;
+
+    // A click target: a spot on the road (placement), or a spot on a TrackPlatform (platform set).
+    private struct Target
+    {
+        public TrackPlacement placement;
+        public TrackPlatform platform;
+        public Vector3 point;        // platform only: the surface point under the mouse
+        public Quaternion rotation;  // platform only: platform's turn + Facing
+    }
 
     [MenuItem("Window/Shortcut Run/Track Placement")]
     private static void Open() => GetWindow<TrackPlacementWindow>("Track Placement");
@@ -80,9 +89,9 @@ public class TrackPlacementWindow : EditorWindow
         }
 
         EditorGUILayout.HelpBox(selectedPrefab != null
-                ? $"Placing '{selectedPrefab.name}': click on a road in the Scene view. " +
+                ? $"Placing '{selectedPrefab.name}': click on a road or a platform in the Scene view. " +
                   "Esc or click the prefab again to stop."
-                : "Pick a prefab, then click on a road in the Scene view.",
+                : "Pick a prefab, then click on a road or a platform (TrackPlatform) in the Scene view.",
             selectedPrefab != null ? MessageType.Info : MessageType.None);
     }
 
@@ -143,8 +152,8 @@ public class TrackPlacementWindow : EditorWindow
             return;
         }
 
-        Dictionary<(SplineRoad, int), Count> counts = CountBoards(out Count unplaced);
-        int totalBoards = unplaced.boards;
+        Dictionary<(SplineRoad, int), Count> counts = CountBoards(out Count unplaced, out Count onPlatforms);
+        int totalBoards = unplaced.boards + onPlatforms.boards;
 
         foreach (SplineRoad road in roads)
         {
@@ -157,6 +166,8 @@ public class TrackPlacementWindow : EditorWindow
             }
         }
 
+        if (onPlatforms.objects > 0)
+            EditorGUILayout.LabelField("    On platforms", $"{onPlatforms.boards} boards  ({onPlatforms.objects} placed)");
         if (unplaced.objects > 0)
             EditorGUILayout.LabelField("    Not on a road", $"{unplaced.boards} boards  ({unplaced.objects} placed)");
         EditorGUILayout.LabelField("Total", $"{totalBoards} boards", EditorStyles.boldLabel);
@@ -186,26 +197,58 @@ public class TrackPlacementWindow : EditorWindow
         if (e.type == EventType.Layout) HandleUtility.AddDefaultControl(controlId);
 
         if (e.type == EventType.MouseMove || e.type == EventType.MouseDrag || e.type == EventType.Repaint)
-            hasPreview = TryGetPlacementUnderMouse(e.mousePosition, out preview);
+            hasPreview = TryGetTargetUnderMouse(e.mousePosition, out preview);
 
         if (hasPreview && e.type == EventType.Repaint) DrawPreview(preview);
 
         // Alt + click is the Scene camera's orbit — leave it alone.
         if (e.type == EventType.MouseDown && e.button == 0 && !e.alt)
         {
-            if (TryGetPlacementUnderMouse(e.mousePosition, out TrackPlacement placement))
-                PlaceSelectedPrefab(placement);
+            if (TryGetTargetUnderMouse(e.mousePosition, out Target target))
+            {
+                if (target.platform != null) PlaceOnPlatform(target);
+                else PlaceSelectedPrefab(target.placement);
+            }
             e.Use();
         }
 
         if (e.type == EventType.MouseMove) SceneView.RepaintAll();
     }
 
+    // Road or platform under the mouse, whichever is nearer to the camera.
+    private bool TryGetTargetUnderMouse(Vector2 mousePosition, out Target target)
+    {
+        target = default;
+        Ray ray = HandleUtility.GUIPointToWorldRay(mousePosition);
+
+        bool onRoad = TryGetPlacementUnderMouse(ray, out TrackPlacement placement);
+        float roadDistance = float.PositiveInfinity;
+        if (onRoad && TrackMath.TryEvaluate(placement, out Vector3 roadPoint, out _))
+            roadDistance = Vector3.Distance(ray.origin, roadPoint);
+
+        // Collider.Raycast tests that one collider's shape — no physics scene query, so it works in Prefab Mode.
+        float best = roadDistance;
+        foreach (TrackPlatform platform in FindInEditedLevel<TrackPlatform>())
+        {
+            Collider surface = platform.Surface;
+            if (surface == null || !surface.enabled || !surface.Raycast(ray, out RaycastHit hit, best)) continue;
+
+            best = hit.distance;
+            target.platform = platform;
+            target.point = hit.point;
+            target.rotation = Quaternion.Euler(0f,
+                platform.transform.eulerAngles.y + (float)TrackPlacementSettings.Facing, 0f);
+        }
+
+        if (target.platform != null) return true;
+        target.placement = placement;
+        return onRoad;
+    }
+
     // The road surface under the mouse on any road in the level, snapped. Misses count only within 1 m of an edge.
-    private bool TryGetPlacementUnderMouse(Vector2 mousePosition, out TrackPlacement placement)
+    private bool TryGetPlacementUnderMouse(Ray ray, out TrackPlacement placement)
     {
         placement = TrackPlacement.Default;
-        Ray ray = HandleUtility.GUIPointToWorldRay(mousePosition);
         float bestOffRoad = 1f;
         bool found = false;
 
@@ -226,9 +269,16 @@ public class TrackPlacementWindow : EditorWindow
         return true;
     }
 
-    private static void DrawPreview(TrackPlacement placement)
+    private static void DrawPreview(Target target)
     {
-        if (!TrackMath.TryEvaluate(placement, out Vector3 position, out Quaternion rotation)) return;
+        Vector3 position;
+        Quaternion rotation;
+        if (target.platform != null)
+        {
+            position = target.point;
+            rotation = target.rotation;
+        }
+        else if (!TrackMath.TryEvaluate(target.placement, out position, out rotation)) return;
 
         float size = HandleUtility.GetHandleSize(position) * 0.5f;
         Vector3 up = rotation * Vector3.up;
@@ -254,6 +304,24 @@ public class TrackPlacementWindow : EditorWindow
         Undo.CollapseUndoOperations(undoGroup); // one Ctrl+Z removes the whole placement
     }
 
+    // Stacks and stamps alike. On a platform a stamp's pattern is laid out flat around the clicked point.
+    private void PlaceOnPlatform(Target target)
+    {
+        Undo.IncrementCurrentGroup();
+        int undoGroup = Undo.GetCurrentGroup();
+
+        GameObject instance = InstantiateInEditedLevel(selectedPrefab);
+        Undo.RegisterCreatedObjectUndo(instance, "Place " + selectedPrefab.name);
+
+        var placed = instance.GetComponent<ITrackPlaced>();
+        TrackPlacement fromPrefab = placed.Placement; // keep the prefab's own lift and extra turn
+        Quaternion rotation = target.rotation * Quaternion.Euler(0f, fromPrefab.yaw, 0f);
+        Vector3 position = target.point + Vector3.up * fromPrefab.height;
+        placed.PlaceOnPlatform(target.platform, position, rotation, "Place " + selectedPrefab.name);
+
+        Undo.CollapseUndoOperations(undoGroup); // one Ctrl+Z removes the whole placement
+    }
+
     private GameObject InstantiateInEditedLevel(GameObject prefab)
     {
         PrefabStage stage = PrefabStageUtility.GetCurrentPrefabStage();
@@ -268,7 +336,7 @@ public class TrackPlacementWindow : EditorWindow
     {
         if (Event.current.type != EventType.Repaint) return;
 
-        Dictionary<(SplineRoad, int), Count> counts = CountBoards(out _);
+        Dictionary<(SplineRoad, int), Count> counts = CountBoards(out _, out _);
         foreach (SplineRoad road in FindInEditedLevel<SplineRoad>())
         {
             for (int i = 0; i < road.SectionCount; i++)
@@ -298,16 +366,34 @@ public class TrackPlacementWindow : EditorWindow
     }
 
     // Boards per (road, section). A stamp counts all its boards toward its anchor's section.
-    private static Dictionary<(SplineRoad, int), Count> CountBoards(out Count unplaced)
+    // Stacks on platforms are counted on their own.
+    private static Dictionary<(SplineRoad, int), Count> CountBoards(out Count unplaced, out Count onPlatforms)
     {
         var counts = new Dictionary<(SplineRoad, int), Count>();
         unplaced = default;
+        onPlatforms = default;
 
         foreach (TrackPlacedStack stack in FindInEditedLevel<TrackPlacedStack>())
-            Add(stack.Placement, stack.GetComponent<BoardStack>().BoardCount, ref unplaced);
+        {
+            int boards = stack.GetComponent<BoardStack>().BoardCount;
+            if (stack.Platform != null)
+            {
+                onPlatforms.boards += boards;
+                onPlatforms.objects++;
+            }
+            else Add(stack.Placement, boards, ref unplaced);
+        }
 
         foreach (TrackPlacedStamp stamp in FindInEditedLevel<TrackPlacedStamp>())
-            Add(stamp.Placement, stamp.Stamp != null ? stamp.Stamp.BoardCount : 0, ref unplaced);
+        {
+            int boards = stamp.Stamp != null ? stamp.Stamp.BoardCount : 0;
+            if (stamp.Platform != null)
+            {
+                onPlatforms.boards += boards;
+                onPlatforms.objects++;
+            }
+            else Add(stamp.Placement, boards, ref unplaced);
+        }
 
         return counts;
 

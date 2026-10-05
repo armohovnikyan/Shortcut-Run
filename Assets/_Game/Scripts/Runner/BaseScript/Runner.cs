@@ -8,10 +8,12 @@ public abstract class Runner : MonoBehaviour, IRunner
 {
     [Header("Speed")]
     [SerializeField] protected float baseSpeed = 7f;
-    [SerializeField] protected float maxSpeedBonus = 3f;
+    [Tooltip("On from the first board placed or any placed board stepped on, off once back on normal road. " +
+             "Jumps (jump pads too) keep whatever it was.")]
+    [SerializeField] private SpeedBoost speedBoost = new SpeedBoost();
     [Space]
     [Header("Finish walk")]
-    [SerializeField] float finishWalkSpeed = 5f;
+    [SerializeField] float finishWalkSpeed = 7f;
     [Tooltip("How close to the stand point counts as arrived, in metres.")]
     [SerializeField] float finishStopDistance = 0.1f;
     [Tooltip("Bonus fall: how fast the runner is pulled back to the last platform's stand point.")]
@@ -26,8 +28,6 @@ public abstract class Runner : MonoBehaviour, IRunner
     [Header("Motion")]
     [SerializeField] protected GroundProbe groundProbe = new GroundProbe();
     [SerializeField] protected RunnerMotion motion = new RunnerMotion();
-    [Tooltip("Speed bonus gained per second on placed boards, and lost per second anywhere else.")]
-    [SerializeField] private float placedBoardBonusPerSecond = 1.8f;
     [Space]
     [Header("Skin")]
     [Tooltip("Where a skin model is spawned. Empty = the object with the Animator.")]
@@ -40,11 +40,14 @@ public abstract class Runner : MonoBehaviour, IRunner
     private Animator animator;
     private BridgeBuilder bridge;
 
-    public float SpeedBonus { get; private set; } = 1f;
+    private bool boostOn;
+    private bool motionTickedThisFrame;
+
     public bool IsRunning { get; protected set; }
+    /// <summary>The boost switch (on = speeding up or boosted). For effects / camera.</summary>
+    public bool IsBoosted => boostOn;
 
-
-    public float CurrentSpeed => baseSpeed * SpeedBonus * boardCarrier.CarryMultiplier;
+    public float CurrentSpeed => speedBoost.SpeedFrom(baseSpeed) * boardCarrier.CarryMultiplier;
 
     /// <summary>Metres of gap the boards in hand can bridge right now.</summary>
     public float BridgeReach => placeableBoardPrefab == null
@@ -93,12 +96,6 @@ public abstract class Runner : MonoBehaviour, IRunner
 
     // ---------- Shared behaviour (IRunner) ----------
 
-    public void ChangeSpeedBonus(float bonus)
-    {
-        SpeedBonus = Mathf.Clamp(SpeedBonus + bonus, 1f, maxSpeedBonus);
-        OnSpeedChanged();
-    }
-
     public void CheckBoards()
     {
         if (boardCarrier.HasBoards)
@@ -142,11 +139,42 @@ public abstract class Runner : MonoBehaviour, IRunner
     protected Vector3 TickMotion(Vector3 plannedPosition)
     {
         Vector3 final = motion.Tick(plannedPosition, transform.forward, Time.deltaTime);
-
-        float direction = motion.IsOnPlacedBoard ? 1f : -1f;
-        ChangeSpeedBonus(direction * placedBoardBonusPerSecond * Time.deltaTime);
-
+        UpdateBoostSwitch();
+        motionTickedThisFrame = true;
         return final;
+    }
+
+    // ---------- Speed boost ----------
+
+    // The switch only flips at two moments; everything in between (jumping, a jump pad, climbing,
+    // falling) keeps it as it was. Any runner's placed boards count, not only our own.
+    private void UpdateBoostSwitch()
+    {
+        if (motion.State == MotionState.Bridging || motion.IsOnPlacedBoard)
+        {
+            boostOn = true; // placing boards, or running on a bridge
+            return;
+        }
+
+        Collider ground = GroundCollider; // non-null only when standing (OnRoad)
+        if (ground != null && !ground.TryGetComponent(out JumpPad _))
+            boostOn = false; // back on normal road
+    }
+
+    // After the subclass's Update, so the boost follows this frame's motion.
+    protected virtual void LateUpdate()
+    {
+        if (!IsRunning)
+        {
+            motionTickedThisFrame = false;
+            return;
+        }
+
+        // Not moved by RunnerMotion this frame = an NPC walked by its NavMeshAgent, i.e. on the road.
+        if (!motionTickedThisFrame) boostOn = false;
+        motionTickedThisFrame = false;
+
+        if (speedBoost.Tick(boostOn, Time.deltaTime)) OnSpeedChanged();
     }
 
     /// <summary>Called by the spawner: bridges this runner builds belong to the level and are destroyed with it.</summary>

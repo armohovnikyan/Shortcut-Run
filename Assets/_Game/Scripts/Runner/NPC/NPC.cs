@@ -14,6 +14,7 @@ public class NPC : Runner, IKillAble
     private NavMeshAgent _agent;
     private WaypointNavigator _navigator;
     private int _agentTargetIndex = -1; // checkpoint the agent is currently walking to
+    private bool _leftRoadInShortcut;   // the current shortcut has gone off the road (bridge or jump)
 
     public bool IsKnockedOut { get; private set; }
 
@@ -74,10 +75,18 @@ public class NPC : Runner, IKillAble
         {
             _agent.enabled = false;
             _agentTargetIndex = -1;
+            _leftRoadInShortcut = false;
             ResumeMotion();
         }
         MoveTowards(_navigator.CurrentCheckpoint, CurrentSpeed);
         transform.position = TickMotion(transform.position);
+
+        // Back on real road after the gap: hand over to the agent right here, at the road edge.
+        // Waiting until the checkpoint (mid-road) is close would switch the agent on over the gap,
+        // and its Warp would snap the NPC onto the NavMesh — a jump across the rest of the gap.
+        bool onRoad = motion.State == MotionState.OnRoad && !motion.IsOnPlacedBoard;
+        if (!onRoad) _leftRoadInShortcut = true;
+        else if (_leftRoadInShortcut) _navigator.EndShortcut();
     }
 
     // The agent walks to the checkpoint just ahead — never straight to the finish, so it can't take

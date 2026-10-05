@@ -53,6 +53,7 @@ public class RunManager : MonoBehaviour
     public event Action<Runner, int> RunnerFinished;  // runner, finishing place
     public event Action BonusStarted;                 // player came 1st: platforms are rising
     public event Action<int> MultiplierReached;       // 2 … 15
+    public event Action<Transform> PlayerFinishStarted; // finish flow begins; the platform's view point (camera anchor)
     public event Action<RunResult> RunEnded;          // player reached its stand point, or fell in the race
 
     private void OnDestroy() => Unsubscribe();
@@ -141,8 +142,11 @@ public class RunManager : MonoBehaviour
 
     private void OnRunnerCrossed(Runner runner)
     {
-        // NPCs still finish while the player is in the bonus; nothing counts once the run is over.
-        if (State != RunState.Racing && State != RunState.Bonus) return;
+        // NPCs finish like the player at any point after GO — also after the player's own run has ended
+        // (finished, in the bonus, or fell): they still drop their boards and walk to their place.
+        // The player can only finish while racing.
+        bool raceStarted = State == RunState.Racing || State == RunState.Bonus || State == RunState.Ended;
+        if (!raceStarted || (runner == Player && State != RunState.Racing)) return;
 
         int place = standings.MarkFinished(runner);
         Log($"{runner.name} finished #{place}");
@@ -182,6 +186,7 @@ public class RunManager : MonoBehaviour
     {
         State = RunState.Ended;
         var result = new RunResult { Finished = true, Place = place, Multiplier = multiplier, Boards = boards };
+        PlayerFinishStarted?.Invoke(ViewPointFor(standPoint));
 
         if (dragged) Player.DragTo(standPoint, place, () => EndRun(result));
         else Player.FinishAt(standPoint, place, () => EndRun(result));
@@ -232,6 +237,15 @@ public class RunManager : MonoBehaviour
         Transform[] points = level.StandPoints;
         if (points == null || points.Length == 0) return level.FinishLine.transform;
         return points[Mathf.Clamp(place - 1, 0, points.Length - 1)];
+    }
+
+    // The finish platform has a stand point per place but one view of its own, so the camera frames the
+    // platform, not the player's spot on it. A bonus platform has a single stand point: that's its view.
+    private Transform ViewPointFor(Transform standPoint)
+    {
+        Transform[] points = level.StandPoints;
+        bool onFinishPlatform = points == null || points.Length == 0 || Array.IndexOf(points, standPoint) >= 0;
+        return onFinishPlatform ? level.FinishViewPoint : standPoint;
     }
 
     private void Unsubscribe()

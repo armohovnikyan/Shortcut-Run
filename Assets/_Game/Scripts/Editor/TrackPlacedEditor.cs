@@ -22,7 +22,46 @@ public abstract class TrackPlacedEditor : Editor
 
         // The Transform is driven by the placement — Unity's Move tool would just get overwritten.
         // Our own track handles replace it while a placed object is selected.
-        Tools.hidden = true;
+        // On a platform the Transform is free, so there Unity's own Move/Rotate tools stay.
+        Tools.hidden = OnPlatformCount() == 0;
+    }
+
+    protected int OnPlatformCount()
+    {
+        int count = 0;
+        foreach (Object t in targets)
+            if (t is ITrackPlaced placed && placed.Platform != null) count++;
+        return count;
+    }
+
+    /// <summary>
+    /// For objects on a platform: shows which one and a "Back To Road" button, instead of the road fields.
+    /// Returns false when nothing selected is on a platform — then draw the road fields as usual.
+    /// </summary>
+    protected bool DrawPlatformSection()
+    {
+        int onPlatform = OnPlatformCount();
+        if (onPlatform == 0) return false;
+
+        if (onPlatform < targets.Length)
+        {
+            EditorGUILayout.HelpBox("Some selected objects are on a platform and some on the road — " +
+                                    "select only one kind to edit them.", MessageType.Info);
+            return true;
+        }
+
+        string platformName = targets.Length == 1 ? ((ITrackPlaced)target).Platform.name : "a platform";
+        EditorGUILayout.HelpBox($"On {platformName}. Move and rotate it with the normal Move / Rotate tools — " +
+                                "it moves with the platform.", MessageType.Info);
+
+        if (GUILayout.Button(new GUIContent("Back To Road",
+                "Takes it off the platform and puts it on the nearest point of the road, centred.")))
+        {
+            foreach (Object t in targets)
+                ((ITrackPlaced)t).BackToRoad("Back To Road");
+            Tools.hidden = true; // back on the road: the track handles take over again
+        }
+        return true;
     }
 
     protected virtual void OnDisable()
@@ -138,7 +177,7 @@ public abstract class TrackPlacedEditor : Editor
     {
         var placed = (ITrackPlaced)target;
         TrackPlacement placement = placed.Placement;
-        if (placement.road == null) return;
+        if (placement.road == null || placed.Platform != null) return; // track handles are for the road only
 
         Transform t = placed.transform;
         Vector3 position = t.position;

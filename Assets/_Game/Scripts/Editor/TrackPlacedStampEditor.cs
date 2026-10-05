@@ -21,6 +21,15 @@ public class TrackPlacedStampEditor : TrackPlacedEditor
         EditorGUILayout.PropertyField(boardPrefab);
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Anchor", EditorStyles.boldLabel);
+
+        if (OnPlatformCount() > 0)
+        {
+            serializedObject.ApplyModifiedProperties();
+            DrawPlatformSection();
+            if (targets.Length == 1) DrawPatternInfo((TrackPlacedStamp)target);
+            return;
+        }
+
         DrawPlacementFields();
         serializedObject.ApplyModifiedProperties();
 
@@ -38,10 +47,31 @@ public class TrackPlacedStampEditor : TrackPlacedEditor
         }
 
         EditorGUILayout.HelpBox($"{asset.Entries.Count} stacks, {asset.BoardCount} boards.", MessageType.None);
-        if (IsPartlyOffRoad(placed, asset))
+        if (placed.Platform != null)
+        {
+            if (IsPartlyOffPlatform(placed))
+                EditorGUILayout.HelpBox("Part of the pattern hangs over the platform's edge. Move or turn the stamp.",
+                    MessageType.Warning);
+        }
+        else if (IsPartlyOffRoad(placed, asset))
             EditorGUILayout.HelpBox("Part of the pattern is off the road or past the section's end " +
                                     "(stacks there get squeezed to the end). Move or turn the stamp.",
                 MessageType.Warning);
+    }
+
+    // A stack is "on" the platform when a ray straight down through it hits the platform's collider.
+    private static bool IsPartlyOffPlatform(TrackPlacedStamp placed)
+    {
+        Collider surface = placed.Platform.Surface;
+        if (surface == null) return false;
+
+        foreach (Transform child in placed.transform)
+        {
+            if (!child.TryGetComponent(out BoardStack _)) continue;
+            var down = new Ray(child.position + Vector3.up * 5f, Vector3.down);
+            if (!surface.Raycast(down, out _, 10f)) return true;
+        }
+        return false;
     }
 
     // Side beyond ±1 = off the road edge; distance outside the section = clamped onto its end.
