@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 // Idle = nothing prepared. Ready = the menu: level + runners in place, waiting for Play.
@@ -43,6 +44,8 @@ public class RunManager : MonoBehaviour
 
     public RunState State { get; private set; }
     public Player Player => spawner?.Player;
+    /// <summary>Every runner of this run, the player included. Empty before Prepare.</summary>
+    public IReadOnlyList<Runner> Runners => spawner != null ? spawner.Runners : (IReadOnlyList<Runner>)Array.Empty<Runner>();
     /// <summary>Current countdown, for UI that wants smooth progress (Remaining / Progress01).</summary>
     public Countdown Countdown => countdown;
 

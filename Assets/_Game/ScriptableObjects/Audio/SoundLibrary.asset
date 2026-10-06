@@ -1,0 +1,151 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25c89132a4ded074fa5abc450fa916b4, type: 3}
+  m_Name: SoundLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::SoundLibrarySO
+  click:
+    clips:
+    - {fileID: 8300000, guid: 815d4c098dde44542ad081306eefc911, type: 3}
+    volume: 0.8
+    pitchJitter: 0.05
+  countdown:
+    clips:
+    - {fileID: 8300000, guid: dcae609b9f4d6254eaa81d2ce53479a4, type: 3}
+    volume: 1
+    pitchJitter: 0
+  coin:
+    clips:
+    - {fileID: 8300000, guid: ef80117ada84d7f439d2d359b89918ae, type: 3}
+    volume: 0.7
+    pitchJitter: 0.08
+  coinDone:
+    clips:
+    - {fileID: 8300000, guid: 607bf8366e290f243865524a7b335fa7, type: 3}
+    volume: 1
+    pitchJitter: 0
+  opponentsSpawn:
+    clips:
+    - {fileID: 8300000, guid: 410bca8e41b1f9848afa242e4f282cf6, type: 3}
+    volume: 0.8
+    pitchJitter: 0
+  victory:
+    clips:
+    - {fileID: 8300000, guid: 384feef2067ee5847b99b0225992f184, type: 3}
+    volume: 1
+    pitchJitter: 0
+  multiplierLow:
+    clips:
+    - {fileID: 8300000, guid: 1e2be41fc4a9c08478e251442f1c57aa, type: 3}
+    - {fileID: 8300000, guid: f2da38559b63a394e9caa85e8215db4a, type: 3}
+    - {fileID: 8300000, guid: 4b68c20b23dc6c94d9228ce1feb6a78f, type: 3}
+    volume: 1
+    pitchJitter: 0
+  multiplierMid:
+    clips:
+    - {fileID: 8300000, guid: fc34f25cccec11a4b8083e8a89436fa2, type: 3}
+    - {fileID: 8300000, guid: 35ea5bde2d4b05846b2a9318c54fa7c7, type: 3}
+    - {fileID: 8300000, guid: d95051079edfd0e4dad38dd2e60bb32a, type: 3}
+    volume: 1
+    pitchJitter: 0
+  multiplierHigh:
+    clips:
+    - {fileID: 8300000, guid: fba0a5b74ad230844be8411137578438, type: 3}
+    - {fileID: 8300000, guid: 8f394a9cbd1f0524693d88d9eb199d24, type: 3}
+    - {fileID: 8300000, guid: 29485cf5f900de54bb0bba974e3e42e6, type: 3}
+    volume: 1
+    pitchJitter: 0
+  multiplierMax:
+    clips:
+    - {fileID: 8300000, guid: cd346da0e22f8e541aba0ba44e47a2b5, type: 3}
+    volume: 1
+    pitchJitter: 0
+  boardPickup:
+    clips:
+    - {fileID: 8300000, guid: 363ab8bac718251419454a55e874e477, type: 3}
+    - {fileID: 8300000, guid: 096fd6e0ce49b914c89cc6c89d3c3c73, type: 3}
+    - {fileID: 8300000, guid: d3df15e62abb64646b764aab26b9c9a4, type: 3}
+    - {fileID: 8300000, guid: 1c49a3a9e526e9b458bc9734197b4f4d, type: 3}
+    - {fileID: 8300000, guid: c0e08b164a9bba847be8793dbdefaab7, type: 3}
+    - {fileID: 8300000, guid: 47d57ec9ee41f4d45a546b4e4446c3c0, type: 3}
+    - {fileID: 8300000, guid: c6f253703ea4781419e6572479dd0556, type: 3}
+    - {fileID: 8300000, guid: c45e998d29e7c854e8d9a1e02e1f222c, type: 3}
+    - {fileID: 8300000, guid: b9ebd0358855880499c66e983440f978, type: 3}
+    volume: 0.8
+    pitchJitter: 0
+  jump:
+    clips:
+    - {fileID: 8300000, guid: 2a53acc40218274408c206365fc80573, type: 3}
+    volume: 1
+    pitchJitter: 0.05
+  jumpPad:
+    clips:
+    - {fileID: 8300000, guid: 21eb47a251c3d694c83f83b46655b9c1, type: 3}
+    volume: 1
+    pitchJitter: 0.05
+  ledgeGrab:
+    clips:
+    - {fileID: 8300000, guid: 952526e712119c24d9ce84ca93f1a1b5, type: 3}
+    volume: 1
+    pitchJitter: 0.05
+  fallWater:
+    clips:
+    - {fileID: 8300000, guid: 97b3bfc954320784ab70a2d90fe111d1, type: 3}
+    volume: 1
+    pitchJitter: 0
+  fallVoid:
+    clips:
+    - {fileID: 8300000, guid: 423bf1ac35407a4478d78f7a1369dd88, type: 3}
+    volume: 1
+    pitchJitter: 0
+  boostStart:
+    clips:
+    - {fileID: 8300000, guid: 23f63a6d2bce7da4b8139e5cc85337ee, type: 3}
+    volume: 1
+    pitchJitter: 0.05
+  boostLoop:
+    clips:
+    - {fileID: 8300000, guid: 3123032a5863a7c4b943e2d600e60465, type: 3}
+    volume: 0.6
+    pitchJitter: 0
+  footstepRoad:
+    clips:
+    - {fileID: 8300000, guid: 4f6870c4b47104345a44228188361f21, type: 3}
+    - {fileID: 8300000, guid: 5c3a888eba4fba04a8519a9298be3650, type: 3}
+    - {fileID: 8300000, guid: 8a8b46ad63d49ea40b2ae2a5280e3875, type: 3}
+    - {fileID: 8300000, guid: 192ec438438d04f4d8f5464ae659ca16, type: 3}
+    - {fileID: 8300000, guid: 8468ec42bd2c17f4490ad77dc042623c, type: 3}
+    - {fileID: 8300000, guid: c03e4148666427546b36e5bd557d55fc, type: 3}
+    - {fileID: 8300000, guid: ad9e1777d9818bf4ea89b5be772a6df5, type: 3}
+    - {fileID: 8300000, guid: ecb6f67e42a63894eb22f35384c68c36, type: 3}
+    - {fileID: 8300000, guid: f8ccf985c300ab14385fafc1fe2032cb, type: 3}
+    - {fileID: 8300000, guid: 17e0c7dc850768a49bef2cb99b55b76b, type: 3}
+    volume: 0.4
+    pitchJitter: 0.08
+  footstepBoards:
+    clips:
+    - {fileID: 8300000, guid: 8fad8e1f6353cdd459564c299ad759ec, type: 3}
+    - {fileID: 8300000, guid: c267973958da9f043b7a75e50d8c4794, type: 3}
+    - {fileID: 8300000, guid: 3ea2c7085e83c23479837d347094e02f, type: 3}
+    - {fileID: 8300000, guid: 37307ece9f8ba4a4894f2447acb6bccd, type: 3}
+    - {fileID: 8300000, guid: fee44fbd4dd7492478bd0750fa7fb528, type: 3}
+    - {fileID: 8300000, guid: 0c5da01af4b4e3d45a5d9852ef502355, type: 3}
+    - {fileID: 8300000, guid: 0e13f83433385254896ed3ee579016df, type: 3}
+    - {fileID: 8300000, guid: 9a2a90e7cb81e0a4d9da39c9dc0d92d6, type: 3}
+    - {fileID: 8300000, guid: d0e56cf60bebfd948bdfe5b3fcbfe297, type: 3}
+    - {fileID: 8300000, guid: cc37ff837a4406742adde00da5f90563, type: 3}
+    volume: 0.4
+    pitchJitter: 0.08
+  opponentKnockedOut:
+    clips:
+    - {fileID: 8300000, guid: 7309f7550d4defe4fb3238e3959b213c, type: 3}
+    volume: 1
+    pitchJitter: 0.05

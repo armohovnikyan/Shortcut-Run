@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -17,6 +18,8 @@ public class NPC : Runner, IKillAble
     private bool _leftRoadInShortcut;   // the current shortcut has gone off the road (bridge or jump)
 
     public bool IsKnockedOut { get; private set; }
+    /// <summary>Hit off the road by another runner. For effects; the run hears it as a fall (Fell).</summary>
+    public event Action<NPC> KnockedOut;
 
     protected override void Awake()
     {
@@ -120,6 +123,7 @@ public class NPC : Runner, IKillAble
         IsKnockedOut = true;
         _agent.enabled = false;
         OnFell(); // out of the race — the run manager takes it out of the standings
+        KnockedOut?.Invoke(this);
         StartCoroutine(KnockoutRoutine(launchDirection));
     }
 

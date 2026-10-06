@@ -36,7 +36,8 @@ public class RunnerMotion
     /// <summary>What was under the feet at the last Tick (road, placed board, jump pad, bonus platform). Null = nothing.</summary>
     public Collider GroundCollider { get; private set; }
 
-    public event Action Jumped;
+    /// <summary>A jump began. True = off a jump pad, false = out of boards over a gap.</summary>
+    public event Action<bool> Jumped;
     public event Action ClimbStarted;
     public event Action Landed;
     public event Action Fell;
@@ -86,7 +87,7 @@ public class RunnerMotion
             groundY = hit.point.y;
 
             if (hit.collider.TryGetComponent(out JumpPad pad))
-                StartJump(pad.Height, pad.Duration);
+                StartJump(pad.Height, pad.Duration, true);
 
             return WithY(planned, groundY);
         }
@@ -118,7 +119,7 @@ public class RunnerMotion
             if (bridge.TryPlace(planned, forward, groundY))
                 BoardPlaced?.Invoke();
             else
-                StartJump(jumpHeight, jumpDuration);
+                StartJump(jumpHeight, jumpDuration, false);
         }
 
         return WithY(planned, groundY);
@@ -179,14 +180,14 @@ public class RunnerMotion
         bridge.Begin();
     }
 
-    private void StartJump(float height, float duration)
+    private void StartJump(float height, float duration, bool fromPad)
     {
         State = MotionState.Jumping;
         stateTime = 0f;
         jumpStartY = groundY;
         currentJumpHeight = height;
         currentJumpDuration = duration;
-        Jumped?.Invoke();
+        Jumped?.Invoke(fromPad);
     }
 
     private void StartClimb(Vector3 from, Vector3 to)

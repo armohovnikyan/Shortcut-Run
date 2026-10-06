@@ -21,9 +21,53 @@ public class RunnerAnimations
     private static readonly int IsIdleWithBoardsHash = Animator.StringToHash("IsIdleWithBoards");
 
 
+    private static readonly int RunningState = Animator.StringToHash("Running");
+
+    private static readonly int RunningWithBoardsState = Animator.StringToHash("RunnigWithPlanks");
+
+    // When a foot touches the ground, as a fraction of each run loop. Measured from the clips (the foot's
+    // lowest point): Run = left, right; Run_WithBoards holds two strides = 4 steps. New run clips → measure again.
+    private static readonly float[] RunContacts = { 0.35f, 0.83f };
+
+    private static readonly float[] RunWithBoardsContacts = { 0.15f, 0.42f, 0.65f, 0.92f };
+
+    private int _stepState;
+    private float _stepTime;
+
+
     public RunnerAnimations(Animator animator)
     {
         _animator = animator;
+    }
+
+    /// <summary>
+    /// How many feet touched the ground since the last call; 0 outside the run states.
+    /// Call once per frame: it follows the run animation itself, so steps match the feet at any speed.
+    /// </summary>
+    public int TakeFootsteps()
+    {
+        if (_animator == null || !_animator.isActiveAndEnabled) return 0;
+
+        AnimatorStateInfo state = _animator.GetCurrentAnimatorStateInfo(0);
+        float[] contacts = state.shortNameHash == RunningState ? RunContacts
+                         : state.shortNameHash == RunningWithBoardsState ? RunWithBoardsContacts
+                         : null;
+
+        // normalizedTime keeps counting up across loops (2.35 = third loop, 35%): a new state or a restart
+        // only sets the starting point, so entering the run never plays a step of its own.
+        float now = state.normalizedTime;
+        if (contacts == null || state.shortNameHash != _stepState || now < _stepTime)
+        {
+            _stepState = contacts == null ? 0 : state.shortNameHash;
+            _stepTime = now;
+            return 0;
+        }
+
+        int steps = 0;
+        foreach (float contact in contacts)
+            steps += Mathf.FloorToInt(now - contact) - Mathf.FloorToInt(_stepTime - contact);
+        _stepTime = now;
+        return steps;
     }
     public void Rebind()
     {

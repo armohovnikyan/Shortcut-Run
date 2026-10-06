@@ -41,6 +41,7 @@ public abstract class Runner : MonoBehaviour, IRunner
     private BridgeBuilder bridge;
 
     private bool boostOn;
+    private bool boostReported;
     private bool motionTickedThisFrame;
 
     public bool IsRunning { get; protected set; }
@@ -59,7 +60,23 @@ public abstract class Runner : MonoBehaviour, IRunner
     /// <summary>What the runner is standing on. Null while bridging, jumping, climbing or falling.</summary>
     public Collider GroundCollider => motion.State == MotionState.OnRoad ? motion.GroundCollider : null;
 
+    /// <summary>Standing on something: road, a placed board or our own fresh bridge. False in the air.</summary>
+    public bool IsGrounded => motion.State == MotionState.OnRoad || motion.State == MotionState.Bridging;
+    /// <summary>Running over boards (placing them, or on a bridge) rather than the road. For footsteps.</summary>
+    public bool IsOnBoards => motion.State == MotionState.Bridging || motion.IsOnPlacedBoard;
+
     public event Action<Runner> Fell;
+
+    // For effects (sound, later VFX / vibration). The runner only reports; it never plays anything itself.
+    /// <summary>A jump began. True = off a jump pad, false = out of boards over a gap.</summary>
+    public event Action<bool> Jumped;
+    public event Action LedgeGrabbed;
+    /// <summary>Boards were picked up. The new stack count.</summary>
+    public event Action<int> BoardsPickedUp;
+    /// <summary>The board speed boost switched on / off. Also off once the runner stops (finish, fall).</summary>
+    public event Action<bool> BoostChanged;
+    /// <summary>A foot touched the ground, timed by the run animation. Only while running on the ground.</summary>
+    public event Action Footstep;
 
     // ---------- Lifecycle ----------
     // Subclasses must call base.Awake() / base.Start(), otherwise these do not run.
@@ -72,8 +89,8 @@ public abstract class Runner : MonoBehaviour, IRunner
 
         bridge = new BridgeBuilder(boardCarrier);
         motion.Init(groundProbe, bridge, transform.position);
-        motion.Jumped += Jump;
-        motion.ClimbStarted += OnClimbStarted;
+        motion.Jumped += fromPad => { Jump(); Jumped?.Invoke(fromPad); };
+        motion.ClimbStarted += () => { OnClimbStarted(); LedgeGrabbed?.Invoke(); };
         motion.Landed += CheckBoards;
         motion.BoardPlaced += CheckBoards;
         motion.Fell += OnFell;
@@ -119,6 +136,7 @@ public abstract class Runner : MonoBehaviour, IRunner
             boardCarrier.Add(board);
         }
         BoardsCollected(boardCarrier.Count);
+        BoardsPickedUp?.Invoke(boardCarrier.Count);
     }
 
     public void BoardsCollected(int stackCount)
@@ -167,6 +185,7 @@ public abstract class Runner : MonoBehaviour, IRunner
         if (!IsRunning)
         {
             motionTickedThisFrame = false;
+            ReportBoost(false);
             return;
         }
 
@@ -175,6 +194,18 @@ public abstract class Runner : MonoBehaviour, IRunner
         motionTickedThisFrame = false;
 
         if (speedBoost.Tick(boostOn, Time.deltaTime)) OnSpeedChanged();
+        ReportBoost(boostOn);
+
+        // Taken every frame even in the air, so landing doesn't replay the steps missed while jumping.
+        if (animations.TakeFootsteps() > 0 && IsGrounded) Footstep?.Invoke();
+    }
+
+    // boostOn can flip several times inside one frame's motion; listeners only hear the frame's result.
+    private void ReportBoost(bool on)
+    {
+        if (on == boostReported) return;
+        boostReported = on;
+        BoostChanged?.Invoke(on);
     }
 
     /// <summary>Called by the spawner: bridges this runner builds belong to the level and are destroyed with it.</summary>
