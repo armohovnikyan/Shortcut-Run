@@ -13,6 +13,8 @@ public class GameBootstrap : MonoBehaviour
     [SerializeField] private StableCameraFollow gameCamera;
     [Tooltip("Plays the game's sounds. Empty = a silent game.")]
     [SerializeField] private GameAudio gameAudio;
+    [Tooltip("Plays the world effects (water splash). Empty = no effects.")]
+    [SerializeField] private GameEffects gameEffects;
 
     private GameUiViewModel uiViewModel;
 
@@ -26,6 +28,9 @@ public class GameBootstrap : MonoBehaviour
         // Sound before the UI too, for the same reason; the button clicks are added once the UI is bound.
         if (gameAudio != null && gameManager != null) gameAudio.Bind(gameManager);
         else Debug.LogWarning($"{name}: Game Bootstrap has no Game Audio (or Game Manager) — the game will be silent.", this);
+
+        if (gameEffects != null && gameManager != null) gameEffects.Bind(gameManager);
+        else Debug.LogWarning($"{name}: Game Bootstrap has no Game Effects (or Game Manager) — no world effects.", this);
 
         if (gameManager == null || ui == null)
         {

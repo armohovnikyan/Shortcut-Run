@@ -512,6 +512,7 @@ GameObject:
   - component: {fileID: 1552032216}
   - component: {fileID: 1552032218}
   - component: {fileID: 1552032219}
+  - component: {fileID: 1552032220}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -582,6 +583,23 @@ MonoBehaviour:
   ui: {fileID: 1832241061}
   gameCamera: {fileID: 1447962336}
   gameAudio: {fileID: 1964494726}
+  gameEffects: {fileID: 1552032220}
+--- !u!114 &1552032220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1552032215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e7f6eb381a93d0479f50162e33c98c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameEffects
+  waterSplashPrefab: {fileID: 8136766394190719706, guid: 94b26f98c4d7fc84b8bece12a8633a2f, type: 3}
+  water: {fileID: 2007614782}
+  waterDepth: 2.5
+  splashLifetime: 3
 --- !u!1 &1784279040
 GameObject:
   m_ObjectHideFlags: 0
@@ -908,6 +926,74 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &2007614781
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3140228034279860344, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+      propertyPath: m_Name
+      value: InfiniteWater
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359227097183120951, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359227097183120951, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359227097183120951, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359227097183120951, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359227097183120951, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359227097183120951, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359227097183120951, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359227097183120951, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359227097183120951, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359227097183120951, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+--- !u!114 &2007614782 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5967308082824601010, guid: 2446830b0b9fe514abc02448f8b6ad33, type: 3}
+  m_PrefabInstance: {fileID: 2007614781}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e87e292b1a486dd49b4559ef9aa5a816, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InfiniteWater
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -920,3 +1006,4 @@ SceneRoots:
   - {fileID: 1535344460}
   - {fileID: 1784279043}
   - {fileID: 1964494728}
+  - {fileID: 2007614781}
