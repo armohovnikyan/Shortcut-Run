@@ -268,6 +268,7 @@ GameObject:
   - component: {fileID: 7524668631405316882}
   - component: {fileID: 2875437547464627182}
   - component: {fileID: 4238872318644363486}
+  - component: {fileID: 5935142670496946772}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -381,7 +382,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d85ce1e813878d443bd8ed82e54f28fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  baseSpeed: 7
+  baseSpeed: 9
   speedBoost:
     boostedSpeed: 9
     rampUpTime: 0.5
@@ -426,6 +427,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TouchInputReader
   sensitivity: 0.2
+--- !u!114 &5935142670496946772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1564009550072085038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcb9addc5c3731441b209fab19fd2519, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotKnocker
+  botLayers:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1 &1575037047777942567
 GameObject:
   m_ObjectHideFlags: 0

@@ -8,9 +8,11 @@ public class NPC : Runner, IKillAble
 {
     [Space]
     [Header("Knockout")]
-    [SerializeField] private float knockoutHeight = 3f;
-    [SerializeField] private float knockoutDistance = 4f;
-    [SerializeField] private float knockoutDuration = 1.2f;
+    [SerializeField] private float knockoutHeight = 4.5f;
+    [SerializeField] private float knockoutDistance = 8f;
+    [SerializeField] private float knockoutDuration = 2.8f;
+    [Tooltip("Plays during the knockout flight. Should be a stopped, world-space child of the NPC.")]
+    [SerializeField] private ParticleSystem knockoutTrail;
 
     private NavMeshAgent _agent;
     private WaypointNavigator _navigator;
@@ -118,12 +120,14 @@ public class NPC : Runner, IKillAble
 
     public void GetKnockedOut(Vector3 launchDirection)
     {
-        if (IsKnockedOut) return;
+        // Only mid-race: not during the countdown, not once finished.
+        if (IsKnockedOut || !IsRunning) return;
 
         IsKnockedOut = true;
         _agent.enabled = false;
         OnFell(); // out of the race — the run manager takes it out of the standings
         KnockedOut?.Invoke(this);
+        if (knockoutTrail != null) knockoutTrail.Play();
         StartCoroutine(KnockoutRoutine(launchDirection));
     }
 
@@ -147,6 +151,20 @@ public class NPC : Runner, IKillAble
             yield return null;
         }
 
+        ReleaseTrail();
         gameObject.SetActive(false);
+    }
+
+    // Deactivating the NPC would cut the trail off mid-air: let it go, stop emitting and destroy itself once faded.
+    // Kept under the NPC's parent so it still goes away with the level.
+    private void ReleaseTrail()
+    {
+        if (knockoutTrail == null) return;
+
+        knockoutTrail.transform.SetParent(transform.parent, true);
+        ParticleSystem.MainModule main = knockoutTrail.main;
+        main.stopAction = ParticleSystemStopAction.Destroy;
+        knockoutTrail.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        knockoutTrail = null;
     }
 }
