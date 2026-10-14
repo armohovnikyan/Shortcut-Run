@@ -2,11 +2,9 @@
 /// The level bar at the top of the menu: levels come in groups of StagesPerBar (1-5, 6-10, 11-15 …)
 /// and the bar shows the group the player is in, with the levels already beaten filled.
 ///
-/// Where the level comes from: GameManager.LevelNumber, which is the index LevelLoader saves
-/// (PlayerPrefs "LevelIndex") every time the player moves on to the next level. The save only ever goes
-/// forward — there is no level select, so an old level can only be played again after wiping the app data.
-/// GameUiViewModel calls SetLevel each time the menu is shown; a future save system only has to keep
-/// feeding GameManager.LevelNumber and this class does not change.
+/// Where the level comes from: GameManager.LevelNumber, i.e. the levels passed kept in the save (GameSave),
+/// raised every time the player moves on to the next level. It only ever goes forward — there is no level
+/// select (Tools > Shortcut Run > Delete Save starts over). GameUiViewModel calls SetLevel each time the menu is shown.
 /// </summary>
 public class LevelProgressViewModel
 {

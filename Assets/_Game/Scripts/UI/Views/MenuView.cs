@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>The menu screen: coins, settings button, the two upgrade buttons, name field and PLAY.</summary>
+/// <summary>The menu screen: coins, settings button, the two upgrade buttons, the two buff shop buttons, name field and PLAY.</summary>
 public class MenuView : MonoBehaviour
 {
     [SerializeField] private Button playButton;
@@ -11,6 +11,8 @@ public class MenuView : MonoBehaviour
     [SerializeField] private TMP_InputField nameInput;
     [SerializeField] private UpgradeButtonView boardUpgrade;
     [SerializeField] private UpgradeButtonView offlineEarnUpgrade;
+    [SerializeField] private BuffShopButtonView runBoost;
+    [SerializeField] private BuffShopButtonView boardMagnet;
 
     public void Bind(GameUiViewModel viewModel)
     {
@@ -30,5 +32,7 @@ public class MenuView : MonoBehaviour
 
         boardUpgrade.Bind(viewModel.BoardUpgrade);
         offlineEarnUpgrade.Bind(viewModel.OfflineEarnUpgrade);
+        runBoost.Bind(viewModel.RunBoost);
+        boardMagnet.Bind(viewModel.BoardMagnet);
     }
 }

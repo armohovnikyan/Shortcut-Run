@@ -23,10 +23,11 @@ public abstract class Runner : MonoBehaviour, IRunner
     [SerializeField] protected Transform boardStackPosition;
     [SerializeField] protected float boardStackSpace = 0.15f; // space distance between stacked boards.
     [SerializeField] protected PlaceableBoard placeableBoardPrefab;
-    [SerializeField] protected BoardCarrier boardCarrier = new BoardCarrier();
     [Space]
+    [SerializeField] protected BoardCarrier boardCarrier = new BoardCarrier();
     [Header("Motion")]
     [SerializeField] protected GroundProbe groundProbe = new GroundProbe();
+    [Space]
     [SerializeField] protected RunnerMotion motion = new RunnerMotion();
     [Space]
     [Header("Skin")]
@@ -43,12 +44,18 @@ public abstract class Runner : MonoBehaviour, IRunner
     private bool boostOn;
     private bool boostReported;
     private bool motionTickedThisFrame;
+    private float speedBonus;        // run boost buff: added on top of the (board-boosted) speed
+    private float speedBonusTimeLeft;
 
     public bool IsRunning { get; protected set; }
+    /// <summary>Fell (or was knocked out) this run. The run manager already took it out of the race.</summary>
+    public bool HasFallen { get; private set; }
     /// <summary>The boost switch (on = speeding up or boosted). For effects / camera.</summary>
     public bool IsBoosted => boostOn;
+    /// <summary>Bumping into an NPC now knocks it out (BotKnocker): only while racing with the boost on.</summary>
+    public bool CanKnockOut => IsRunning && boostOn && !HasFallen;
 
-    public float CurrentSpeed => speedBoost.SpeedFrom(baseSpeed) * boardCarrier.CarryMultiplier;
+    public float CurrentSpeed => (speedBoost.SpeedFrom(baseSpeed) + speedBonus) * boardCarrier.CarryMultiplier;
 
     /// <summary>Metres of gap the boards in hand can bridge right now.</summary>
     public float BridgeReach => placeableBoardPrefab == null
@@ -139,10 +146,39 @@ public abstract class Runner : MonoBehaviour, IRunner
         BoardsPickedUp?.Invoke(boardCarrier.Count);
     }
 
+    /// <summary>Knocked out: the boards in hand are taken by the knocker. Returns how many were taken.
+    /// No CheckBoards: the runner is already in its fall animation and out of the race.</summary>
+    public int TakeAllBoards()
+    {
+        int count = boardCarrier.Count;
+        boardCarrier.RemoveAll();
+        return count;
+    }
+
     public void BoardsCollected(int stackCount)
     {
         CheckBoards();
         OnBoardsCollected(stackCount);
+    }
+
+    /// <summary>Run boost buff: `amount` extra speed for `duration` seconds. A new one replaces a running one.
+    /// Not a board boost — it doesn't let the runner knock anyone out.</summary>
+    public void AddSpeedBonus(float amount, float duration)
+    {
+        speedBonus = amount;
+        speedBonusTimeLeft = duration;
+        OnSpeedChanged();
+    }
+
+    private void TickSpeedBonus(float deltaTime)
+    {
+        if (speedBonusTimeLeft <= 0f) return;
+
+        speedBonusTimeLeft -= deltaTime;
+        if (speedBonusTimeLeft > 0f) return;
+
+        speedBonus = 0f;
+        OnSpeedChanged();
     }
 
     public void Jump() => animations.SetJumping();
@@ -194,6 +230,7 @@ public abstract class Runner : MonoBehaviour, IRunner
         motionTickedThisFrame = false;
 
         if (speedBoost.Tick(boostOn, Time.deltaTime)) OnSpeedChanged();
+        TickSpeedBonus(Time.deltaTime);
         ReportBoost(boostOn);
 
         // Taken every frame even in the air, so landing doesn't replay the steps missed while jumping.
@@ -247,6 +284,7 @@ public abstract class Runner : MonoBehaviour, IRunner
     // Protected: NPC also reports a knockout this way — it's out of the race either way.
     protected void OnFell()
     {
+        HasFallen = true;
         IsFailing();
         Fell?.Invoke(this);
     }
@@ -295,8 +333,12 @@ public abstract class Runner : MonoBehaviour, IRunner
         arrived?.Invoke();
     }
 
-    // 2nd place and below will get the "upset" animation here once it exists.
-    protected virtual void PlayFinishAnimation(int place) => animations.TriggerDancing();
+    // Only the winner celebrates; 2nd place and below play Defeated. place is 1-based.
+    protected virtual void PlayFinishAnimation(int place)
+    {
+        if (place == 1) animations.TriggerVictory();
+        else animations.TriggerDefeated();
+    }
 
     // ---------- Helpers ----------
 

@@ -3,12 +3,11 @@ using UnityEngine;
 
 /// <summary>
 /// Puts one level in the scene at a time — instantiates it from a prefab and destroys the previous one.
-/// No scene reloads: replay and next level just swap the level instance. Remembers the player's level index.
+/// No scene reloads: replay and next level just swap the level instance. Which level to load is the caller's
+/// (GameManager keeps the player's progress in the save); this only turns an index into a level.
 /// </summary>
 public class LevelLoader : MonoBehaviour
 {
-    private const string LevelIndexKey = "LevelIndex";
-
     [Tooltip("Levels in play order. After the last one it starts again from the first.")]
     [SerializeField] private Level[] levelPrefabs;
     [Tooltip("Testing: a level already placed in the scene is used instead of the prefab list. " +
@@ -18,18 +17,11 @@ public class LevelLoader : MonoBehaviour
     private Level current;
 
     public Level Current => current;
-    /// <summary>Saved index into the level list — also the level number the UI shows (+1).</summary>
-    public int LevelIndex { get; private set; }
 
     public event Action<Level> LevelLoaded;
 
-    private void Awake()
-    {
-        LevelIndex = PlayerPrefs.GetInt(LevelIndexKey, 0);
-    }
-
-    /// <summary>The player's current level (fresh copy).</summary>
-    public Level LoadCurrent()
+    /// <summary>Loads level `levelIndex` (fresh copy). Past the last level it starts again from the first.</summary>
+    public Level Load(int levelIndex)
     {
         if (sceneLevel != null) return Use(sceneLevel);
 
@@ -40,17 +32,8 @@ public class LevelLoader : MonoBehaviour
         }
 
         Unload();
-        Level prefab = levelPrefabs[LevelIndex % levelPrefabs.Length];
+        Level prefab = levelPrefabs[Mathf.Max(0, levelIndex) % levelPrefabs.Length];
         return Use(Instantiate(prefab));
-    }
-
-    /// <summary>Moves the saved index on and loads that level.</summary>
-    public Level LoadNext()
-    {
-        LevelIndex++;
-        PlayerPrefs.SetInt(LevelIndexKey, LevelIndex);
-        PlayerPrefs.Save();
-        return LoadCurrent();
     }
 
     public void Unload()

@@ -20,7 +20,7 @@ public class NPC : Runner, IKillAble
     private bool _leftRoadInShortcut;   // the current shortcut has gone off the road (bridge or jump)
 
     public bool IsKnockedOut { get; private set; }
-    /// <summary>Hit off the road by another runner. For effects; the run hears it as a fall (Fell).</summary>
+    /// <summary>Hit off the road by a boosted runner (BotKnocker). For effects; the run hears it as a fall (Fell).</summary>
     public event Action<NPC> KnockedOut;
 
     protected override void Awake()
@@ -118,10 +118,10 @@ public class NPC : Runner, IKillAble
 
     // ---------- IKillAble ----------
 
-    public void GetKnockedOut(Vector3 launchDirection)
+    public bool TryKnockOut(Vector3 launchDirection)
     {
-        // Only mid-race: not during the countdown, not once finished.
-        if (IsKnockedOut || !IsRunning) return;
+        // Only mid-race: not during the countdown, not once finished, not while already falling or flying.
+        if (HasFallen || !IsRunning) return false;
 
         IsKnockedOut = true;
         _agent.enabled = false;
@@ -129,6 +129,7 @@ public class NPC : Runner, IKillAble
         KnockedOut?.Invoke(this);
         if (knockoutTrail != null) knockoutTrail.Play();
         StartCoroutine(KnockoutRoutine(launchDirection));
+        return true;
     }
 
     private IEnumerator KnockoutRoutine(Vector3 launchDirection)

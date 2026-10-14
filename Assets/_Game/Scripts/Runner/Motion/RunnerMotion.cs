@@ -11,7 +11,6 @@ public enum MotionState { OnRoad, Bridging, Jumping, Climbing, Falling }
 [Serializable]
 public class RunnerMotion
 {
-    [Space]
     [Tooltip("Seconds without ground before it counts as leaving the road (ignores seams between road pieces).")]
     [SerializeField] private float offRoadDebounce = 0.05f;
     [Header("Jump when out of boards")]

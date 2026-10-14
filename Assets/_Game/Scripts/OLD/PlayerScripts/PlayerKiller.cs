@@ -21,6 +21,6 @@ public class PlayerKiller : MonoBehaviour
             hitDirection = transform.forward;
         }
 
-        killable.GetKnockedOut(hitDirection.normalized);
+        killable.TryKnockOut(hitDirection.normalized);
     }
 }

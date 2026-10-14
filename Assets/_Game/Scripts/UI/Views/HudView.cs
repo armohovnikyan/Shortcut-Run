@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>The in-run HUD: coins, home button, the 3-2-1-GO countdown and the player's live place.</summary>
+/// <summary>The in-run HUD: coins, home button, the 3-2-1-GO countdown, the player's live place and the buff buttons.</summary>
 public class HudView : MonoBehaviour
 {
     [SerializeField] private Button backToMenuButton;
@@ -24,6 +24,10 @@ public class HudView : MonoBehaviour
     [Tooltip("Seconds GO! stays on screen after the race started.")]
     [SerializeField, Min(0f)] private float goHoldSeconds = 0.7f;
 
+    [Header("Buffs")]
+    [SerializeField] private BuffUseButtonView runBoost;
+    [SerializeField] private BuffUseButtonView boardMagnet;
+
     private Coroutine hideRoutine;
 
     public void Bind(GameUiViewModel viewModel)
@@ -38,6 +42,8 @@ public class HudView : MonoBehaviour
             placeSuffixLabel.text = HudViewModel.PlaceSuffix(place);
         });
         viewModel.Hud.Countdown.Bind(ShowCountdown);
+        runBoost.Bind(viewModel.RunBoost);
+        boardMagnet.Bind(viewModel.BoardMagnet);
     }
 
     private void ShowCountdown(int seconds)

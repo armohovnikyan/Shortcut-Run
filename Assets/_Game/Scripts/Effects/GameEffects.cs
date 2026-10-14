@@ -9,21 +9,21 @@ public class GameEffects : MonoBehaviour
 {
     [Header("Water splash (race fall = game over)")]
     [SerializeField] private ParticleSystem waterSplashPrefab;
-    [Tooltip("The splash plays where the falling player crosses this water's surface.")]
-    [SerializeField] private InfiniteWater water;
-    [Tooltip("Only without Water: the splash plays this far below the point where the player left the road.")]
+    [Tooltip("Only when GameBootstrap has no Water: the splash plays this far below the point where the player left the road.")]
     [SerializeField, Min(0f)] private float waterDepth = 2.5f;
     [Tooltip("Seconds before a spawned splash is removed. Must be longer than its longest particle.")]
     [SerializeField, Min(0.1f)] private float splashLifetime = 3f;
 
+    private InfiniteWater water; // the splash plays where the falling player crosses its surface
     private RunManager run;
     private Player player;
     private bool inBonus;
     private Coroutine splashRoutine;
 
-    /// <summary>Called once by GameBootstrap.</summary>
-    public void Bind(GameManager game)
+    /// <summary>Called once by GameBootstrap. water may be null (then Water Depth is used).</summary>
+    public void Bind(GameManager game, InfiniteWater water)
     {
+        this.water = water;
         if (waterSplashPrefab == null)
             Debug.LogWarning($"{name}: Game Effects has no Water Splash prefab — falls won't splash.", this);
 

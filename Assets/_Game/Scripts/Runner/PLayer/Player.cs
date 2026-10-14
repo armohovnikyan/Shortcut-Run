@@ -3,7 +3,6 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class Player : Runner
 {
-    [Space]
     [SerializeField] private PlayerSteering steering = new PlayerSteering();
     
     private CharacterController _controller;

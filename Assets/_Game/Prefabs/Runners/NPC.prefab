@@ -161,6 +161,7 @@ GameObject:
   - component: {fileID: -738052061939968443}
   - component: {fileID: 6644383046303221742}
   - component: {fileID: 4553364366900676313}
+  - component: {fileID: 9124524385770808009}
   m_Layer: 7
   m_Name: NPC
   m_TagString: Bot
@@ -304,6 +305,23 @@ MonoBehaviour:
   knockoutDistance: 12
   knockoutDuration: 1
   knockoutTrail: {fileID: 4943809025303218305}
+--- !u!114 &9124524385770808009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2184587977272286700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcb9addc5c3731441b209fab19fd2519, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotKnocker
+  botLayers:
+    serializedVersion: 2
+    m_Bits: 128
+  bumpRadius: 0.7
+  bumpHeight: 1
 --- !u!1 &5181734612418514705
 GameObject:
   m_ObjectHideFlags: 0

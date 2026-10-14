@@ -389,7 +389,7 @@ MonoBehaviour:
     rampDownTime: 1
   finishWalkSpeed: 5
   finishStopDistance: 0.1
-  dragBackSpeed: 25
+  dragBackSpeed: 35
   boardStackPosition: {fileID: 5323819438738752460}
   boardStackSpace: 0.15
   placeableBoardPrefab: {fileID: 9164896909096688938, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
@@ -400,9 +400,9 @@ MonoBehaviour:
     roadLayer:
       serializedVersion: 2
       m_Bits: 64
-    rayOriginHeight: 0.5
-    groundCheckDistance: 1.2
-    grabRoadDistance: 2.5
+    rayOriginHeight: 2
+    groundCheckDistance: 0.5
+    grabRoadDistance: 3
     maxClimbHeight: 2
   motion:
     offRoadDebounce: 0.05
@@ -442,6 +442,8 @@ MonoBehaviour:
   botLayers:
     serializedVersion: 2
     m_Bits: 128
+  bumpRadius: 0.7
+  bumpHeight: 1
 --- !u!1 &1575037047777942567
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,6 +15,8 @@ public class GameBootstrap : MonoBehaviour
     [SerializeField] private GameAudio gameAudio;
     [Tooltip("Plays the world effects (water splash). Empty = no effects.")]
     [SerializeField] private GameEffects gameEffects;
+    [Tooltip("The scene's water plane. It follows the Game Camera; the splash plays on its surface.")]
+    [SerializeField] private InfiniteWater water;
 
     private GameUiViewModel uiViewModel;
 
@@ -25,11 +27,14 @@ public class GameBootstrap : MonoBehaviour
         if (gameCamera != null && gameManager != null) gameCamera.Bind(gameManager.Run);
         else Debug.LogWarning($"{name}: Game Bootstrap has no Game Camera (or Game Manager) — the camera won't follow the player.", this);
 
+        if (water != null && gameCamera != null) water.Follow(gameCamera.transform);
+        else Debug.LogWarning($"{name}: Game Bootstrap has no Water (or Game Camera) — the water won't follow the camera.", this);
+
         // Sound before the UI too, for the same reason; the button clicks are added once the UI is bound.
         if (gameAudio != null && gameManager != null) gameAudio.Bind(gameManager);
         else Debug.LogWarning($"{name}: Game Bootstrap has no Game Audio (or Game Manager) — the game will be silent.", this);
 
-        if (gameEffects != null && gameManager != null) gameEffects.Bind(gameManager);
+        if (gameEffects != null && gameManager != null) gameEffects.Bind(gameManager, water);
         else Debug.LogWarning($"{name}: Game Bootstrap has no Game Effects (or Game Manager) — no world effects.", this);
 
         if (gameManager == null || ui == null)

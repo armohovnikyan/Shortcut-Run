@@ -4,12 +4,12 @@ using UnityEngine;
 /// <summary>
 /// One upgrade the player levels up with coins: its saved level and the price of the next level.
 /// Only knows level and price — what a level actually gives (more boards, offline coins) is read
-/// from Level by the system that uses it.
+/// from Level by the system that uses it. Saved through GameSave under the UpgradeSO's Save Key.
 /// </summary>
 public class Upgrade
 {
     private readonly UpgradeSO config;
-    private readonly string saveKey;
+    private readonly GameSave save;
 
     /// <summary>1 = nothing bought yet.</summary>
     public int Level { get; private set; } = 1;
@@ -19,14 +19,14 @@ public class Upgrade
 
     public event Action Changed;
 
-    /// <summary>Loads the saved level. No config = an upgrade that can't be bought (shows MAX).</summary>
-    public Upgrade(UpgradeSO config)
+    /// <summary>Takes the saved level. No config = an upgrade that can't be bought (shows MAX).</summary>
+    public Upgrade(UpgradeSO config, GameSave save)
     {
         this.config = config;
+        this.save = save;
         if (config == null) return;
 
-        saveKey = "Upgrade_" + config.SaveKey;
-        Level = Mathf.Clamp(PlayerPrefs.GetInt(saveKey, 1), 1, config.MaxLevel);
+        Level = Mathf.Clamp(save.Data.GetUpgradeLevel(config.SaveKey), 1, config.MaxLevel);
     }
 
     /// <summary>Pays from the wallet and levels up. False = maxed or not enough coins; nothing is taken.</summary>
@@ -35,8 +35,8 @@ public class Upgrade
         if (IsMaxed || !wallet.TrySpend(Price)) return false;
 
         Level++;
-        PlayerPrefs.SetInt(saveKey, Level);
-        PlayerPrefs.Save();
+        save.Data.SetUpgradeLevel(config.SaveKey, Level);
+        save.Save();
         Changed?.Invoke();
         return true;
     }

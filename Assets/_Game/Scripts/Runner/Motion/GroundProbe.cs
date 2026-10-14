@@ -8,7 +8,6 @@ using UnityEngine;
 [Serializable]
 public class GroundProbe
 {
-    [Space]
     [Tooltip("Road, jump pads and placed boards. NOT the collectable board layer.")]
     [SerializeField] private LayerMask roadLayer;
     [Tooltip("Ray starts this high above the feet, so ground slightly above the feet is still found.")]

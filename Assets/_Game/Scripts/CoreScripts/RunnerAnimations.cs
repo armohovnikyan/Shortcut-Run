@@ -14,7 +14,10 @@ public class RunnerAnimations
 
     private static readonly int IsClimbingHash = Animator.StringToHash("IsClimbing");
 
-    private static readonly int IsDancingHash = Animator.StringToHash("IsDancing");
+    // Finish animations: 1st place dances (Macarena Dance), every other place plays Defeated.
+    private static readonly int IsVictoryHash = Animator.StringToHash("IsDancing_Victory");
+
+    private static readonly int IsDefeatedHash = Animator.StringToHash("IsDancing_Defeat");
 
     private static readonly int IsIdleHash = Animator.StringToHash("IsIdle");
 
@@ -105,17 +108,23 @@ public class RunnerAnimations
     }
 
     // Triggers clear the bools too: the controller enters every looping state from Any State
-    // while its bool is true, so a bool left on would pull the runner straight out of fall/dance.
+    // while its bool is true, so a bool left on would pull the runner straight out of fall/victory/defeated.
     public void TriggerFalling()
     {
         ResetStates();
         _animator.SetTrigger(IsFallingHash);
     }
 
-    public void TriggerDancing()
+    public void TriggerVictory()
     {
         ResetStates();
-        _animator.SetTrigger(IsDancingHash);
+        _animator.SetTrigger(IsVictoryHash);
+    }
+
+    public void TriggerDefeated()
+    {
+        ResetStates();
+        _animator.SetTrigger(IsDefeatedHash);
     }
 
 

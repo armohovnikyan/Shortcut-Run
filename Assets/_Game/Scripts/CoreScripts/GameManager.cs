@@ -14,23 +14,32 @@ public class GameManager : MonoBehaviour
 
     [Header("Economy")]
     [SerializeField] private RewardTableSO rewardTable;
-    [Tooltip("Coins a new player starts with. Only used the first time the game runs on a device.")]
+    [Tooltip("Coins a new player starts with. Only used when there is no save yet.")]
     [SerializeField, Min(0)] private int startingCoins;
 
     [Header("Upgrades")]
     [SerializeField] private UpgradeSO boardUpgrade;
     [SerializeField] private UpgradeSO offlineEarnUpgrade;
 
+    [Header("Buffs")]
+    [SerializeField] private RunBoostSO runBoost;
+    [SerializeField] private BoardMagnetSO boardMagnet;
+
     [Tooltip("Print rewards and the wallet to the Console (no UI needed to test).")]
     [SerializeField] private bool logEvents = true;
 
     public RunManager Run => runManager;
+    /// <summary>The save: money, upgrades, settings, name, levels passed. Systems are handed it, never load it themselves.</summary>
+    public GameSave Save { get; private set; }
     public Wallet Wallet { get; private set; }
     public PlayerProfile Profile { get; private set; }
     public GameSettings Settings { get; private set; }
     public Upgrade BoardUpgrade { get; private set; }
     public Upgrade OfflineEarnUpgrade { get; private set; }
-    public int LevelNumber => levelLoader.LevelIndex + 1;
+    public Buff RunBoost { get; private set; }
+    public Buff BoardMagnet { get; private set; }
+    /// <summary>Level the player is on, 1 = first. Levels passed = LevelNumber - 1.</summary>
+    public int LevelNumber => Save.Data.levelIndex + 1;
     /// <summary>Coins earned by the last run, waiting to be claimed. 0 = nothing to claim.</summary>
     public int PendingReward { get; private set; }
 
@@ -43,14 +52,29 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        Wallet = new Wallet(startingCoins);
-        Profile = new PlayerProfile();
-        Settings = new GameSettings();
+        Save = GameSave.Load(startingCoins);
+        Wallet = new Wallet(Save);
+        Profile = new PlayerProfile(Save);
+        Settings = new GameSettings(Save);
 
         if (boardUpgrade == null || offlineEarnUpgrade == null)
             Debug.LogError($"{name}: Game Manager is missing an Upgrade asset — that upgrade can't be bought.", this);
-        BoardUpgrade = new Upgrade(boardUpgrade);
-        OfflineEarnUpgrade = new Upgrade(offlineEarnUpgrade);
+        BoardUpgrade = new Upgrade(boardUpgrade, Save);
+        OfflineEarnUpgrade = new Upgrade(offlineEarnUpgrade, Save);
+
+        if (runBoost == null || boardMagnet == null)
+            Debug.LogError($"{name}: Game Manager is missing a Buff asset — that buff can't be bought or used.", this);
+        RunBoost = new Buff(runBoost, Save);
+        BoardMagnet = new Buff(boardMagnet, Save);
+    }
+
+    // Buff effects and cooldowns only run while the run does (scaled time: a paused run freezes them too).
+    private void Update()
+    {
+        if (runManager.State != RunState.Racing && runManager.State != RunState.Bonus) return;
+
+        RunBoost.Tick(Time.deltaTime);
+        BoardMagnet.Tick(Time.deltaTime);
     }
 
     private void OnDestroy() => Resume(); // never leave the editor / next scene frozen
@@ -58,7 +82,7 @@ public class GameManager : MonoBehaviour
     private void OnEnable()  => runManager.RunEnded += OnRunEnded;
     private void OnDisable() => runManager.RunEnded -= OnRunEnded;
 
-    private void Start() => ShowMenu(levelLoader.LoadCurrent());
+    private void Start() => ShowMenu(LoadCurrentLevel());
 
     // ---------- UI entry points ----------
 
@@ -81,6 +105,22 @@ public class GameManager : MonoBehaviour
     /// <summary>Upgrade button: pays from the wallet and levels the upgrade up. False = can't afford / maxed.</summary>
     public bool BuyUpgrade(Upgrade upgrade) => upgrade.TryBuy(Wallet);
 
+    /// <summary>Menu buff button: buys one piece. False = can't afford.</summary>
+    public bool BuyBuff(Buff buff) => buff.TryBuy(Wallet);
+
+    /// <summary>The run lets the player use a buff right now: racing and still in it.</summary>
+    public bool CanUseBuffs => runManager.State == RunState.Racing
+                               && runManager.Player != null && !runManager.Player.HasFallen;
+
+    /// <summary>In-run buff button: spends one piece on the player. False = not racing, none left, or cooling down.</summary>
+    public bool UseBuff(Buff buff)
+    {
+        if (!CanUseBuffs || !buff.TryUse(runManager.Player)) return false;
+
+        Log($"buff used — {buff.Count} left");
+        return true;
+    }
+
     /// <summary>Freezes the run (the "Back to menu?" question).</summary>
     public void Pause() => Time.timeScale = 0f;
 
@@ -92,7 +132,7 @@ public class GameManager : MonoBehaviour
         Resume();
         ClaimReward(); // never lose coins that were earned but not claimed
         runManager.Cleanup();
-        ShowMenu(levelLoader.LoadCurrent());
+        ShowMenu(LoadCurrentLevel());
     }
 
     /// <summary>Next level (reward panel "Continue").</summary>
@@ -101,14 +141,21 @@ public class GameManager : MonoBehaviour
         Resume();
         ClaimReward();
         runManager.Cleanup();
-        ShowMenu(levelLoader.LoadNext());
+        // The level counts as passed only when the player moves on (Continue), not when the reward shows.
+        Save.Data.levelIndex++;
+        Save.Save();
+        ShowMenu(LoadCurrentLevel());
     }
 
     // ---------- Flow ----------
 
+    private Level LoadCurrentLevel() => levelLoader.Load(Save.Data.levelIndex);
+
     private void ShowMenu(Level level)
     {
         if (level == null) return;
+        RunBoost.ResetRun();
+        BoardMagnet.ResetRun();
         runManager.Prepare(level);
         MenuShown?.Invoke();
     }

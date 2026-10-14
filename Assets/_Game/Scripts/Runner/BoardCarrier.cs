@@ -10,7 +10,6 @@ using UnityEngine;
 [Serializable]
 public class BoardCarrier
 {
-    [Space]
     [Header("Carry penalty")]
     [Tooltip("Speed lost per board in hand (0.02 = -2% speed per board)")]
     [SerializeField] private float speedPenaltyPerBoard = 0.02f;

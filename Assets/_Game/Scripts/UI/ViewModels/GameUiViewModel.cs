@@ -29,6 +29,8 @@ public class GameUiViewModel : IDisposable
     public SettingsViewModel Settings { get; }
     public UpgradeViewModel BoardUpgrade { get; }
     public UpgradeViewModel OfflineEarnUpgrade { get; }
+    public BuffViewModel RunBoost { get; }
+    public BuffViewModel BoardMagnet { get; }
 
     public GameUiViewModel(GameManager game)
     {
@@ -38,6 +40,8 @@ public class GameUiViewModel : IDisposable
         Settings = new SettingsViewModel(game.Settings);
         BoardUpgrade = new UpgradeViewModel(game, game.BoardUpgrade);
         OfflineEarnUpgrade = new UpgradeViewModel(game, game.OfflineEarnUpgrade);
+        RunBoost = new BuffViewModel(game, game.RunBoost);
+        BoardMagnet = new BuffViewModel(game, game.BoardMagnet);
 
         // Current state first: the game may already be showing the menu when the UI is created.
         Coins.Value = game.Wallet.Coins;
@@ -54,6 +58,7 @@ public class GameUiViewModel : IDisposable
         run.CountdownTick += OnCountdownTick;
         run.RaceStarted += OnRaceStarted;
         run.PlayerPlaceChanged += OnPlaceChanged;
+        run.RunnerFinished += OnRunnerFinished;
     }
 
     public void Dispose()
@@ -67,9 +72,12 @@ public class GameUiViewModel : IDisposable
         run.CountdownTick -= OnCountdownTick;
         run.RaceStarted -= OnRaceStarted;
         run.PlayerPlaceChanged -= OnPlaceChanged;
+        run.RunnerFinished -= OnRunnerFinished;
 
         BoardUpgrade.Dispose();
         OfflineEarnUpgrade.Dispose();
+        RunBoost.Dispose();
+        BoardMagnet.Dispose();
     }
 
     // ---------- Game → UI ----------
@@ -77,6 +85,7 @@ public class GameUiViewModel : IDisposable
     private void OnMenuShown()
     {
         Hud.Reset();
+        SetBuffsUsable(false);
         LevelProgress.SetLevel(game.LevelNumber);
         SettingsOpen.Value = false;
         ExitConfirmOpen.Value = false;
@@ -92,6 +101,7 @@ public class GameUiViewModel : IDisposable
 
     private void OnGameOver()
     {
+        SetBuffsUsable(false);
         ExitConfirmOpen.Value = false;
         Screen.Value = UiScreen.GameOver;
     }
@@ -106,6 +116,19 @@ public class GameUiViewModel : IDisposable
     {
         Hud.Countdown.Value = HudViewModel.CountdownGo;
         Hud.PlaceVisible.Value = true;
+        SetBuffsUsable(true);
+    }
+
+    // Buffs are for the race only: off once the player crosses the finish (also before the bonus round).
+    private void OnRunnerFinished(Runner runner, int place)
+    {
+        if (runner == run.Player) SetBuffsUsable(false);
+    }
+
+    private void SetBuffsUsable(bool usable)
+    {
+        RunBoost.SetRaceActive(usable);
+        BoardMagnet.SetRaceActive(usable);
     }
 
     // ---------- UI → Game (buttons) ----------
