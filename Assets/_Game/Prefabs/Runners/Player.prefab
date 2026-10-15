@@ -413,7 +413,7 @@ MonoBehaviour:
   skinParent: {fileID: 0}
   skinRootName: mixamorig:Hips
   steering:
-    turnSpeed: 90
+    turnSpeed: 70
 --- !u!114 &4238872318644363486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -426,7 +426,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 792a36e7c6457a34da00e0f52b6678ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TouchInputReader
-  sensitivity: 0.2
 --- !u!114 &5935142670496946772
 MonoBehaviour:
   m_ObjectHideFlags: 0

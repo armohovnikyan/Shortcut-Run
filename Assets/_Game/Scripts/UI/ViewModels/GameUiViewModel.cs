@@ -31,6 +31,8 @@ public class GameUiViewModel : IDisposable
     public UpgradeViewModel OfflineEarnUpgrade { get; }
     public BuffViewModel RunBoost { get; }
     public BuffViewModel BoardMagnet { get; }
+    /// <summary>Off = the buff buttons are hidden (GameManager's Buffs Enabled switch).</summary>
+    public bool BuffsEnabled => game.BuffsEnabled;
 
     public GameUiViewModel(GameManager game)
     {

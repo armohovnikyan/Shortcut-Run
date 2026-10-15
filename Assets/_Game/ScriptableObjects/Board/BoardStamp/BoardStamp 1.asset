@@ -15,7 +15,7 @@ MonoBehaviour:
   entries:
   - shape: {fileID: 11400000, guid: e0fde2ce551ca6d4d8c471aa6a08643c, type: 2}
     forward: 0
-    side: -1.5
+    side: -2
     facing: 0
   - shape: {fileID: 11400000, guid: e0fde2ce551ca6d4d8c471aa6a08643c, type: 2}
     forward: 0
@@ -23,17 +23,5 @@ MonoBehaviour:
     facing: 0
   - shape: {fileID: 11400000, guid: e0fde2ce551ca6d4d8c471aa6a08643c, type: 2}
     forward: 0
-    side: 1.5
-    facing: 0
-  - shape: {fileID: 11400000, guid: e0fde2ce551ca6d4d8c471aa6a08643c, type: 2}
-    forward: 2
-    side: -1.5
-    facing: 0
-  - shape: {fileID: 11400000, guid: e0fde2ce551ca6d4d8c471aa6a08643c, type: 2}
-    forward: 2
-    side: 0
-    facing: 0
-  - shape: {fileID: 11400000, guid: e0fde2ce551ca6d4d8c471aa6a08643c, type: 2}
-    forward: 2
-    side: 1.5
+    side: 2
     facing: 0

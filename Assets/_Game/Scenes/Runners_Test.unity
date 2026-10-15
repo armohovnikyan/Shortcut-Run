@@ -549,6 +549,9 @@ MonoBehaviour:
   startingCoins: 0
   boardUpgrade: {fileID: 11400000, guid: dd84c4609da901445b5d6ae15b2bbd0b, type: 2}
   offlineEarnUpgrade: {fileID: 11400000, guid: dccde480af24d8849adfd0c2101ec98b, type: 2}
+  buffsEnabled: 0
+  runBoost: {fileID: 0}
+  boardMagnet: {fileID: 0}
   logEvents: 1
 --- !u!4 &1552032217
 Transform:

@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerSteering
 {
     [Space]
+    [Tooltip("Degrees turned for a swipe across the full screen width.")]
     [SerializeField] private float turnSpeed = 90f;
 
     public void Rotate(Transform transform, float turnInput, float deltaTime)
