@@ -606,6 +606,9 @@ MonoBehaviour:
   startingCoins: 0
   boardUpgrade: {fileID: 11400000, guid: dd84c4609da901445b5d6ae15b2bbd0b, type: 2}
   offlineEarnUpgrade: {fileID: 11400000, guid: dccde480af24d8849adfd0c2101ec98b, type: 2}
+  buffsEnabled: 0
+  runBoost: {fileID: 0}
+  boardMagnet: {fileID: 0}
   logEvents: 1
 --- !u!4 &1552032217
 Transform:
@@ -652,6 +655,7 @@ MonoBehaviour:
   gameCamera: {fileID: 1447962336}
   gameAudio: {fileID: 1964494726}
   gameEffects: {fileID: 1552032220}
+  water: {fileID: 493024271}
 --- !u!114 &1552032220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -665,9 +669,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameEffects
   waterSplashPrefab: {fileID: 8136766394190719706, guid: 94b26f98c4d7fc84b8bece12a8633a2f, type: 3}
-  water: {fileID: 493024271}
   waterDepth: 2.5
   splashLifetime: 3
+  pickupEffectPrefab: {fileID: 3893298953588178145, guid: 9cebe06d07ca36041bd3c750669a21b7, type: 3}
+  pickupCounterPrefab: {fileID: 8691583111609401195, guid: 08f16925ca8b8ed44b8b619a768ed812, type: 3}
+  fastRunTrailPrefab: {fileID: 5534260987853260389, guid: 6c11907f9c35de348a97bc9832c1bc69, type: 3}
 --- !u!1 &1784279040
 GameObject:
   m_ObjectHideFlags: 0

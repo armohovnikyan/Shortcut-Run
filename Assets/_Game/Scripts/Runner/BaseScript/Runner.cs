@@ -25,6 +25,7 @@ public abstract class Runner : MonoBehaviour, IRunner
     [SerializeField] protected PlaceableBoard placeableBoardPrefab;
     [Space]
     [SerializeField] protected BoardCarrier boardCarrier = new BoardCarrier();
+    [SerializeField] private BoardStackSway stackSway = new BoardStackSway();
     [Header("Motion")]
     [SerializeField] protected GroundProbe groundProbe = new GroundProbe();
     [Space]
@@ -52,8 +53,10 @@ public abstract class Runner : MonoBehaviour, IRunner
     public bool HasFallen { get; private set; }
     /// <summary>The boost switch (on = speeding up or boosted). For effects / camera.</summary>
     public bool IsBoosted => boostOn;
-    /// <summary>Bumping into an NPC now knocks it out (BotKnocker): only while racing with the boost on.</summary>
-    public bool CanKnockOut => IsRunning && boostOn && !HasFallen;
+    /// <summary>Bumping into an NPC now knocks it out (BotKnocker): only while racing with the boost on — or still
+    /// carrying it, i.e. during the ramp-down after stepping off the boards. Without that, the boost switches off
+    /// the moment the runner is back on the road, which is exactly where the other runners are.</summary>
+    public bool CanKnockOut => IsRunning && !HasFallen && (boostOn || speedBoost.Amount > 0f);
 
     public float CurrentSpeed => (speedBoost.SpeedFrom(baseSpeed) + speedBonus) * boardCarrier.CarryMultiplier;
 
@@ -63,6 +66,10 @@ public abstract class Runner : MonoBehaviour, IRunner
         : boardCarrier.Count * BridgeBuilder.StepLength(placeableBoardPrefab);
 
     public int BoardCount => boardCarrier.Count;
+    /// <summary>What the carried boards are stacked on. For effects that ride along with the stack.</summary>
+    public Transform BoardStackPoint => boardStackPosition;
+    /// <summary>Where the next board would go = just above the top of the stack. For effects.</summary>
+    public Vector3 BoardStackTop => boardStackPosition.TransformPoint(Vector3.up * boardStackSpace * boardCarrier.Count);
 
     /// <summary>What the runner is standing on. Null while bridging, jumping, climbing or falling.</summary>
     public Collider GroundCollider => motion.State == MotionState.OnRoad ? motion.GroundCollider : null;
@@ -78,8 +85,10 @@ public abstract class Runner : MonoBehaviour, IRunner
     /// <summary>A jump began. True = off a jump pad, false = out of boards over a gap.</summary>
     public event Action<bool> Jumped;
     public event Action LedgeGrabbed;
-    /// <summary>Boards were picked up. The new stack count.</summary>
-    public event Action<int> BoardsPickedUp;
+    /// <summary>Boards were picked up: how many were just added, and the new stack count.</summary>
+    public event Action<int, int> BoardsPickedUp;
+    /// <summary>Boards were taken from a runner we knocked out: how many, and the new stack count.</summary>
+    public event Action<int, int> BoardsStolen;
     /// <summary>The board speed boost switched on / off. Also off once the runner stops (finish, fall).</summary>
     public event Action<bool> BoostChanged;
     /// <summary>A foot touched the ground, timed by the run animation. Only while running on the ground.</summary>
@@ -131,8 +140,23 @@ public abstract class Runner : MonoBehaviour, IRunner
         OnSpeedChanged();
     }
 
-    // Called by BoardPickup. Spawns one carried PlaceableBoard per collected board onto the stack in the hands.
+    // Called by BoardPickup (and the board magnet buff): boards picked up from the track.
     public void CollectBoards(int amount)
+    {
+        AddBoards(amount);
+        BoardsPickedUp?.Invoke(amount, boardCarrier.Count);
+    }
+
+    /// <summary>Called by BotKnocker: the boards of the runner we just knocked out land on our stack.
+    /// Same as CollectBoards, but reported as BoardsStolen — they weren't picked up from the track.</summary>
+    public void StealBoards(int amount)
+    {
+        AddBoards(amount);
+        BoardsStolen?.Invoke(amount, boardCarrier.Count);
+    }
+
+    // Spawns one carried PlaceableBoard per board onto the stack in the hands.
+    private void AddBoards(int amount)
     {
         for (int i = 0; i < amount; i++)
         {
@@ -143,7 +167,6 @@ public abstract class Runner : MonoBehaviour, IRunner
             boardCarrier.Add(board);
         }
         BoardsCollected(boardCarrier.Count);
-        BoardsPickedUp?.Invoke(boardCarrier.Count);
     }
 
     /// <summary>Knocked out: the boards in hand are taken by the knocker. Returns how many were taken.
@@ -232,6 +255,7 @@ public abstract class Runner : MonoBehaviour, IRunner
         if (speedBoost.Tick(boostOn, Time.deltaTime)) OnSpeedChanged();
         TickSpeedBonus(Time.deltaTime);
         ReportBoost(boostOn);
+        stackSway.Tick(boardCarrier.CarriedBoards, boardStackPosition, transform, boardStackSpace, Time.deltaTime);
 
         // Taken every frame even in the air, so landing doesn't replay the steps missed while jumping.
         if (animations.TakeFootsteps() > 0 && IsGrounded) Footstep?.Invoke();
