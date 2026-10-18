@@ -22,8 +22,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private UpgradeSO offlineEarnUpgrade;
 
     [Header("Buffs")]
-    [Tooltip("Off = the buff system is switched off: buttons hidden, nothing can be bought or used, saved counts kept.")]
-    [SerializeField] private bool buffsEnabled;
     [SerializeField] private RunBoostSO runBoost;
     [SerializeField] private BoardMagnetSO boardMagnet;
 
@@ -40,8 +38,6 @@ public class GameManager : MonoBehaviour
     public Upgrade OfflineEarnUpgrade { get; private set; }
     public Buff RunBoost { get; private set; }
     public Buff BoardMagnet { get; private set; }
-    /// <summary>Off = buffs are inert and the UI hides their buttons.</summary>
-    public bool BuffsEnabled => buffsEnabled;
     /// <summary>Level the player is on, 1 = first. Levels passed = LevelNumber - 1.</summary>
     public int LevelNumber => Save.Data.levelIndex + 1;
     /// <summary>Coins earned by the last run, waiting to be claimed. 0 = nothing to claim.</summary>
@@ -66,11 +62,10 @@ public class GameManager : MonoBehaviour
         BoardUpgrade = new Upgrade(boardUpgrade, Save);
         OfflineEarnUpgrade = new Upgrade(offlineEarnUpgrade, Save);
 
-        // Switched off = buffs without a config: they can't be bought or used (Buff handles a null config).
-        if (buffsEnabled && (runBoost == null || boardMagnet == null))
+        if (runBoost == null || boardMagnet == null)
             Debug.LogError($"{name}: Game Manager is missing a Buff asset — that buff can't be bought or used.", this);
-        RunBoost = new Buff(buffsEnabled ? runBoost : null, Save);
-        BoardMagnet = new Buff(buffsEnabled ? boardMagnet : null, Save);
+        RunBoost = new Buff(runBoost, Save);
+        BoardMagnet = new Buff(boardMagnet, Save);
     }
 
     // Buff effects and cooldowns only run while the run does (scaled time: a paused run freezes them too).

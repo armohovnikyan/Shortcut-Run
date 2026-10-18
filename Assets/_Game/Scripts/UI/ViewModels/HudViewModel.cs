@@ -1,4 +1,4 @@
-/// <summary>What the in-run HUD shows: the countdown and the player's live place.</summary>
+/// <summary>What the in-run HUD shows: the countdown, the player's live place and whether the buff buttons are up.</summary>
 public class HudViewModel
 {
     public const int CountdownHidden = -1;
@@ -10,12 +10,15 @@ public class HudViewModel
     public readonly Observable<int> Place = new Observable<int>(1);
     /// <summary>The place is only shown once the race is on.</summary>
     public readonly Observable<bool> PlaceVisible = new Observable<bool>();
+    /// <summary>The buff buttons: shown from GO until the reward or game-over panel opens.</summary>
+    public readonly Observable<bool> BuffsVisible = new Observable<bool>();
 
     /// <summary>Back to the pre-run state (a new menu is shown).</summary>
     public void Reset()
     {
         Countdown.Value = CountdownHidden;
         PlaceVisible.Value = false;
+        BuffsVisible.Value = false;
         Place.Value = 1;
     }
 

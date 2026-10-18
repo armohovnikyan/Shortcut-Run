@@ -25,7 +25,8 @@ public class HudView : MonoBehaviour
     [SerializeField, Min(0f)] private float goHoldSeconds = 0.7f;
 
     [Header("Buffs")]
-    [Tooltip("Optional while the buff system is switched off (GameManager > Buffs Enabled).")]
+    [Tooltip("Parent of the buff buttons. Shown from GO until the reward / game-over panel.")]
+    [SerializeField] private GameObject buffButtonsRoot;
     [SerializeField] private BuffUseButtonView runBoost;
     [SerializeField] private BuffUseButtonView boardMagnet;
 
@@ -43,16 +44,9 @@ public class HudView : MonoBehaviour
             placeSuffixLabel.text = HudViewModel.PlaceSuffix(place);
         });
         viewModel.Hud.Countdown.Bind(ShowCountdown);
-        BindBuff(runBoost, viewModel.RunBoost, viewModel.BuffsEnabled);
-        BindBuff(boardMagnet, viewModel.BoardMagnet, viewModel.BuffsEnabled);
-    }
-
-    // Buffs switched off: the button (if there is one) is hidden and never bound.
-    private static void BindBuff(BuffUseButtonView button, BuffViewModel buff, bool enabled)
-    {
-        if (button == null) return;
-        button.gameObject.SetActive(enabled);
-        if (enabled) button.Bind(buff);
+        viewModel.Hud.BuffsVisible.Bind(visible => buffButtonsRoot.SetActive(visible));
+        runBoost.Bind(viewModel.RunBoost);
+        boardMagnet.Bind(viewModel.BoardMagnet);
     }
 
     private void ShowCountdown(int seconds)

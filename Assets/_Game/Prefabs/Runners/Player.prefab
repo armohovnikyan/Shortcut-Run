@@ -382,14 +382,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d85ce1e813878d443bd8ed82e54f28fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  baseSpeed: 9
+  baseSpeed: 7
   speedBoost:
     boostedSpeed: 9
     rampUpTime: 0.5
     rampDownTime: 1
-  finishWalkSpeed: 5
+  finishWalkSpeed: 10
   finishStopDistance: 0.1
-  dragBackSpeed: 35
+  dragBackSpeed: 40
   boardStackPosition: {fileID: 5323819438738752460}
   boardStackSpace: 0.15
   placeableBoardPrefab: {fileID: 9164896909096688938, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
@@ -410,10 +410,11 @@ MonoBehaviour:
     jumpDuration: 1
     climbDuration: 0.25
     gravity: -20
+    fallMargin: -1
   skinParent: {fileID: 0}
   skinRootName: mixamorig:Hips
   steering:
-    turnSpeed: 70
+    turnSpeed: 100
 --- !u!114 &4238872318644363486
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Root of a level prefab — the "arena". Holds what the run needs from the level (spawns, NPC setup,
-/// finish, stand points, bonus anchor) and answers track questions through TrackRoute.
+/// finish, stand points, bonus platforms) and answers track questions through TrackRoute.
 /// Owns no race logic: the run manager asks, the level answers.
 /// </summary>
 public class Level : MonoBehaviour
@@ -24,12 +24,12 @@ public class Level : MonoBehaviour
     [SerializeField] private FinishLine finishLine;
     [Tooltip("Where finished runners stand, in finishing order (1st place = element 0).")]
     [SerializeField] private Transform[] standPoints;
-    [Tooltip("Centre of the finish platform, its blue arrow pointing where the camera looks from. The finish camera " +
-             "frames this point whichever stand point the player gets. Empty = the 1st place stand point.")]
+    [Tooltip("Where the finish camera sits, position AND rotation (the finish platform's CameraPos). Same view " +
+             "whichever stand point the player gets. Empty = the camera just stops where it stopped following.")]
     [SerializeField] private Transform finishViewPoint;
-    [Tooltip("Spawns the bonus multiplier platforms after the finish when the player comes 1st. " +
+    [Tooltip("The bonus multiplier platforms after the finish; they rise when the player comes 1st. " +
              "Empty = this level has no bonus: 1st place just finishes at x1.")]
-    [SerializeField] private BonusPlatformSpawner bonusPlatforms;
+    [SerializeField] private BonusPlatformLayout bonusPlatforms;
 
     private TrackRoute route;
 
@@ -40,9 +40,8 @@ public class Level : MonoBehaviour
     public int NpcCount => npcSpawns == null ? 0 : Mathf.Min(npcCount, npcSpawns.Length);
     public FinishLine FinishLine => finishLine;
     public Transform[] StandPoints => standPoints;
-    public Transform FinishViewPoint => finishViewPoint != null ? finishViewPoint
-        : standPoints != null && standPoints.Length > 0 ? standPoints[0] : finishLine.transform;
-    public BonusPlatformSpawner BonusPlatforms => bonusPlatforms;
+    public Transform FinishViewPoint => finishViewPoint;
+    public BonusPlatformLayout BonusPlatforms => bonusPlatforms;
 
     /// <summary>Metres left to the finish along the track. Lower = further ahead in the race.</summary>
     public float GetRemainingDistance(Vector3 worldPosition) => Route.GetRemainingDistance(worldPosition);
