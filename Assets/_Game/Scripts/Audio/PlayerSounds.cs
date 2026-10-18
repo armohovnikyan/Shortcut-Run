@@ -27,6 +27,7 @@ public class PlayerSounds : IDisposable
         player.Jumped += OnJumped;
         player.LedgeGrabbed += OnLedgeGrabbed;
         player.BoardsPickedUp += OnBoardsPickedUp;
+        player.BoardsStolen += OnBoardsPickedUp; // same sound for boards taken from a knocked-out runner
         player.BoostChanged += OnBoostChanged;
     }
 
@@ -38,6 +39,7 @@ public class PlayerSounds : IDisposable
             player.Jumped -= OnJumped;
             player.LedgeGrabbed -= OnLedgeGrabbed;
             player.BoardsPickedUp -= OnBoardsPickedUp;
+            player.BoardsStolen -= OnBoardsPickedUp;
             player.BoostChanged -= OnBoostChanged;
         }
         audio.StopLoop(); // a boost loop must not outlive its player
@@ -50,7 +52,7 @@ public class PlayerSounds : IDisposable
     private void OnLedgeGrabbed() => audio.Play(library.LedgeGrab);
 
     // In a row: 01, 02, 03 … (stays on the last one). After a pause: back to 01.
-    private void OnBoardsPickedUp(int stackCount)
+    private void OnBoardsPickedUp(int added, int stackCount)
     {
         if (Time.time - lastPickupTime > pickupComboTime) pickupIndex = 0;
         lastPickupTime = Time.time;

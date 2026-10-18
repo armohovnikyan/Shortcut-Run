@@ -44,7 +44,7 @@ public class BotKnocker : MonoBehaviour
             if (!victim.TryKnockOut(direction.normalized)) continue;
 
             int boards = other.TakeAllBoards();
-            if (boards > 0) runner.CollectBoards(boards);
+            if (boards > 0) runner.StealBoards(boards);
         }
     }
 }

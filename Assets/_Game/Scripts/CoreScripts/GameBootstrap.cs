@@ -13,7 +13,7 @@ public class GameBootstrap : MonoBehaviour
     [SerializeField] private StableCameraFollow gameCamera;
     [Tooltip("Plays the game's sounds. Empty = a silent game.")]
     [SerializeField] private GameAudio gameAudio;
-    [Tooltip("Plays the world effects (water splash). Empty = no effects.")]
+    [Tooltip("Plays the world effects (water splash, board pickup, +N). Empty = no effects.")]
     [SerializeField] private GameEffects gameEffects;
     [Tooltip("The scene's water plane. It follows the Game Camera; the splash plays on its surface.")]
     [SerializeField] private InfiniteWater water;
@@ -34,7 +34,8 @@ public class GameBootstrap : MonoBehaviour
         if (gameAudio != null && gameManager != null) gameAudio.Bind(gameManager);
         else Debug.LogWarning($"{name}: Game Bootstrap has no Game Audio (or Game Manager) — the game will be silent.", this);
 
-        if (gameEffects != null && gameManager != null) gameEffects.Bind(gameManager, water);
+        if (gameEffects != null && gameManager != null)
+            gameEffects.Bind(gameManager, water, gameCamera != null ? gameCamera.transform : null);
         else Debug.LogWarning($"{name}: Game Bootstrap has no Game Effects (or Game Manager) — no world effects.", this);
 
         if (gameManager == null || ui == null)
