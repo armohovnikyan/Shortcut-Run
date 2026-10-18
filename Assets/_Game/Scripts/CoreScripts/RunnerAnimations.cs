@@ -28,11 +28,20 @@ public class RunnerAnimations
 
     private static readonly int RunningWithBoardsState = Animator.StringToHash("RunnigWithPlanks");
 
+    // Right-hand dip while laying boards: its own layer (RightArm, masked to the right arm) over the base layer.
+    private const string ArmLayerName = "RightArm";
+
+    private static readonly int PlaceBoardHash = Animator.StringToHash("PlaceBoard");
+
+    private static readonly int PlaceBoardState = Animator.StringToHash("PlaceBoard");
+
     // When a foot touches the ground, as a fraction of each run loop. Measured from the clips (the foot's
     // lowest point): Run = left, right; Run_WithBoards holds two strides = 4 steps. New run clips → measure again.
     private static readonly float[] RunContacts = { 0.35f, 0.83f };
 
     private static readonly float[] RunWithBoardsContacts = { 0.15f, 0.42f, 0.65f, 0.92f };
+
+    private readonly int _armLayer; // -1 = the controller has no arm layer: no dip
 
     private int _stepState;
     private float _stepTime;
@@ -41,6 +50,7 @@ public class RunnerAnimations
     public RunnerAnimations(Animator animator)
     {
         _animator = animator;
+        _armLayer = animator != null ? animator.GetLayerIndex(ArmLayerName) : -1;
     }
 
     /// <summary>
@@ -107,6 +117,17 @@ public class RunnerAnimations
         SetState(IsJumpingHash);
     }
 
+    // Boards go down faster than a hand can move: a new dip only starts once the last one is on its way back up.
+    public void PlaceBoard()
+    {
+        if (_armLayer < 0 || !_animator.isActiveAndEnabled) return;
+
+        AnimatorStateInfo arm = _animator.GetCurrentAnimatorStateInfo(_armLayer);
+        bool dipping = arm.shortNameHash == PlaceBoardState && arm.normalizedTime < 0.5f;
+        if (dipping || _animator.IsInTransition(_armLayer)) return;
+        _animator.SetTrigger(PlaceBoardHash);
+    }
+
     // Triggers clear the bools too: the controller enters every looping state from Any State
     // while its bool is true, so a bool left on would pull the runner straight out of fall/victory/defeated.
     public void TriggerFalling()
@@ -142,5 +163,6 @@ public class RunnerAnimations
         _animator.SetBool(IsRunningWithBoardsHash, false);
         _animator.SetBool(IsClimbingHash, false);
         _animator.SetBool(IsJumpingHash, false);
+        if (_armLayer >= 0) _animator.ResetTrigger(PlaceBoardHash); // no leftover dip after a fall / finish
     }
 }

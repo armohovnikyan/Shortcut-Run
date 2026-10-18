@@ -41,6 +41,7 @@ public class RunManager : MonoBehaviour
     private BonusRound bonus;
     private float standingsTimer;
     private int lastPlayerPlace;
+    private Runner leader;
 
     public RunState State { get; private set; }
     public Player Player => spawner?.Player;
@@ -53,6 +54,7 @@ public class RunManager : MonoBehaviour
     public event Action<int> CountdownTick;           // 3, 2, 1
     public event Action RaceStarted;                  // "GO!"
     public event Action<int> PlayerPlaceChanged;      // live place during the race
+    public event Action<Runner> LeaderChanged;        // 1st place right now (the crown); null = no race
     public event Action<Runner, int> RunnerFinished;  // runner, finishing place
     public event Action BonusStarted;                 // player came 1st: platforms are rising
     public event Action<int> MultiplierReached;       // 2 … 15
@@ -104,6 +106,7 @@ public class RunManager : MonoBehaviour
         spawner?.DestroyAll();
         spawner = null;
         standings = null;
+        SetLeader(null);
         countdown = null;
         bonus = null;
         level = null;
@@ -136,11 +139,22 @@ public class RunManager : MonoBehaviour
         standingsTimer = standingsInterval;
 
         standings.Refresh();
+        ReportLeader();
         int place = standings.GetPlace(Player);
         if (place == lastPlayerPlace) return;
         lastPlayerPlace = place;
         Log($"player place: {place}");
         PlayerPlaceChanged?.Invoke(place);
+    }
+
+    // Whoever is first right now. Finished runners stay ahead of racing ones, so the winner keeps it.
+    private void ReportLeader() => SetLeader(standings.Order.Count > 0 ? standings.Order[0] : null);
+
+    private void SetLeader(Runner first)
+    {
+        if (first == leader) return;
+        leader = first;
+        LeaderChanged?.Invoke(first);
     }
 
     private void OnRunnerCrossed(Runner runner)
@@ -152,6 +166,7 @@ public class RunManager : MonoBehaviour
         if (!raceStarted || (runner == Player && State != RunState.Racing)) return;
 
         int place = standings.MarkFinished(runner);
+        ReportLeader();
         Log($"{runner.name} finished #{place}");
         RunnerFinished?.Invoke(runner, place);
 

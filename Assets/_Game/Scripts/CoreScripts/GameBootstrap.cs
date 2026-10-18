@@ -13,7 +13,7 @@ public class GameBootstrap : MonoBehaviour
     [SerializeField] private StableCameraFollow gameCamera;
     [Tooltip("Plays the game's sounds. Empty = a silent game.")]
     [SerializeField] private GameAudio gameAudio;
-    [Tooltip("Plays the world effects (water splash, board pickup, +N). Empty = no effects.")]
+    [Tooltip("Plays the world effects (water splash, board pickup, +N, leader crown). Empty = no effects.")]
     [SerializeField] private GameEffects gameEffects;
     [Tooltip("The scene's water plane. It follows the Game Camera; the splash plays on its surface.")]
     [SerializeField] private InfiniteWater water;

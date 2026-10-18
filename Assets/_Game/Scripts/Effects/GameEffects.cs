@@ -27,12 +27,20 @@ public class GameEffects : MonoBehaviour
              "on and off from here, so the prefab should start with emission off.")]
     [SerializeField] private ParticleSystem fastRunTrailPrefab;
 
+    [Header("Leader crown")]
+    [Tooltip("Worn by whoever is 1st right now (closest to the finish). Created once when bound. Empty = no crown.")]
+    [SerializeField] private GameObject crownPrefab;
+    [Tooltip("Metres above the top of the head. Negative = sunk into the head a little.")]
+    [SerializeField] private float crownHeight = 0.02f;
+
     private InfiniteWater water; // the splash plays where the falling player crosses its surface
     private Transform view;      // the game camera: the +N faces it
     private RunManager run;
     private Player player;
     private PickupCounter pickupCounter;
     private ParticleSystem fastRunTrail; // child of the current player: destroyed with it
+    private GameObject crown;
+    private Runner crownWearer;
     private bool inBonus;
     private Coroutine splashRoutine;
     private readonly List<(Runner runner, Action<int, int> picked, Action<int, int> stolen)> boardHandlers = new();
@@ -45,10 +53,16 @@ public class GameEffects : MonoBehaviour
         if (waterSplashPrefab == null)
             Debug.LogWarning($"{name}: Game Effects has no Water Splash prefab — falls won't splash.", this);
         if (pickupCounterPrefab != null) pickupCounter = Instantiate(pickupCounterPrefab, transform);
+        if (crownPrefab != null)
+        {
+            crown = Instantiate(crownPrefab, transform);
+            crown.SetActive(false);
+        }
 
         run = game.Run;
         run.PlayerSpawned += OnPlayerSpawned;
         run.BonusStarted += OnBonusStarted;
+        run.LeaderChanged += OnLeaderChanged;
 
         // GameManager may have spawned the player before Bind ran (Start order isn't fixed).
         if (run.Player != null) OnPlayerSpawned(run.Player);
@@ -60,6 +74,7 @@ public class GameEffects : MonoBehaviour
         {
             run.PlayerSpawned -= OnPlayerSpawned;
             run.BonusStarted -= OnBonusStarted;
+            run.LeaderChanged -= OnLeaderChanged;
         }
         ReleasePlayer();
     }
@@ -132,6 +147,30 @@ public class GameEffects : MonoBehaviour
     }
 
     private void OnBonusStarted() => inBonus = true;
+
+    // Not parented to the head: the bone's scale and axes depend on the model, the crown should stay upright.
+    private void OnLeaderChanged(Runner leader)
+    {
+        crownWearer = leader;
+        if (crown != null) crown.SetActive(leader != null);
+        PlaceCrown();
+    }
+
+    // After the animation has moved the head this frame.
+    private void LateUpdate() => PlaceCrown();
+
+    private void PlaceCrown()
+    {
+        if (crown == null || !crown.activeSelf) return;
+        if (crownWearer == null) // destroyed with its run
+        {
+            crown.SetActive(false);
+            return;
+        }
+
+        Vector3 top = crownWearer.HeadTop.position + Vector3.up * crownHeight;
+        crown.transform.SetPositionAndRotation(top, Quaternion.Euler(0f, crownWearer.transform.eulerAngles.y, 0f));
+    }
 
     // The race ends over water, the bonus over the void — only the race fall splashes.
     private void OnPlayerFell(Runner runner)

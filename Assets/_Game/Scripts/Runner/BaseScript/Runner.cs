@@ -36,11 +36,14 @@ public abstract class Runner : MonoBehaviour, IRunner
     [SerializeField] private Transform skinParent;
     [Tooltip("Name the spawned model gets. Must match the root bone name the animations were made with (Mixamo: mixamorig:Hips). Empty = keep the prefab name.")]
     [SerializeField] private string skinRootName = "mixamorig:Hips";
+    [Tooltip("Name of the bone at the top of the head, for things worn on the head (the leader's crown).")]
+    [SerializeField] private string headTopBoneName = "mixamorig:HeadTop_End";
 
 
     protected RunnerAnimations animations;
     private Animator animator;
     private BridgeBuilder bridge;
+    private Transform headTop; // found on first use, again after a new skin
 
     private bool boostOn;
     private bool boostReported;
@@ -70,6 +73,16 @@ public abstract class Runner : MonoBehaviour, IRunner
     public Transform BoardStackPoint => boardStackPosition;
     /// <summary>Where the next board would go = just above the top of the stack. For effects.</summary>
     public Vector3 BoardStackTop => boardStackPosition.TransformPoint(Vector3.up * boardStackSpace * boardCarrier.Count);
+
+    /// <summary>The top of the current model's head (the runner itself if there's no such bone). For things worn on the head.</summary>
+    public Transform HeadTop
+    {
+        get
+        {
+            if (headTop == null) headTop = FindHeadTop();
+            return headTop;
+        }
+    }
 
     /// <summary>What the runner is standing on. Null while bridging, jumping, climbing or falling.</summary>
     public Collider GroundCollider => motion.State == MotionState.OnRoad ? motion.GroundCollider : null;
@@ -108,7 +121,7 @@ public abstract class Runner : MonoBehaviour, IRunner
         motion.Jumped += fromPad => { Jump(); Jumped?.Invoke(fromPad); };
         motion.ClimbStarted += () => { OnClimbStarted(); LedgeGrabbed?.Invoke(); };
         motion.Landed += CheckBoards;
-        motion.BoardPlaced += CheckBoards;
+        motion.BoardPlaced += () => { CheckBoards(); animations.PlaceBoard(); };
         motion.Fell += OnFell;
     }
 
@@ -299,6 +312,16 @@ public abstract class Runner : MonoBehaviour, IRunner
 
         animations.Rebind(); // Rebind also resets parameters — set the pre-race state again
         animations.SetIdle();
+        headTop = null; // the new model has its own head
+    }
+
+    // Active children only: an inactive (replaced) model may still have a bone of the same name.
+    private Transform FindHeadTop()
+    {
+        Transform search = animator != null ? animator.transform : transform;
+        foreach (Transform bone in search.GetComponentsInChildren<Transform>())
+            if (bone.name == headTopBoneName) return bone;
+        return transform;
     }
 
     /// <summary>Hand height control back to RunnerMotion after something else (NavMeshAgent) had it.</summary>
