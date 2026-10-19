@@ -11,7 +11,6 @@ public class MenuView : MonoBehaviour
     [SerializeField] private TMP_InputField nameInput;
     [SerializeField] private UpgradeButtonView boardUpgrade;
     [SerializeField] private UpgradeButtonView offlineEarnUpgrade;
-    [Tooltip("Optional while the buff system is switched off (GameManager > Buffs Enabled).")]
     [SerializeField] private BuffShopButtonView runBoost;
     [SerializeField] private BuffShopButtonView boardMagnet;
 
@@ -33,15 +32,7 @@ public class MenuView : MonoBehaviour
 
         boardUpgrade.Bind(viewModel.BoardUpgrade);
         offlineEarnUpgrade.Bind(viewModel.OfflineEarnUpgrade);
-        BindBuff(runBoost, viewModel.RunBoost, viewModel.BuffsEnabled);
-        BindBuff(boardMagnet, viewModel.BoardMagnet, viewModel.BuffsEnabled);
-    }
-
-    // Buffs switched off: the button (if there is one) is hidden and never bound.
-    private static void BindBuff(BuffShopButtonView button, BuffViewModel buff, bool enabled)
-    {
-        if (button == null) return;
-        button.gameObject.SetActive(enabled);
-        if (enabled) button.Bind(buff);
+        runBoost.Bind(viewModel.RunBoost);
+        boardMagnet.Bind(viewModel.BoardMagnet);
     }
 }

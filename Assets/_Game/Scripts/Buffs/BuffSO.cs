@@ -14,7 +14,7 @@ public abstract class BuffSO : ScriptableObject
     [Tooltip("Price of one piece.")]
     [SerializeField, Min(0)] private int price = 500;
     [Tooltip("Seconds before it can be used again, counted from when its effect ends.")]
-    [SerializeField, Min(0f)] private float cooldown = 10f;
+    [SerializeField, Min(0f)] private float cooldown = 3f;
 
     public string SaveKey => saveKey;
     public Sprite Icon => icon;

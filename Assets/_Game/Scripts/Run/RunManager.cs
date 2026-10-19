@@ -75,6 +75,7 @@ public class RunManager : MonoBehaviour
         Player player = spawner.SpawnAll();
         if (player == null) return;
 
+        if (level.BonusPlatforms != null) level.BonusPlatforms.HideAll(); // also puts them back down on a replay of the same level instance
         standings = new RaceStandings(level, spawner.Runners);
         if (level.FinishLine != null) level.FinishLine.RunnerCrossed += OnRunnerCrossed;
         else Debug.LogError($"{level.name}: Level has no Finish Line — nobody can finish.", level);
@@ -186,7 +187,7 @@ public class RunManager : MonoBehaviour
     private void StartBonus()
     {
         State = RunState.Bonus;
-        level.BonusPlatforms.Spawn();
+        level.BonusPlatforms.RiseAll();
 
         bonus = new BonusRound(StandPointFor(1), level.BonusPlatforms.LastMultiplier);
         bonus.MultiplierReached += multiplier =>
@@ -258,12 +259,15 @@ public class RunManager : MonoBehaviour
     }
 
     // The finish platform has a stand point per place but one view of its own, so the camera frames the
-    // platform, not the player's spot on it. A bonus platform has a single stand point: that's its view.
+    // platform, not the player's spot on it. A bonus platform has its own. Null = the camera just stops.
     private Transform ViewPointFor(Transform standPoint)
     {
+        MultiplierPlatform platform = standPoint.GetComponentInParent<MultiplierPlatform>();
+        if (platform != null) return platform.ViewPoint;
+
         Transform[] points = level.StandPoints;
         bool onFinishPlatform = points == null || points.Length == 0 || Array.IndexOf(points, standPoint) >= 0;
-        return onFinishPlatform ? level.FinishViewPoint : standPoint;
+        return onFinishPlatform ? level.FinishViewPoint : null;
     }
 
     private void Unsubscribe()

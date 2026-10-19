@@ -4,7 +4,8 @@ using UnityEngine.UI;
 
 /// <summary>
 /// One buff button of the in-run HUD: a small square with the icon and "xN" under it.
-/// Off (greyed, not pressable) while it can't be used: before GO, running, cooling down, or none left.
+/// Off (faded, not pressable) while it can't be used: running, cooling down, none left, or after the finish.
+/// The fade uses a CanvasGroup on the button (added by itself if missing) so the icon and text fade too.
 /// </summary>
 public class BuffUseButtonView : MonoBehaviour
 {
@@ -14,12 +15,14 @@ public class BuffUseButtonView : MonoBehaviour
     [SerializeField] private TMP_Text countLabel;
     [Tooltip("Optional. An Image with Image Type = Filled (Radial 360) over the icon; drains as the cooldown runs out.")]
     [SerializeField] private Image cooldownFill;
-    [Tooltip("Fades the whole button while it is off.")]
-    [SerializeField] private CanvasGroup canvasGroup;
+    [Tooltip("Opacity of the whole button (icon and text included) while it can't be used.")]
     [SerializeField, Range(0f, 1f)] private float offAlpha = 0.45f;
+
+    private CanvasGroup canvasGroup;
 
     public void Bind(BuffViewModel viewModel)
     {
+        if (!TryGetComponent(out canvasGroup)) canvasGroup = gameObject.AddComponent<CanvasGroup>();
         button.onClick.AddListener(viewModel.Use);
         if (icon != null && viewModel.Icon != null) icon.sprite = viewModel.Icon;
 
@@ -27,7 +30,7 @@ public class BuffUseButtonView : MonoBehaviour
         viewModel.CanUse.Bind(canUse =>
         {
             button.interactable = canUse;
-            if (canvasGroup != null) canvasGroup.alpha = canUse ? 1f : offAlpha;
+            canvasGroup.alpha = canUse ? 1f : offAlpha;
         });
         viewModel.WaitLeft.Bind(waitLeft =>
         {

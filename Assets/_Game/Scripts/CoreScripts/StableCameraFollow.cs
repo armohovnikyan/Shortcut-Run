@@ -6,9 +6,10 @@ using UnityEngine;
 ///  - Follow: behind the player's heading (smoothed on its own, so sharp turns and jump/climb tilts don't
 ///    swing it), fixed tilt. Every boardsPerStep boards in hand: one step up, back and a bit more tilt.
 ///  - Fall: freezes where it is at the fall moment — no move, no turn.
-///  - Finish: leaves the player and moves to a view in front of the platform the run ends on — the finish
-///    platform's view point (always centred, whichever place the player got) or the reached bonus platform.
-///    One offset, worked out from that point, so randomly placed bonus platforms need no camera setup of their own.
+///  - Finish: leaves the player and flies to the camera point (CameraPos) of the platform the run ends on —
+///    the finish platform's (same view whichever place the player got) or the reached bonus platform's.
+///    The point's position AND rotation are the view. It lives inside the platform prefab, so randomly placed
+///    bonus platforms carry their view with them.
 /// </summary>
 public class StableCameraFollow : MonoBehaviour
 {
@@ -36,12 +37,8 @@ public class StableCameraFollow : MonoBehaviour
     [SerializeField] int maxSteps = 8;
     [SerializeField] float offsetSmoothSpeed = 2f;
 
-    [Header("Fall and finish")]
-    [Tooltip("Height above the platform's view point the camera aims at in the finish view.")]
-    [SerializeField] float lookHeight = 2f;
-    [Tooltip("Camera position for the finish, in the view point's own axes: Z+ = in front (its blue arrow), " +
-             "Y = up. The same offset is used on the finish and on every bonus platform.")]
-    [SerializeField] Vector3 finishOffset = new Vector3(0f, 6f, 7f);
+    [Header("Finish")]
+    [Tooltip("How fast the camera flies to the platform's camera point.")]
     [SerializeField] float finishMoveSpeed = 3f;
 
     RunManager _run;
@@ -138,20 +135,10 @@ public class StableCameraFollow : MonoBehaviour
 
     void MoveToFinish(float dt)
     {
-        if (_finishPoint == null) return; // level unloaded; the next PlayerSpawned resets the camera
+        if (_finishPoint == null) return; // no camera point (or level unloaded): stays where it stopped following
 
-        // Yaw only, like the runner standing on it (Runner.FinishRoutine).
-        Quaternion facing = Quaternion.Euler(0f, _finishPoint.eulerAngles.y, 0f);
-        Vector3 targetPosition = _finishPoint.position + facing * finishOffset;
-        transform.position = Vector3.Lerp(transform.position, targetPosition, Damp(finishMoveSpeed, dt));
-        LookAt(_finishPoint.position, finishMoveSpeed, dt);
-    }
-
-    void LookAt(Vector3 feet, float speed, float dt)
-    {
-        Vector3 direction = feet + Vector3.up * lookHeight - transform.position;
-        if (direction.sqrMagnitude < 0.0001f) return;
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Damp(speed, dt));
+        transform.position = Vector3.Lerp(transform.position, _finishPoint.position, Damp(finishMoveSpeed, dt));
+        transform.rotation = Quaternion.Slerp(transform.rotation, _finishPoint.rotation, Damp(finishMoveSpeed, dt));
     }
 
     Vector3 FollowPosition() => _target.transform.position + Quaternion.Euler(0f, _yaw, 0f) * _currentOffset;

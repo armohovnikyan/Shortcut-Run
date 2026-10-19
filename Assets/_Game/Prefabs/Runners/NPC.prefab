@@ -208,7 +208,7 @@ NavMeshAgent:
   m_AutoBraking: 0
   m_AutoRepath: 0
   m_Height: 1
-  m_BaseOffset: 0
+  m_BaseOffset: -0.1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!54 &-738052061939968443
@@ -276,9 +276,9 @@ MonoBehaviour:
     boostedSpeed: 9
     rampUpTime: 0.5
     rampDownTime: 1
-  finishWalkSpeed: 5
+  finishWalkSpeed: 10
   finishStopDistance: 0.1
-  dragBackSpeed: 25
+  dragBackSpeed: 0
   boardStackPosition: {fileID: 2746448709709606715}
   boardStackSpace: 0.09
   placeableBoardPrefab: {fileID: 9164896909096688938, guid: b7cbb50f870f2684dbb24475a2fe0816, type: 3}
@@ -307,6 +307,7 @@ MonoBehaviour:
     jumpDuration: 1
     climbDuration: 0.25
     gravity: -20
+    fallMargin: -1
   skinParent: {fileID: 0}
   skinRootName: mixamorig:Hips
   knockoutHeight: 3

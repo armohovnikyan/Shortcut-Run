@@ -31,8 +31,6 @@ public class GameUiViewModel : IDisposable
     public UpgradeViewModel OfflineEarnUpgrade { get; }
     public BuffViewModel RunBoost { get; }
     public BuffViewModel BoardMagnet { get; }
-    /// <summary>Off = the buff buttons are hidden (GameManager's Buffs Enabled switch).</summary>
-    public bool BuffsEnabled => game.BuffsEnabled;
 
     public GameUiViewModel(GameManager game)
     {
@@ -96,6 +94,7 @@ public class GameUiViewModel : IDisposable
 
     private void OnRewardReady(RunResult result, int coins)
     {
+        Hud.BuffsVisible.Value = false;
         Reward.Place.Value = result.Place;
         Reward.Coins.Value = coins;
         Screen.Value = UiScreen.Reward;
@@ -103,6 +102,7 @@ public class GameUiViewModel : IDisposable
 
     private void OnGameOver()
     {
+        Hud.BuffsVisible.Value = false;
         SetBuffsUsable(false);
         ExitConfirmOpen.Value = false;
         Screen.Value = UiScreen.GameOver;
@@ -118,6 +118,7 @@ public class GameUiViewModel : IDisposable
     {
         Hud.Countdown.Value = HudViewModel.CountdownGo;
         Hud.PlaceVisible.Value = true;
+        Hud.BuffsVisible.Value = true;
         SetBuffsUsable(true);
     }
 
