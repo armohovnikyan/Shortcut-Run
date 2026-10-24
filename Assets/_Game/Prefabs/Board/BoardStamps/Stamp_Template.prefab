@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8212268490371340261}
   - component: {fileID: 1803182984160324617}
   m_Layer: 0
-  m_Name: Stamp_Test
+  m_Name: Stamp_Template
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
