@@ -43,6 +43,13 @@ public class Level : MonoBehaviour
     public Transform FinishViewPoint => finishViewPoint;
     public BonusPlatformLayout BonusPlatforms => bonusPlatforms;
 
+    /// <summary>Every jump pad picks one of its own spots at random. Called on each Prepare, so a replay
+    /// (after a fall, or a wiped save) re-rolls them even when it's the same level instance.</summary>
+    public void PlaceJumpPads()
+    {
+        foreach (JumpPadSpots pad in GetComponentsInChildren<JumpPadSpots>(true)) pad.PlaceRandom();
+    }
+
     /// <summary>Metres left to the finish along the track. Lower = further ahead in the race.</summary>
     public float GetRemainingDistance(Vector3 worldPosition) => Route.GetRemainingDistance(worldPosition);
 

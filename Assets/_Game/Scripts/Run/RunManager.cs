@@ -70,6 +70,7 @@ public class RunManager : MonoBehaviour
     {
         Cleanup();
         level = newLevel;
+        level.PlaceJumpPads(); // before the spawn, so nothing starts on a pad that is about to move
 
         spawner = new RunnerSpawner(level, playerPrefab, npcSkins);
         Player player = spawner.SpawnAll();
