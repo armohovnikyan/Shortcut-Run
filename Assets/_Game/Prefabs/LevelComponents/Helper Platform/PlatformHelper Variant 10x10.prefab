@@ -8,6 +8,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 453824391105408598, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 48c4081b10be8314a90b9f1f4cefad09, type: 2}
+    - target: {fileID: 1378674503106632011, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 48c4081b10be8314a90b9f1f4cefad09, type: 2}
     - target: {fileID: 2756710816567257793, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -50,7 +58,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5131747178156220931, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
       propertyPath: m_Name
-      value: PlatformHelper
+      value: PlatformHelper Variant 20x20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017843985249223678, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
+      propertyPath: width
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017843985249223678, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
+      propertyPath: length
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017843985249223678, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
+      propertyPath: thickness
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
