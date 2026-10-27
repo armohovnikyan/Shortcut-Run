@@ -179,7 +179,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.0371352, y: 1.0371352, z: 1.0371352}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2746448709709606715}
@@ -310,6 +310,7 @@ MonoBehaviour:
     fallMargin: -1
   skinParent: {fileID: 0}
   skinRootName: mixamorig:Hips
+  headTopBoneName: mixamorig:HeadTop_End
   knockoutHeight: 3
   knockoutDistance: 12
   knockoutDuration: 1

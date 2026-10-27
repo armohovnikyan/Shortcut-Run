@@ -286,7 +286,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.0371352, y: 1.0371352, z: 1.0371352}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3887681767734861750}
@@ -421,6 +421,7 @@ MonoBehaviour:
     fallMargin: -1
   skinParent: {fileID: 0}
   skinRootName: mixamorig:Hips
+  headTopBoneName: mixamorig:HeadTop_End
   steering:
     turnSpeed: 100
 --- !u!114 &4238872318644363486

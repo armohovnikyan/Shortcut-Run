@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 70, y: 13, z: 170}
+  m_LocalScale: {x: 89.66825, y: 19.715988, z: 380.15375}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -125,3 +125,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e09128fa8fe07a42b7b1956bb98b7b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlaceableBoard
+  gapRatio: 0.06382978
+  popScale: 1.3
+  popDuration: 0.2
