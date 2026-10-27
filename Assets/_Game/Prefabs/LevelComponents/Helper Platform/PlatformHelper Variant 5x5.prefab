@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &5032079899749768606
+--- !u!1001 &4730367999074502846
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -11,11 +11,15 @@ PrefabInstance:
     - target: {fileID: 453824391105408598, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 4300000, guid: 48c4081b10be8314a90b9f1f4cefad09, type: 2}
+      objectReference: {fileID: 4300000, guid: b6688501a707021499cadf325cbb4f3d, type: 2}
+    - target: {fileID: 858832715619592831, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 8a6490c89bb6f8642926416f412c5fda, type: 2}
     - target: {fileID: 1378674503106632011, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 4300000, guid: 48c4081b10be8314a90b9f1f4cefad09, type: 2}
+      objectReference: {fileID: 4300000, guid: b6688501a707021499cadf325cbb4f3d, type: 2}
     - target: {fileID: 2756710816567257793, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -58,19 +62,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5131747178156220931, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
       propertyPath: m_Name
-      value: PlatformHelper Variant 20x20
+      value: PlatformHelper Variant 5x5
       objectReference: {fileID: 0}
     - target: {fileID: 6017843985249223678, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
       propertyPath: width
-      value: 10
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6017843985249223678, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
       propertyPath: length
-      value: 10
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017843985249223678, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
+      propertyPath: segments
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 6017843985249223678, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
       propertyPath: thickness
-      value: 2
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017843985249223678, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
+      propertyPath: topMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 8a6490c89bb6f8642926416f412c5fda, type: 2}
+    - target: {fileID: 6017843985249223678, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
+      propertyPath: uvTilingPerUnit
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

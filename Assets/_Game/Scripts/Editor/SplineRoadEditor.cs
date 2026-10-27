@@ -18,14 +18,16 @@ public class SplineRoadEditor : Editor
         DrawSectionWidths();
 
         EditorGUILayout.Space();
+        if (targets.Length == 1 && !((SplineRoad)target).AutoBake && !((SplineRoad)target).IsBakeCurrent)
+            EditorGUILayout.HelpBox("Auto Bake is off and the road has changed — press Bake Road.", MessageType.Warning);
         if (GUILayout.Button("Bake Road"))
             foreach (Object road in targets)
                 ((SplineRoad)road).Bake();
 
         // Opens dialogs — run after this Inspector finishes drawing, or Unity reports a broken GUI layout.
-        if (GUILayout.Button(new GUIContent("Tidy Road Meshes…",
-                "Removes road meshes nothing uses any more and moves misplaced ones to their level's folder. " +
-                "Asks before changing anything.")))
+        if (GUILayout.Button(new GUIContent("Delete Road Meshes…",
+                "Deletes every mesh file in this level's RoadMeshes folder (used or not) and clears the mesh " +
+                "from its roads. Asks before changing anything.")))
             EditorApplication.delayCall += RoadMeshTidy.Run;
     }
 

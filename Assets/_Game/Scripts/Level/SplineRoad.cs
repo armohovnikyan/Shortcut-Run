@@ -25,6 +25,11 @@ public class SplineRoad : MonoBehaviour
     // rebakes once by itself instead of keeping a mesh made by the old code.
     private const int MeshBuilderVersion = 2; // 2 = end caps on open sections
 
+    [Header("Baking")]
+    [Tooltip("On: the mesh rebuilds by itself whenever a knot, width or field changes. " +
+             "Off: only \"Bake Road\" rebuilds it (smoother when editing big roads).")]
+    [SerializeField] private bool autoBake = true;
+
     [Header("Shape")]
     [Tooltip("Width for a section that has no width of its own yet (e.g. a newly added spline).")]
     [SerializeField, Min(0.1f)] private float defaultWidth = 20f;
@@ -219,7 +224,14 @@ public class SplineRoad : MonoBehaviour
     // a bake, so objects placed on the road only need this one event to follow it.
     public static event System.Action<SplineRoad> Baked;
 
-    private bool rebuildQueued;
+    // NonSerialized: Unity keeps private fields across script reloads but drops the queued delayCall,
+    // so a "true" carried over would block every later rebake.
+    [System.NonSerialized] private bool rebuildQueued;
+
+    public bool AutoBake => autoBake;
+    // False when knots/fields changed since the last bake (shown by the Inspector in manual mode).
+    public bool IsBakeCurrent => bakedMesh != null && bakedHash == ComputeBakeHash()
+                                 && GetComponent<MeshFilter>().sharedMesh == bakedMesh;
 
     // Gives every spline a unique non-zero ID. Also fixes duplicates: a copied spline carries its
     // original's ID along with its other data, so the later one gets a fresh ID.
@@ -301,9 +313,7 @@ public class SplineRoad : MonoBehaviour
             // Prefab assets in the Project window also get OnValidate — never write through those.
             if (Application.isPlaying || EditorUtility.IsPersistent(this)) return;
             EnsureSectionIds(); // even when the mesh is current: splines made before IDs existed need one
-            bool upToDate = bakedMesh != null && bakedHash == ComputeBakeHash()
-                            && GetComponent<MeshFilter>().sharedMesh == bakedMesh;
-            if (!upToDate) Bake();
+            if (autoBake && !IsBakeCurrent) Bake();
         };
     }
 
@@ -385,11 +395,14 @@ public class SplineRoad : MonoBehaviour
     // road still points at the original's mesh (otherwise both would overwrite one file).
     private Mesh GetOrCreateMeshAsset()
     {
-        if (bakedMesh != null && EditorUtility.IsPersistent(bakedMesh) && !IsMeshSharedWithAnotherRoad())
-            return bakedMesh;
-
         string folder = GetMeshFolder();
         if (folder == null) return null;
+
+        // Only reuse a mesh that lives in THIS level's folder: a level copied from another one still
+        // points at the original's mesh, and baking into it would overwrite the other level's road.
+        if (bakedMesh != null && EditorUtility.IsPersistent(bakedMesh) && !IsMeshSharedWithAnotherRoad()
+            && Path.GetDirectoryName(AssetDatabase.GetAssetPath(bakedMesh)).Replace('\\', '/') == folder)
+            return bakedMesh;
 
         if (!AssetDatabase.IsValidFolder(folder))
             AssetDatabase.CreateFolder(Path.GetDirectoryName(folder).Replace('\\', '/'), Path.GetFileName(folder));
@@ -413,7 +426,7 @@ public class SplineRoad : MonoBehaviour
         return false;
     }
 
-    // "<folder of the level prefab>/<prefab name>_Meshes". Falls back to the scene when the road
+    // "<folder of the level prefab>/<prefab name>_RoadMeshes". Falls back to the scene when the road
     // isn't part of a prefab. Null when there's nothing saved on disk to put it next to.
     private string GetMeshFolder()
     {
@@ -423,10 +436,25 @@ public class SplineRoad : MonoBehaviour
         return string.IsNullOrEmpty(ownerPath) ? null : MeshFolderFor(ownerPath);
     }
 
-    public const string MeshFolderSuffix = "_Meshes";
+    public const string MeshFolderSuffix = "_RoadMeshes";
+    // Folder suffix used before the rename — the delete tool still clears these.
+    public const string LegacyMeshFolderSuffix = "_Meshes";
 
-    // The one rule for where a prefab's/scene's road meshes live — also used by the mesh tidy-up tool,
-    // so the two always agree. "Assets/Levels/Level_01.prefab" -> "Assets/Levels/Level_01_Meshes".
+    // Drops the baked mesh from this road (MeshFilter, MeshCollider and the saved reference). The next
+    // bake — "Bake Road", or any spline/field change — makes a fresh mesh in the level's own folder.
+    public void ClearBakedMesh()
+    {
+        bakedMesh = null;
+        bakedHash = 0;
+        GetComponent<MeshFilter>().sharedMesh = null;
+        GetComponent<MeshCollider>().sharedMesh = null;
+        EditorUtility.SetDirty(GetComponent<MeshFilter>());
+        EditorUtility.SetDirty(GetComponent<MeshCollider>());
+        EditorUtility.SetDirty(this);
+    }
+
+    // The one rule for where a prefab's/scene's road meshes live — also used by the mesh delete tool,
+    // so the two always agree. "Assets/Levels/Level_01.prefab" -> "Assets/Levels/Level_01_RoadMeshes".
     public static string MeshFolderFor(string ownerPath)
     {
         string directory = Path.GetDirectoryName(ownerPath).Replace('\\', '/');

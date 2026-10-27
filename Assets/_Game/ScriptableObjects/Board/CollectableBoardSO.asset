@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: CollectableBoardSO
   m_EditorClassIdentifier: Assembly-CSharp::BoardSO
   respawnTime: 2.8
-  stackSpacing: 0.48
+  stackSpacing: 0.58

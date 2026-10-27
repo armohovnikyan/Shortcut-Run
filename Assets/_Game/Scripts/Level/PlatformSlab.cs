@@ -11,8 +11,10 @@ using UnityEditor;
 // U runs across the width and V repeats along the length (local Z), same as the road texture.
 // A cylinder fits inside the same width x length (equal values = round, different = oval).
 // Editor-time only: "Bake Mesh" in the Inspector saves the mesh as an asset and points the
-// MeshFilter/MeshCollider at it. Changing a field does nothing until you bake, so tweaking stays cheap.
-// The file is named after the size, so equal platforms share one and a resize never overwrites another's.
+// MeshFilter/MeshCollider at it. Changing a field only updates a see-through preview (Scene view,
+// while selected) until you bake, so tweaking creates no files.
+// The file is named after the size, so equal platforms share one and a resize never overwrites another's;
+// the bake deletes the mesh it replaced once nothing uses it any more (PlatformSlabEditor).
 // Size comes from the fields below — keep this object at scale 1, or the texture stretches.
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
 public class PlatformSlab : MonoBehaviour
@@ -163,6 +165,34 @@ public class PlatformSlab : MonoBehaviour
     }
 
 #if UNITY_EDITOR
+    // Live preview of the current settings, drawn while selected and not yet baked. Kept in memory only —
+    // nothing is written to disk until "Bake Mesh".
+    [System.NonSerialized] private Mesh previewMesh;
+    [System.NonSerialized] private string previewKey;
+
+    private void OnDrawGizmosSelected()
+    {
+        if (EditorUtility.IsPersistent(this) || IsBakeCurrent) return;
+        string key = MeshPath();
+        if (previewMesh == null) previewMesh = new Mesh { name = "PlatformSlab Preview", hideFlags = HideFlags.HideAndDontSave };
+        if (previewKey != key)
+        {
+            BuildMesh(previewMesh);
+            previewKey = key;
+        }
+        Gizmos.matrix = transform.localToWorldMatrix;
+        Gizmos.color = new Color(1f, 0.8f, 0.2f, 0.35f);
+        Gizmos.DrawMesh(previewMesh);
+        Gizmos.color = new Color(1f, 0.8f, 0.2f, 1f);
+        Gizmos.DrawWireMesh(previewMesh);
+    }
+
+    private void OnDisable()
+    {
+        if (previewMesh != null) DestroyImmediate(previewMesh);
+        previewKey = null;
+    }
+
     // False after a field changed and before the next bake — the Inspector shows a reminder then.
     public bool IsBakeCurrent
     {
