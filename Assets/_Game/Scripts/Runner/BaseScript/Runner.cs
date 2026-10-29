@@ -102,6 +102,8 @@ public abstract class Runner : MonoBehaviour, IRunner
     public event Action<int, int> BoardsPickedUp;
     /// <summary>Boards were taken from a runner we knocked out: how many, and the new stack count.</summary>
     public event Action<int, int> BoardsStolen;
+    /// <summary>One board was laid under the feet (bridging).</summary>
+    public event Action BoardPlaced;
     /// <summary>The board speed boost switched on / off. Also off once the runner stops (finish, fall).</summary>
     public event Action<bool> BoostChanged;
     /// <summary>A foot touched the ground, timed by the run animation. Only while running on the ground.</summary>
@@ -121,7 +123,7 @@ public abstract class Runner : MonoBehaviour, IRunner
         motion.Jumped += fromPad => { Jump(); Jumped?.Invoke(fromPad); };
         motion.ClimbStarted += () => { OnClimbStarted(); LedgeGrabbed?.Invoke(); };
         motion.Landed += CheckBoards;
-        motion.BoardPlaced += () => { CheckBoards(); animations.PlaceBoard(); };
+        motion.BoardPlaced += () => { CheckBoards(); animations.PlaceBoard(); BoardPlaced?.Invoke(); };
         motion.Fell += OnFell;
     }
 

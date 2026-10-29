@@ -404,8 +404,6 @@ MonoBehaviour:
   pitchPerStep: 1.5
   maxSteps: 5
   offsetSmoothSpeed: 2
-  lookHeight: 2
-  finishOffset: {x: 0, y: 6, z: 7}
   finishMoveSpeed: 3
 --- !u!1001 &1535344460
 PrefabInstance:
@@ -581,6 +579,7 @@ GameObject:
   - component: {fileID: 1552032218}
   - component: {fileID: 1552032219}
   - component: {fileID: 1552032220}
+  - component: {fileID: 1552032221}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -606,7 +605,6 @@ MonoBehaviour:
   startingCoins: 0
   boardUpgrade: {fileID: 11400000, guid: dd84c4609da901445b5d6ae15b2bbd0b, type: 2}
   offlineEarnUpgrade: {fileID: 11400000, guid: dccde480af24d8849adfd0c2101ec98b, type: 2}
-  buffsEnabled: 0
   runBoost: {fileID: 0}
   boardMagnet: {fileID: 0}
   logEvents: 1
@@ -655,6 +653,7 @@ MonoBehaviour:
   gameCamera: {fileID: 0}
   gameAudio: {fileID: 0}
   gameEffects: {fileID: 1552032220}
+  gameHaptics: {fileID: 1552032221}
   water: {fileID: 493024271}
 --- !u!114 &1552032220
 MonoBehaviour:
@@ -676,6 +675,23 @@ MonoBehaviour:
   fastRunTrailPrefab: {fileID: 5534260987853260389, guid: 6c11907f9c35de348a97bc9832c1bc69, type: 3}
   crownPrefab: {fileID: 4686513755468095519, guid: 268a7b671bc4b2a40a1682c27e9cf611, type: 3}
   crownHeight: 0.02
+--- !u!114 &1552032221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1552032215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23c4a4b85526a4e4b928fb07d5a694a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameHaptics
+  placeMilliseconds: 12
+  placeStrength: 0.25
+  placeInterval: 0.12
+  pickupMilliseconds: 20
+  pickupStrength: 0.45
 --- !u!1 &1784279040
 GameObject:
   m_ObjectHideFlags: 0

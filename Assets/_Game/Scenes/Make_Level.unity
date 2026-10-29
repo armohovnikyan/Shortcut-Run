@@ -376,6 +376,7 @@ GameObject:
   - component: {fileID: 1552032218}
   - component: {fileID: 1552032219}
   - component: {fileID: 1552032220}
+  - component: {fileID: 1552032221}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -449,6 +450,7 @@ MonoBehaviour:
   gameCamera: {fileID: 1447962336}
   gameAudio: {fileID: 1964494726}
   gameEffects: {fileID: 1552032220}
+  gameHaptics: {fileID: 1552032221}
   water: {fileID: 1337433002}
 --- !u!114 &1552032220
 MonoBehaviour:
@@ -468,6 +470,25 @@ MonoBehaviour:
   pickupEffectPrefab: {fileID: 3893298953588178145, guid: 9cebe06d07ca36041bd3c750669a21b7, type: 3}
   pickupCounterPrefab: {fileID: 8691583111609401195, guid: 08f16925ca8b8ed44b8b619a768ed812, type: 3}
   fastRunTrailPrefab: {fileID: 5534260987853260389, guid: 6c11907f9c35de348a97bc9832c1bc69, type: 3}
+  crownPrefab: {fileID: 0}
+  crownHeight: 0.02
+--- !u!114 &1552032221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1552032215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23c4a4b85526a4e4b928fb07d5a694a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameHaptics
+  placeMilliseconds: 12
+  placeStrength: 0.25
+  placeInterval: 0.12
+  pickupMilliseconds: 20
+  pickupStrength: 0.45
 --- !u!1 &1784279040
 GameObject:
   m_ObjectHideFlags: 0
