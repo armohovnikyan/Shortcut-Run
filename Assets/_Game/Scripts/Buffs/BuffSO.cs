@@ -23,4 +23,7 @@ public abstract class BuffSO : ScriptableObject
 
     /// <summary>Does the buff's effect on the player. Returns how many seconds the effect lasts (0 = instant).</summary>
     public abstract float Apply(Player player);
+
+    /// <summary>Called every tick while the effect lasts (only for an effect longer than 0). Most buffs need nothing here.</summary>
+    public virtual void TickEffect(Player player, float deltaTime) { }
 }

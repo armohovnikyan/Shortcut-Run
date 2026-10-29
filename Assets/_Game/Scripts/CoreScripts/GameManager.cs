@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour
     [Header("Buffs")]
     [SerializeField] private RunBoostSO runBoost;
     [SerializeField] private BoardMagnetSO boardMagnet;
+    [SerializeField] private TimedMagnetSO timedMagnet;
 
     [Tooltip("Print rewards and the wallet to the Console (no UI needed to test).")]
     [SerializeField] private bool logEvents = true;
@@ -38,6 +39,7 @@ public class GameManager : MonoBehaviour
     public Upgrade OfflineEarnUpgrade { get; private set; }
     public Buff RunBoost { get; private set; }
     public Buff BoardMagnet { get; private set; }
+    public Buff TimedMagnet { get; private set; }
     /// <summary>Level the player is on, 1 = first. Levels passed = LevelNumber - 1.</summary>
     public int LevelNumber => Save.Data.levelIndex + 1;
     /// <summary>Coins earned by the last run, waiting to be claimed. 0 = nothing to claim.</summary>
@@ -62,10 +64,11 @@ public class GameManager : MonoBehaviour
         BoardUpgrade = new Upgrade(boardUpgrade, Save);
         OfflineEarnUpgrade = new Upgrade(offlineEarnUpgrade, Save);
 
-        if (runBoost == null || boardMagnet == null)
+        if (runBoost == null || boardMagnet == null || timedMagnet == null)
             Debug.LogError($"{name}: Game Manager is missing a Buff asset — that buff can't be bought or used.", this);
         RunBoost = new Buff(runBoost, Save);
         BoardMagnet = new Buff(boardMagnet, Save);
+        TimedMagnet = new Buff(timedMagnet, Save);
     }
 
     // Buff effects and cooldowns only run while the run does (scaled time: a paused run freezes them too).
@@ -75,6 +78,7 @@ public class GameManager : MonoBehaviour
 
         RunBoost.Tick(Time.deltaTime);
         BoardMagnet.Tick(Time.deltaTime);
+        TimedMagnet.Tick(Time.deltaTime);
     }
 
     private void OnDestroy() => Resume(); // never leave the editor / next scene frozen
@@ -156,6 +160,7 @@ public class GameManager : MonoBehaviour
         if (level == null) return;
         RunBoost.ResetRun();
         BoardMagnet.ResetRun();
+        TimedMagnet.ResetRun();
         runManager.Prepare(level);
         MenuShown?.Invoke();
     }

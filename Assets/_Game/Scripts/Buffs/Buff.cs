@@ -25,6 +25,7 @@ public class Buff
     private float effectLeft;   // seconds of the effect still to go (Active)
     private float timeLeft;     // seconds until Ready again (effect + cooldown)
     private float totalWait;
+    private Player target;      // who the running effect is on (Active only)
 
     /// <summary>Count or phase changed.</summary>
     public event Action Changed;
@@ -54,6 +55,7 @@ public class Buff
         if (!IsReady || player == null) return false;
 
         SetCount(Count - 1);
+        target = player;
         effectLeft = config.Apply(player);
         totalWait = effectLeft + config.Cooldown;
         timeLeft = totalWait;
@@ -69,6 +71,7 @@ public class Buff
         timeLeft -= deltaTime;
         if (timeLeft <= 0f) SetPhase(BuffPhase.Ready);
         else if (Phase == BuffPhase.Active && effectLeft <= 0f) SetPhase(BuffPhase.Cooldown);
+        else if (Phase == BuffPhase.Active && target != null) config.TickEffect(target, deltaTime);
         WaitTicked?.Invoke(WaitLeft);
     }
 
@@ -83,6 +86,7 @@ public class Buff
     private void SetPhase(BuffPhase phase)
     {
         if (phase == BuffPhase.Ready) timeLeft = totalWait = 0f;
+        if (phase != BuffPhase.Active) target = null;
         if (Phase == phase) return;
         Phase = phase;
         Changed?.Invoke();

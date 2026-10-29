@@ -14,6 +14,13 @@ public class BoardMagnetSO : BuffSO
 
     public override float Apply(Player player)
     {
+        Sweep(player);
+        return 0f;
+    }
+
+    /// <summary>Collects every board inside the radius around the player right now.</summary>
+    protected void Sweep(Player player)
+    {
         int count = Physics.OverlapSphereNonAlloc(
             player.transform.position, radius, hits, boardLayers, QueryTriggerInteraction.Collide);
         if (count == hits.Length)
@@ -29,6 +36,5 @@ public class BoardMagnetSO : BuffSO
         }
 
         if (collected > 0) player.CollectBoards(collected);
-        return 0f;
     }
 }

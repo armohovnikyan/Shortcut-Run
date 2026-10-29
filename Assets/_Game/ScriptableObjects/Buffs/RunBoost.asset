@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: RunBoost
   m_EditorClassIdentifier: Assembly-CSharp::RunBoostSO
   saveKey: RunBoost
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 390e253272635fc4885f6a58e3a9335d, type: 3}
   price: 1
   cooldown: 3
   speedBonus: 5
