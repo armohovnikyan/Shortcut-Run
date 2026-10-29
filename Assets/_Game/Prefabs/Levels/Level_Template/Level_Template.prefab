@@ -63,12 +63,12 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8310852493986267231}
+  - {fileID: 4463322341847762967}
   - {fileID: 7276661262408279565}
   - {fileID: 4682762410116515218}
   - {fileID: 5979346896341647107}
   - {fileID: 3194560287606740560}
   - {fileID: 5254730782345297557}
-  - {fileID: 4463322341847762967}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &9213418989101578930
@@ -325,7 +325,7 @@ Transform:
   m_GameObject: {fileID: 5713600179500114430}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 18.12, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -338,7 +338,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5713600179500114430}
-  m_Mesh: {fileID: 4300000, guid: 951167ee5ebf5e24b8f492b019708f11, type: 2}
+  m_Mesh: {fileID: 0}
 --- !u!23 &1699707121678012420
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -416,48 +416,8 @@ MonoBehaviour:
       m_Data: []
   m_Splines:
   - m_EditModeType: 1
-    m_Knots:
-    - Position:
-        x: 0
-        y: 0
-        z: 0
-      TangentIn:
-        x: 0
-        y: 0
-        z: 0
-      TangentOut:
-        x: 0
-        y: 0
-        z: 0
-      Rotation:
-        value:
-          x: 0
-          y: 0
-          z: 0
-          w: 1
-    - Position:
-        x: -1.3484888
-        y: 0
-        z: 26.585533
-      TangentIn:
-        x: 0
-        y: 0
-        z: 0
-      TangentOut:
-        x: 0
-        y: 0
-        z: 0
-      Rotation:
-        value:
-          x: 0
-          y: 0
-          z: 0
-          w: 1
-    m_MetaData:
-    - Mode: 1
-      Tension: 0.5
-    - Mode: 1
-      Tension: 0.5
+    m_Knots: []
+    m_MetaData: []
     m_Closed: 0
     m_IntData:
       m_Data:
@@ -495,7 +455,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 951167ee5ebf5e24b8f492b019708f11, type: 2}
+  m_Mesh: {fileID: 0}
 --- !u!114 &5084066198944738609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -514,8 +474,8 @@ MonoBehaviour:
   uvTilingPerUnit: 1
   topMaterial: {fileID: 2100000, guid: 1d57db5d384e51a47a8d9ae120700f53, type: 2}
   sideMaterial: {fileID: 2100000, guid: 22194c14e68a0644b9ea54af6973937a, type: 2}
-  bakedMesh: {fileID: 4300000, guid: 951167ee5ebf5e24b8f492b019708f11, type: 2}
-  bakedHash: 1095805708
+  bakedMesh: {fileID: 0}
+  bakedHash: 0
 --- !u!1 &5799434269552181206
 GameObject:
   m_ObjectHideFlags: 0
@@ -541,7 +501,7 @@ Transform:
   m_GameObject: {fileID: 5799434269552181206}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7.87912, y: 0, z: -8.453583}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -603,7 +563,7 @@ Transform:
   m_GameObject: {fileID: 8708725094551566396}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7.87912, y: 0, z: -8.453583}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

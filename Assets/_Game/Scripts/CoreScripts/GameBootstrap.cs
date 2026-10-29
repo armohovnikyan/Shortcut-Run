@@ -15,6 +15,8 @@ public class GameBootstrap : MonoBehaviour
     [SerializeField] private GameAudio gameAudio;
     [Tooltip("Plays the world effects (water splash, board pickup, +N, leader crown). Empty = no effects.")]
     [SerializeField] private GameEffects gameEffects;
+    [Tooltip("Short phone taps (placing and picking up boards). Empty = no vibration.")]
+    [SerializeField] private GameHaptics gameHaptics;
     [Tooltip("The scene's water plane. It follows the Game Camera; the splash plays on its surface.")]
     [SerializeField] private InfiniteWater water;
 
@@ -37,6 +39,9 @@ public class GameBootstrap : MonoBehaviour
         if (gameEffects != null && gameManager != null)
             gameEffects.Bind(gameManager, water, gameCamera != null ? gameCamera.transform : null);
         else Debug.LogWarning($"{name}: Game Bootstrap has no Game Effects (or Game Manager) — no world effects.", this);
+
+        if (gameHaptics != null && gameManager != null) gameHaptics.Bind(gameManager);
+        else Debug.LogWarning($"{name}: Game Bootstrap has no Game Haptics (or Game Manager) — no vibration.", this);
 
         if (gameManager == null || ui == null)
         {
