@@ -13,7 +13,6 @@ public class MenuView : MonoBehaviour
     [SerializeField] private UpgradeButtonView offlineEarnUpgrade;
     [SerializeField] private BuffShopButtonView runBoost;
     [SerializeField] private BuffShopButtonView boardMagnet;
-    [SerializeField] private BuffShopButtonView timedMagnet;
 
     public void Bind(GameUiViewModel viewModel)
     {
@@ -35,6 +34,5 @@ public class MenuView : MonoBehaviour
         offlineEarnUpgrade.Bind(viewModel.OfflineEarnUpgrade);
         runBoost.Bind(viewModel.RunBoost);
         boardMagnet.Bind(viewModel.BoardMagnet);
-        timedMagnet.Bind(viewModel.TimedMagnet);
     }
 }

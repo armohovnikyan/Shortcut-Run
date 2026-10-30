@@ -29,7 +29,6 @@ public class HudView : MonoBehaviour
     [SerializeField] private GameObject buffButtonsRoot;
     [SerializeField] private BuffUseButtonView runBoost;
     [SerializeField] private BuffUseButtonView boardMagnet;
-    [SerializeField] private BuffUseButtonView timedMagnet;
 
     private Coroutine hideRoutine;
 
@@ -48,7 +47,6 @@ public class HudView : MonoBehaviour
         viewModel.Hud.BuffsVisible.Bind(visible => buffButtonsRoot.SetActive(visible));
         runBoost.Bind(viewModel.RunBoost);
         boardMagnet.Bind(viewModel.BoardMagnet);
-        timedMagnet.Bind(viewModel.TimedMagnet);
     }
 
     private void ShowCountdown(int seconds)

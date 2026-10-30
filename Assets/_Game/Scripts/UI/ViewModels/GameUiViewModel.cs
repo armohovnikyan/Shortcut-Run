@@ -31,7 +31,6 @@ public class GameUiViewModel : IDisposable
     public UpgradeViewModel OfflineEarnUpgrade { get; }
     public BuffViewModel RunBoost { get; }
     public BuffViewModel BoardMagnet { get; }
-    public BuffViewModel TimedMagnet { get; }
 
     public GameUiViewModel(GameManager game)
     {
@@ -43,7 +42,6 @@ public class GameUiViewModel : IDisposable
         OfflineEarnUpgrade = new UpgradeViewModel(game, game.OfflineEarnUpgrade);
         RunBoost = new BuffViewModel(game, game.RunBoost);
         BoardMagnet = new BuffViewModel(game, game.BoardMagnet);
-        TimedMagnet = new BuffViewModel(game, game.TimedMagnet);
 
         // Current state first: the game may already be showing the menu when the UI is created.
         Coins.Value = game.Wallet.Coins;
@@ -80,7 +78,6 @@ public class GameUiViewModel : IDisposable
         OfflineEarnUpgrade.Dispose();
         RunBoost.Dispose();
         BoardMagnet.Dispose();
-        TimedMagnet.Dispose();
     }
 
     // ---------- Game → UI ----------
@@ -135,7 +132,6 @@ public class GameUiViewModel : IDisposable
     {
         RunBoost.SetRaceActive(usable);
         BoardMagnet.SetRaceActive(usable);
-        TimedMagnet.SetRaceActive(usable);
     }
 
     // ---------- UI → Game (buttons) ----------

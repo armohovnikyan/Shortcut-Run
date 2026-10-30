@@ -404,6 +404,7 @@ MonoBehaviour:
   offlineEarnUpgrade: {fileID: 11400000, guid: dccde480af24d8849adfd0c2101ec98b, type: 2}
   runBoost: {fileID: 11400000, guid: 2c98a9f65699b3646be9a4a15b02a917, type: 2}
   boardMagnet: {fileID: 11400000, guid: 4f722ab9b9c4d724683a778cae83b066, type: 2}
+  timedMagnet: {fileID: 11400000, guid: aef74032c27846f4ab77ead965c84101, type: 2}
   logEvents: 1
 --- !u!4 &1552032217
 Transform:

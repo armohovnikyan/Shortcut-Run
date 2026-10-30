@@ -38,3 +38,6 @@ public class BoardMagnetSO : BuffSO
         if (collected > 0) player.CollectBoards(collected);
     }
 }
+
+/// <summary>Which magnet GameManager hands the magnet button.</summary>
+public enum MagnetKind { OneShot, Timed }
