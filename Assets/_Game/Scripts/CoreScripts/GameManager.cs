@@ -57,6 +57,11 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Save = GameSave.Load(startingCoins);
+        if (Save.Data.levelSalt == 0)
+        {
+            Save.Data.levelSalt = UnityEngine.Random.Range(1, int.MaxValue);
+            Save.Save();
+        }
         Wallet = new Wallet(Save);
         Profile = new PlayerProfile(Save);
         Settings = new GameSettings(Save);
@@ -155,7 +160,7 @@ public class GameManager : MonoBehaviour
 
     // ---------- Flow ----------
 
-    private Level LoadCurrentLevel() => levelLoader.Load(Save.Data.levelIndex);
+    private Level LoadCurrentLevel() => levelLoader.Load(Save.Data.levelIndex, Save.Data.levelSalt);
 
     private void ShowMenu(Level level)
     {

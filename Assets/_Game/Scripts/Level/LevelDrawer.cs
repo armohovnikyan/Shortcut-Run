@@ -1,19 +1,21 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 // Editor tool that lives in a level prefab: reads a road drawing (PNG) and writes it into the level's
 // SplineRoad as splines. Black = road, green dot = a spline starts, blue dot = a spline ends,
-// red dot = finish, brown dot = helper platform, yellow dot = jump pad. The image's up = this object's
+// red dot = finish, brown dot = island, yellow dot = jump pad. The image's up = this object's
 // forward (+Z); the start sits on this object's position.
-// Everything is flat at one height and one width — ramps, widths and platform sizes are edited by hand afterwards.
+// Everything is flat at one height and one width — ramps, widths and island sizes are edited by hand afterwards.
+// The road is traced as free curves. SectionDrawer (a LevelDrawer too) builds it from library sections instead.
 // The work is done by LevelDrawerEditor ("Preview" / "Draw Road" / "Place Objects"); nothing here runs in the game.
 public class LevelDrawer : MonoBehaviour
 {
-    public enum ScaleMode { MetersPerPixel, FitLength }
+    public enum ScaleMode { MetersPerPixel, FitLength, Auto }
 
     [Header("Input")]
     [Tooltip("The road drawing. Black = road, green = spline start, blue = spline end, red = finish, " +
-             "brown = helper platform, yellow = jump pad. Any stroke thickness.")]
+             "brown = island, yellow = jump pad. Any stroke thickness.")]
     public Texture2D roadImage;
     [Tooltip("Road to draw into. Empty = the first SplineRoad in this level.")]
     public SplineRoad road;
@@ -21,14 +23,16 @@ public class LevelDrawer : MonoBehaviour
     [Range(0.05f, 0.95f)] public float darkThreshold = 0.5f;
 
     [Header("Scale")]
-    public ScaleMode scaleMode = ScaleMode.MetersPerPixel;
+    [Tooltip("Auto: the drawn road width is stretched to the road's default width, whatever size the image is. " +
+             "MetersPerPixel: set it by hand (the Inspector then shows the road width it gives and warns when it is off).")]
+    public ScaleMode scaleMode = ScaleMode.Auto;
     [Tooltip("World metres per image pixel.")]
     [Min(0.001f)] public float metersPerPixel = 1f;
     [Tooltip("FitLength: the whole drawn road (all splines together) is scaled to this many metres.")]
     [Min(1f)] public float targetLength = 300f;
 
     [Header("Road")]
-    [Tooltip("Width given to every drawn spline.")]
+    [Tooltip("Smooth mode only: width given to every drawn spline. Sections mode uses the road's default width.")]
     [Min(0.1f)] public float roadWidth = 1f;
     [Tooltip("Height (local Y) of every knot.")]
     public float roadHeight = 1f;
@@ -45,18 +49,22 @@ public class LevelDrawer : MonoBehaviour
     [Min(0f)] public float forkJoinDistance = 0f;
 
     [Header("Objects")]
-    [Tooltip("Placed on every brown dot, top at Road Height (into the level's \"HelperPlatforms\" holder).")]
-    public GameObject helperPlatformPrefab;
+    [Tooltip("Placed on every brown dot, top at Road Height (into the \"Islands\" holder in the level's Track).")]
+    [FormerlySerializedAs("helperPlatformPrefab")]
+    public GameObject islandPrefab;
     [Tooltip("Placed on every yellow dot, facing along the road (into the level's \"JumpPads\" holder).")]
     public GameObject jumpPadPrefab;
     // What "Place Objects" made last time — replaced on the next placing. Moving them by hand is fine.
     [HideInInspector] public List<GameObject> placedObjects = new List<GameObject>();
 
+    // Stroke thickness of the image in pixels, measured by the last Preview (0 = not measured). Used by the Inspector's width check.
+    [HideInInspector] public float measuredStrokePx;
+
     // Filled by the editor's Preview, drawn while selected. Local space of this object.
     [System.NonSerialized] public List<Vector3[]> previewPaths;
     [System.NonSerialized] public List<bool> previewClosed;
     [System.NonSerialized] public Vector3? previewStart, previewFinish;
-    [System.NonSerialized] public List<Vector3> previewPlatforms;
+    [System.NonSerialized] public List<Vector3> previewIslands;
     [System.NonSerialized] public List<Pose> previewJumpPads; // rotation = facing along the road
 
     public SplineRoad FindRoad()
@@ -65,7 +73,10 @@ public class LevelDrawer : MonoBehaviour
         return transform.root.GetComponentInChildren<SplineRoad>(true);
     }
 
-    private void OnDrawGizmosSelected()
+    /// <summary>True: the road is built to the SplineRoad's default width instead of this drawer's Road Width.</summary>
+    public virtual bool UsesRoadDefaultWidth => false;
+
+    protected virtual void OnDrawGizmosSelected()
     {
         if (previewPaths == null) return;
         Gizmos.matrix = transform.localToWorldMatrix;
@@ -84,8 +95,8 @@ public class LevelDrawer : MonoBehaviour
         if (previewFinish.HasValue) Gizmos.DrawSphere(previewFinish.Value, marker);
 
         Gizmos.color = new Color(0.6f, 0.35f, 0.15f);
-        if (previewPlatforms != null)
-            foreach (Vector3 platform in previewPlatforms)
+        if (previewIslands != null)
+            foreach (Vector3 platform in previewIslands)
                 Gizmos.DrawWireCube(platform + Vector3.down * marker * 0.25f, new Vector3(marker * 2f, marker * 0.5f, marker * 2f));
 
         Gizmos.color = Color.yellow;

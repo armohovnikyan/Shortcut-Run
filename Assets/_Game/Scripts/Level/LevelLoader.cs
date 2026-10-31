@@ -8,7 +8,9 @@ using UnityEngine;
 /// </summary>
 public class LevelLoader : MonoBehaviour
 {
-    [Tooltip("Levels in play order. After the last one it starts again from the first.")]
+    [Tooltip("Which level comes when: a fixed list, then a shuffled pool. Used whenever it is set.")]
+    [SerializeField] private LevelSequenceSO sequence;
+    [Tooltip("Old way, used only while Sequence is empty: levels in play order, starting again from the first after the last.")]
     [SerializeField] private Level[] levelPrefabs;
     [Tooltip("Testing: a level already placed in the scene is used instead of the prefab list. " +
              "Replay re-uses it as it is (no fresh copy), so boards taken stay taken.")]
@@ -20,19 +22,23 @@ public class LevelLoader : MonoBehaviour
 
     public event Action<Level> LevelLoaded;
 
-    /// <summary>Loads level `levelIndex` (fresh copy). Past the last level it starts again from the first.</summary>
-    public Level Load(int levelIndex)
+    /// <summary>Loads level `levelIndex` (fresh copy). `salt` is the save's pool-shuffle salt (see LevelSequenceSO).
+    /// Without a Sequence: past the last prefab in the list it starts again from the first.</summary>
+    public Level Load(int levelIndex, int salt = 0)
     {
         if (sceneLevel != null) return Use(sceneLevel);
 
-        if (levelPrefabs == null || levelPrefabs.Length == 0)
+        Level prefab = sequence != null ? sequence.Pick(levelIndex, salt) : null;
+        if (prefab == null && levelPrefabs != null && levelPrefabs.Length > 0)
+            prefab = levelPrefabs[Mathf.Max(0, levelIndex) % levelPrefabs.Length];
+
+        if (prefab == null)
         {
-            Debug.LogError($"{name}: Level Prefabs is empty and no Scene Level is set — nothing to load.", this);
+            Debug.LogError($"{name}: Sequence and Level Prefabs are both empty and no Scene Level is set — nothing to load.", this);
             return null;
         }
 
         Unload();
-        Level prefab = levelPrefabs[Mathf.Max(0, levelIndex) % levelPrefabs.Length];
         return Use(Instantiate(prefab));
     }
 

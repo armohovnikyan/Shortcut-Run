@@ -29,6 +29,7 @@ public static class OriginalTrackBuilder
         public Vector3 position; // the piece's pivot = one of its two ends
         public float yaw;
         public float scale;      // the piece's uniform world scale
+        public bool mirrored;    // the level is flipped left-right: a turn then bends towards +X instead of -X
     }
 
     public static float RoadWidth(float pieceScale) => MeshWidth * pieceScale;
@@ -106,14 +107,15 @@ public static class OriginalTrackBuilder
         // Every turn mesh bends towards its own -X, L and R alike (they differ only in texture).
         float radius = (piece.type.Contains("Short") ? ShortTurnRadius : TurnRadius) * piece.scale;
         float angle = TurnAngle * Mathf.Deg2Rad;
-        var localEnd = new Vector3(-radius * (1f - Mathf.Cos(angle)), 0f, radius * Mathf.Sin(angle));
+        float bend = piece.mirrored ? 1f : -1f; // -1 = towards -X (left), +1 = a mirrored turn bends right
+        var localEnd = new Vector3(bend * radius * (1f - Mathf.Cos(angle)), 0f, radius * Mathf.Sin(angle));
         // Bezier handle for a circular arc: 4/3 * tan(angle / 4) * radius.
         float handle = 4f / 3f * Mathf.Tan(angle / 4f) * radius;
 
         return new Segment
         {
             p0 = piece.position, p1 = piece.position + heading * localEnd,
-            dir0 = forward, dir1 = Quaternion.Euler(0f, piece.yaw - TurnAngle, 0f) * Vector3.forward,
+            dir0 = forward, dir1 = Quaternion.Euler(0f, piece.yaw + bend * TurnAngle, 0f) * Vector3.forward,
             handle0 = handle, handle1 = handle, straight = false,
         };
     }

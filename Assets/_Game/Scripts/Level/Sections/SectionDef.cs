@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 [Flags]
@@ -21,6 +22,7 @@ public class SectionDef
 {
     // Measured from the original meshes before the piece's scale (same numbers as the original importer).
     public const float StraightLength = 15f;
+    public const float ShortStraightLength = 6.6f; // "s": a bit less than half of S
     public const float TurnRadius = 17f;
     public const float ShortTurnRadius = 7f;
     public const float TurnAngle = 45f;
@@ -35,7 +37,7 @@ public class SectionDef
     }
 
     public string name = "Section";
-    [Tooltip("Pieces in order. S = straight, L / R = 45° turn left / right, l / r = short 45° turn. Space separated.")]
+    [Tooltip("Pieces in order. S = straight, s = short straight (a bit under half of S), S5 / S10 / S12.5 = straight of that many metres, L / R = 45° turn left / right, l / r = short 45° turn. Space separated.")]
     public string pieces = "S";
     [Tooltip("Piece scale of the original (1 or 1.5). A level only uses sections of one scale, so the road width never jumps.")]
     public float scale = 1.5f;
@@ -49,6 +51,45 @@ public class SectionDef
     [Tooltip("How many times one level may use it. 0 = no limit.")]
     [Min(0)] public int maxUses;
     public SectionTags tags;
+
+    /// <summary>One piece of a section: a straight of `length` metres, or a 45° arc (`sign` +1 = right, -1 = left).</summary>
+    public struct PieceInfo
+    {
+        public string token;
+        public float length;
+        public float radius;
+        public int sign;
+        public bool IsArc => radius > 0f;
+    }
+
+    /// <summary>The pieces text turned into pieces, at this section's scale. Null (and a warning) on an unknown piece.</summary>
+    public List<PieceInfo> ParsePieces()
+    {
+        var list = new List<PieceInfo>();
+        foreach (string token in (pieces ?? "").Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (token.Length > 1 && token[0] == 'S'
+                && float.TryParse(token.Substring(1), NumberStyles.Float, CultureInfo.InvariantCulture, out float metres) && metres > 0f)
+            {
+                list.Add(new PieceInfo { token = token, length = metres }); // exact metres, not scaled
+                continue;
+            }
+
+            switch (token)
+            {
+                case "S": list.Add(new PieceInfo { token = token, length = StraightLength * scale }); break;
+                case "s": list.Add(new PieceInfo { token = token, length = ShortStraightLength * scale }); break;
+                case "L": list.Add(new PieceInfo { token = token, radius = TurnRadius * scale, sign = -1 }); break;
+                case "R": list.Add(new PieceInfo { token = token, radius = TurnRadius * scale, sign = +1 }); break;
+                case "l": list.Add(new PieceInfo { token = token, radius = ShortTurnRadius * scale, sign = -1 }); break;
+                case "r": list.Add(new PieceInfo { token = token, radius = ShortTurnRadius * scale, sign = +1 }); break;
+                default:
+                    Debug.LogWarning($"Section \"{name}\": unknown piece \"{token}\" (use S, s, S<metres>, L, R, l, r).");
+                    return null;
+            }
+        }
+        return list;
+    }
 
     public float Width => BaseRoadWidth * scale;
 
@@ -81,22 +122,16 @@ public class SectionDef
         length = 0f;
         samples.Add(new Sample { position = position, yaw = yaw });
 
-        foreach (string token in (pieces ?? "").Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries))
+        List<PieceInfo> parsed = ParsePieces();
+        if (parsed == null)
         {
-            switch (token)
-            {
-                case "S":
-                    Straight(StraightLength * scale);
-                    break;
-                case "L": Arc(-1, TurnRadius * scale); break;
-                case "R": Arc(+1, TurnRadius * scale); break;
-                case "l": Arc(-1, ShortTurnRadius * scale); break;
-                case "r": Arc(+1, ShortTurnRadius * scale); break;
-                default:
-                    Debug.LogWarning($"Section \"{name}\": unknown piece \"{token}\" (use S, L, R, l, r).");
-                    samples.Clear();
-                    return;
-            }
+            samples.Clear();
+            return;
+        }
+        foreach (PieceInfo piece in parsed)
+        {
+            if (piece.IsArc) Arc(piece.sign, piece.radius);
+            else Straight(piece.length);
         }
         exit = new Sample { position = position, yaw = yaw };
 

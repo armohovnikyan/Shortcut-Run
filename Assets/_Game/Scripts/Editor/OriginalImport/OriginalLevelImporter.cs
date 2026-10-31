@@ -15,7 +15,7 @@ public class OriginalLevelImporter : EditorWindow
 {
     // Where the road's look (materials, thickness, tiling) is copied from, so imported roads match ours.
     private const string ReferenceLevelPath = "Assets/_Game/Prefabs/Levels/Level_17/Level_17.prefab";
-    private const string IslandPrefabPath = "Assets/_Game/Prefabs/LevelComponents/Helper Platform/PlatformHelper.prefab";
+    private const string IslandPrefabPath = "Assets/_Game/Prefabs/LevelComponents/Islands/Island.prefab";
     private const string StackPrefabFolder = "Assets/_Game/Prefabs/Board/BoardStacks";
     private const string SourcePathPref = "ShortcutRun.OriginalLevelImporter.Source";
 
@@ -67,7 +67,8 @@ public class OriginalLevelImporter : EditorWindow
         }
     }
 
-    public static GameObject Import(string prefabPath)
+    /// <param name="mirrored">Build the level flipped left-right (a mirror twin for the level pool).</param>
+    public static GameObject Import(string prefabPath, bool mirrored = false)
     {
         if (string.IsNullOrEmpty(EditorSceneManager.GetActiveScene().path))
         {
@@ -75,7 +76,7 @@ public class OriginalLevelImporter : EditorWindow
             return null;
         }
 
-        OriginalPrefabNode section = OriginalPrefabReader.Read(prefabPath);
+        OriginalPrefabNode section = OriginalPrefabReader.Read(prefabPath, mirrored);
         OriginalPrefabNode path = section.FindChild("Path");
         if (path == null)
         {
@@ -94,7 +95,7 @@ public class OriginalLevelImporter : EditorWindow
 
         Vector3 start = section.FindChild("Start")?.WorldPosition ?? Vector3.zero;
         Vector3 end = section.FindChild("End")?.WorldPosition ?? Vector3.zero;
-        SplineRoad road = BuildRoad(path, start, end, root.transform);
+        SplineRoad road = BuildRoad(path, start, end, root.transform, mirrored);
         List<TrackPlatform> islands = BuildIslands(placed, root.transform);
         int boards = PlaceStacks(placed, road, islands, root.transform);
         AddMarker("Start", section.FindChild("Start"), root.transform);
@@ -108,7 +109,7 @@ public class OriginalLevelImporter : EditorWindow
 
     // ---------- Road ----------
 
-    private static SplineRoad BuildRoad(OriginalPrefabNode path, Vector3 start, Vector3 end, Transform parent)
+    private static SplineRoad BuildRoad(OriginalPrefabNode path, Vector3 start, Vector3 end, Transform parent, bool mirrored)
     {
         var pieces = new List<OriginalTrackBuilder.Piece>();
         foreach (OriginalPrefabNode node in path.Children)
@@ -117,7 +118,7 @@ public class OriginalLevelImporter : EditorWindow
             pieces.Add(new OriginalTrackBuilder.Piece
             {
                 type = node.BaseName, position = node.WorldPosition, yaw = node.WorldYaw,
-                scale = node.LocalToWorld.lossyScale.x,
+                scale = node.WorldScale, mirrored = mirrored,
             });
         }
         float width = OriginalTrackBuilder.RoadWidth(pieces.Count > 0 ? pieces[0].scale : 1.5f);
@@ -174,7 +175,7 @@ public class OriginalLevelImporter : EditorWindow
             island.transform.SetPositionAndRotation(centre, Quaternion.Euler(0f, node.WorldYaw, 0f));
 
             PlatformSlab slab = island.GetComponentInChildren<PlatformSlab>();
-            float diameter = IslandMeshDiameter * node.LocalToWorld.lossyScale.x;
+            float diameter = IslandMeshDiameter * node.WorldScale;
             var so = new SerializedObject(slab);
             so.FindProperty("shape").enumValueIndex = (int)PlatformSlab.SlabShape.Cylinder;
             so.FindProperty("width").floatValue = diameter;

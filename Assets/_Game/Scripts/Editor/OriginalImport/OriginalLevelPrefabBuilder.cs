@@ -16,30 +16,25 @@ public static class OriginalLevelPrefabBuilder
     private const string TemplatePath = "Assets/_Game/Prefabs/Levels/Level_Template/Level_Template.prefab";
     public const string OutputFolder = "Assets/_Game/Prefabs/Levels/Original";
 
-    // As in the template: NPC spawn points relative to the player spawn.
-    private static readonly Vector3[] NpcSpawnOffsets =
-    {
-        new Vector3(2.33f, 0f, 7.93f), new Vector3(-1.46f, 0f, 11.97f), new Vector3(2.20f, 0f, 15.14f),
-    };
     // As in Level_17: the finish platform sits this far past the road's end, facing back along it.
     private const float FinishBeyondRoadEnd = 2.83f;
 
-    public static Level Build(string sectionPrefabPath, string levelName)
+    public static Level Build(string sectionPrefabPath, string levelName, string outputFolder = OutputFolder, bool mirrored = false)
     {
-        GameObject imported = OriginalLevelImporter.Import(sectionPrefabPath);
+        GameObject imported = OriginalLevelImporter.Import(sectionPrefabPath, mirrored);
         if (imported == null) return null;
 
         GameObject levelGo = CreateFromTemplate(levelName);
         SplineRoad road = MoveTrackInto(levelGo.transform, imported);
         Object.DestroyImmediate(imported);
-        PlaceSpawnsAndFinish(levelGo.transform, road);
+        PlaceSpawnsAndFinish(levelGo.transform, road, mirrored);
 
         var level = levelGo.GetComponent<Level>();
         var so = new SerializedObject(level);
         so.FindProperty("road").objectReferenceValue = road;
         so.ApplyModifiedPropertiesWithoutUndo();
 
-        string folder = $"{OutputFolder}/{levelName}";
+        string folder = $"{outputFolder}/{levelName}";
         EnsureFolder(folder);
         string prefabPath = $"{folder}/{levelName}.prefab";
         PrefabUtility.SaveAsPrefabAssetAndConnect(levelGo, prefabPath, InteractionMode.AutomatedAction);
@@ -85,20 +80,17 @@ public static class OriginalLevelPrefabBuilder
         return road;
     }
 
-    // Player at the road's start facing along it, NPCs a little ahead; finish just past the road's last end.
-    private static void PlaceSpawnsAndFinish(Transform level, SplineRoad road)
+    // The spawn box at the road's start facing along it, fitted to the road; finish just past the road's last end.
+    private static void PlaceSpawnsAndFinish(Transform level, SplineRoad road, bool mirrored)
     {
         Spline first = road.Container.Splines[0];
         first.Evaluate(0f, out float3 startLocal, out float3 startTangent, out _);
         Vector3 start = road.transform.TransformPoint((Vector3)startLocal);
         Quaternion startRot = Quaternion.LookRotation(road.transform.TransformDirection((Vector3)startTangent).normalized, Vector3.up);
 
-        level.Find("PlayerSpawn").SetPositionAndRotation(start, startRot);
-        Transform npcs = level.Find("SpawnPointsForNPC");
-        npcs.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
-        int i = 0;
-        foreach (Transform point in npcs)
-            point.SetPositionAndRotation(start + startRot * NpcSpawnOffsets[i++ % NpcSpawnOffsets.Length], startRot);
+        var box = level.GetComponentInChildren<SpawnBox>(true);
+        box.transform.SetPositionAndRotation(start, startRot);
+        SpawnBoxTool.Fit(box, road);
 
         // The race ends on the last open section; it may be drawn either way, so take the end pointing away.
         Spline last = road.Container.Splines.Last(s => !s.Closed);

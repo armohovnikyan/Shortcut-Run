@@ -26,24 +26,25 @@ public class RunnerSpawner
     /// <summary>Spawns the player and the level's NPCs. Returns the player (null if it couldn't be spawned).</summary>
     public Player SpawnAll()
     {
-        if (playerPrefab == null || level.PlayerSpawn == null)
+        Level.SpawnPlan plan = level.CreateSpawnPlan();
+        if (playerPrefab == null || !plan.valid)
         {
-            Debug.LogError($"{level.name}: can't spawn the player — Player Prefab (RunManager) or Player Spawn (Level) is empty.", level);
+            Debug.LogError($"{level.name}: can't spawn the player — Player Prefab (RunManager) or the level's Spawn Box (or its player point) is empty.", level);
             return null;
         }
-        Player = Spawn(playerPrefab, level.PlayerSpawn);
+        Player = Spawn(playerPrefab, plan.player);
 
         NPC[] prefabs = level.NpcPrefabs;
-        if (level.NpcCount > 0 && (prefabs == null || prefabs.Length == 0))
+        if (plan.npcs.Count > 0 && (prefabs == null || prefabs.Length == 0))
         {
-            Debug.LogWarning($"{level.name}: Npc Count is {level.NpcCount} but Npc Prefabs is empty — no NPCs spawned.", level);
+            Debug.LogWarning($"{level.name}: {plan.npcs.Count} NPCs are due but Npc Prefabs is empty — no NPCs spawned.", level);
             return Player;
         }
 
-        for (int i = 0; i < level.NpcCount; i++)
+        for (int i = 0; i < plan.npcs.Count; i++)
         {
             NPC prefab = prefabs[Random.Range(0, prefabs.Length)];
-            NPC npc = Spawn(prefab, level.NpcSpawns[i]);
+            NPC npc = Spawn(prefab, plan.npcs[i]);
             npc.ApplySkin(NextSkin()); // no skins set = keeps the model baked into the prefab
             npc.SetPath(level.BuildNpcCheckpoints()); // own list = own random side through each loop
         }
@@ -79,9 +80,9 @@ public class RunnerSpawner
         }
     }
 
-    private T Spawn<T>(T prefab, Transform point) where T : Runner
+    private T Spawn<T>(T prefab, Pose pose) where T : Runner
     {
-        T runner = Object.Instantiate(prefab, point.position, point.rotation, level.transform);
+        T runner = Object.Instantiate(prefab, pose.position, pose.rotation, level.transform);
         runner.SetBoardParent(level.transform);
         runners.Add(runner);
         return runner;

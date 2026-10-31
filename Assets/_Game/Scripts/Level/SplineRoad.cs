@@ -78,6 +78,9 @@ public class SplineRoad : MonoBehaviour
         return -1;
     }
 
+    /// <summary>Width a new section gets — the width the level builders (drawer, sections) build to.</summary>
+    public float DefaultWidth => defaultWidth;
+
     public float GetWidth(int splineIndex)
     {
         Spline spline = Container.Splines[splineIndex];

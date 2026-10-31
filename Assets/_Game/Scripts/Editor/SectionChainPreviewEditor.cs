@@ -67,7 +67,7 @@ public class SectionChainPreviewEditor : Editor
     };
 
     // 45° = one letter. Four turns the same way = half circle, so e.g. "L L" is a 90° corner.
-    private static List<SectionDef> SampleLibrary() => new List<SectionDef>
+    internal static List<SectionDef> SampleLibrary() => new List<SectionDef>
     {
         Make("Start",               "S",                0, 1, SectionTags.Start),
         Make("Finish",              "S",                0, 1, SectionTags.Finish),

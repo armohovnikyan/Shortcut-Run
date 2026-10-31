@@ -736,6 +736,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: befd3170c313f7142862ed0938cd8cfa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelLoader
+  sequence: {fileID: 0}
   levelPrefabs:
   - {fileID: 9213418989101578930, guid: be72932575dc3d2458c278c414a87959, type: 3}
   sceneLevel: {fileID: 0}

@@ -13,6 +13,9 @@ public class SaveData
     public int coins;
     /// <summary>Levels passed = index of the level the player is on (0 = first).</summary>
     public int levelIndex;
+    /// <summary>Seeds the shuffled order of the level pool (LevelSequenceSO). 0 = not rolled yet; GameManager rolls
+    /// it once per save, so a wiped save plays the pool in a different order.</summary>
+    public int levelSalt;
     public bool soundOn = true;
     public bool vibrationOn = true;
     public string playerName = PlayerProfile.DefaultName;

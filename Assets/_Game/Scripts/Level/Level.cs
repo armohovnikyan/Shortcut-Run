@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -13,12 +14,10 @@ public class Level : MonoBehaviour
     [SerializeField, Min(1f)] private float checkpointSpacing = 8f;
 
     [Header("Runners")]
-    [SerializeField] private Transform playerSpawn;
-    [SerializeField] private Transform[] npcSpawns;
+    [Tooltip("The starting area. It holds the spawn points (player behind, NPCs ahead) and how many NPCs race.")]
+    [SerializeField] private SpawnBox spawnBox;
     [Tooltip("NPC prefabs to pick from. Each spawned NPC takes a random one.")]
     [SerializeField] private NPC[] npcPrefabs;
-    [Tooltip("How many NPCs race on this level. Capped by the number of NPC spawns.")]
-    [SerializeField, Min(0)] private int npcCount = 4;
 
     [Header("Finish")]
     [SerializeField] private FinishLine finishLine;
@@ -34,10 +33,26 @@ public class Level : MonoBehaviour
     private TrackRoute route;
 
     public TrackRoute Route => route ??= new TrackRoute(road);
-    public Transform PlayerSpawn => playerSpawn;
-    public Transform[] NpcSpawns => npcSpawns;
+    public SpawnBox SpawnBox => spawnBox;
     public NPC[] NpcPrefabs => npcPrefabs;
-    public int NpcCount => npcSpawns == null ? 0 : Mathf.Min(npcCount, npcSpawns.Length);
+
+    /// <summary>Where the runners of one run start: the player first, then the NPCs. Rolled again on every call
+    /// (NPC count between the box's Min and Max, points shaken by the zones' noise). Not valid = nothing to spawn the player at.</summary>
+    public struct SpawnPlan
+    {
+        public bool valid;
+        public Pose player;
+        public List<Pose> npcs;
+    }
+
+    public SpawnPlan CreateSpawnPlan()
+    {
+        if (spawnBox == null) return default;
+        var plan = new SpawnPlan { npcs = new List<Pose>() };
+        plan.valid = spawnBox.Roll(out plan.player, plan.npcs);
+        return plan;
+    }
+
     public FinishLine FinishLine => finishLine;
     public Transform[] StandPoints => standPoints;
     public Transform FinishViewPoint => finishViewPoint;

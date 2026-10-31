@@ -1,0 +1,775 @@
+[
+ {
+  "name": "Final_1",
+  "pieces": 44,
+  "scales": [
+   1.5
+  ],
+  "ends": 8,
+  "forks": 0,
+  "length": 285,
+  "fwd": 183,
+  "lat": -15,
+  "net": 0,
+  "tokens": "S30 Lx2 Rtightx4 Lx1 Rx1 Lx2 Ltightx2 S15 Rx2 S30",
+  "groups": {
+   "path": 46,
+   "pickups": 64,
+   "traps": 3
+  },
+  "total_len": 642
+ },
+ {
+  "name": "Final_10",
+  "pieces": 39,
+  "scales": [
+   1.5
+  ],
+  "ends": 8,
+  "forks": 0,
+  "length": 356,
+  "fwd": 195,
+  "lat": -21,
+  "net": 0,
+  "tokens": "S30 Ltightx2 Rtightx4 S15 Ltightx4 S15 Rtightx4 S30 Lx4 S15 Rx2 S15",
+  "groups": {
+   "path": 42,
+   "pickups": 71,
+   "traps": 3
+  },
+  "total_len": 561
+ },
+ {
+  "name": "Final_11",
+  "pieces": 42,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 720,
+  "fwd": 282,
+  "lat": 51,
+  "net": 0,
+  "tokens": "S30 Rx3 Lx3 Ltightx1 Rtightx1 Lx1 Rx1 Rtightx1 Rx1 Rtightx1 Rx1 Lx4 S30 Lx2 Rx1 Lx1 S30 Lx2 Rtightx2 Rx2 S30 Rx2 Lx2 S30",
+  "groups": {
+   "path": 49,
+   "pickups": 158,
+   "traps": 6
+  },
+  "total_len": 720
+ },
+ {
+  "name": "Final_12",
+  "pieces": 36,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 635,
+  "fwd": 254,
+  "lat": 25,
+  "net": 0,
+  "tokens": "S30 Rx1 Lx3 S15 Lx2 Rx4 S30 Lx1 Rx3 S15 Ltightx3 Rx5 Lx4 S60",
+  "groups": {
+   "path": 54,
+   "pickups": 129,
+   "traps": 5
+  },
+  "total_len": 635
+ },
+ {
+  "name": "Final_13",
+  "pieces": 30,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 513,
+  "fwd": 240,
+  "lat": 15,
+  "net": 0,
+  "tokens": "S30 Rx1 Lx4 Rx5 S15 Ltightx4 S30 Rx5 Lx1 S15 Lx2 S30",
+  "groups": {
+   "path": 35,
+   "pickups": 115,
+   "traps": 4
+  },
+  "total_len": 513
+ },
+ {
+  "name": "Final_14",
+  "pieces": 37,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 413,
+  "fwd": 237,
+  "lat": 6,
+  "net": 0,
+  "tokens": "S30 Rx2 S15 Ltightx4 Rtightx4 Ltightx4 S45 Rtightx4 Ltightx4 S15 Rtightx4 Lx2 S30",
+  "groups": {
+   "path": 39,
+   "pickups": 92,
+   "traps": 4
+  },
+  "total_len": 413
+ },
+ {
+  "name": "Final_15",
+  "pieces": 30,
+  "scales": [
+   1.5
+  ],
+  "ends": 8,
+  "forks": 0,
+  "length": 30,
+  "fwd": 30,
+  "lat": 0,
+  "net": 0,
+  "tokens": "S30",
+  "groups": {
+   "path": 33,
+   "pickups": 80,
+   "traps": 3
+  },
+  "total_len": 429
+ },
+ {
+  "name": "Final_16",
+  "pieces": 14,
+  "scales": [
+   1.5
+  ],
+  "ends": 8,
+  "forks": 0,
+  "length": 30,
+  "fwd": 30,
+  "lat": 0,
+  "net": 0,
+  "tokens": "S30",
+  "groups": {
+   "path": 34,
+   "pickups": 77,
+   "traps": 3
+  },
+  "total_len": 237
+ },
+ {
+  "name": "Final_17",
+  "pieces": 20,
+  "scales": [
+   1.5
+  ],
+  "ends": 8,
+  "forks": 0,
+  "length": 30,
+  "fwd": 30,
+  "lat": 0,
+  "net": 0,
+  "tokens": "S30",
+  "groups": {
+   "path": 40,
+   "pickups": 127,
+   "traps": 5
+  },
+  "total_len": 300
+ },
+ {
+  "name": "Final_1_Short",
+  "pieces": 33,
+  "scales": [
+   1.5
+  ],
+  "ends": 8,
+  "forks": 0,
+  "length": 157,
+  "fwd": 117,
+  "lat": -36,
+  "net": 0,
+  "tokens": "S30 Rx1 Lx1 Ltightx2 S15 Rx2 S15",
+  "groups": {
+   "path": 35,
+   "pickups": 53,
+   "traps": 3
+  },
+  "total_len": 474
+ },
+ {
+  "name": "Final_2",
+  "pieces": 49,
+  "scales": [
+   1.5
+  ],
+  "ends": 14,
+  "forks": 0,
+  "length": 45,
+  "fwd": 45,
+  "lat": 0,
+  "net": 0,
+  "tokens": "S45",
+  "groups": {
+   "path": 55,
+   "pickups": 72,
+   "traps": 5
+  },
+  "total_len": 751
+ },
+ {
+  "name": "Final_2_Short",
+  "pieces": 28,
+  "scales": [
+   1.5
+  ],
+  "ends": 14,
+  "forks": 0,
+  "length": 45,
+  "fwd": 45,
+  "lat": 0,
+  "net": 0,
+  "tokens": "S45",
+  "groups": {
+   "path": 32,
+   "pickups": 42,
+   "traps": 4
+  },
+  "total_len": 426
+ },
+ {
+  "name": "Final_3",
+  "pieces": 39,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 650,
+  "fwd": 332,
+  "lat": 157,
+  "net": 0,
+  "tokens": "S30 Lx1 Rx2 Rtightx2 Ltightx1 S15 Lx2 Ltightx1 Lx1 Rtightx1 Rx4 Lx5 Rtightx2 Rx2 Lx1 Rx2 Lx3 Ltightx2 Rx2 S30",
+  "groups": {
+   "path": 48,
+   "pickups": 122,
+   "traps": 7
+  },
+  "total_len": 650
+ },
+ {
+  "name": "Final_3_Short",
+  "pieces": 27,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 457,
+  "fwd": 260,
+  "lat": 55,
+  "net": 0,
+  "tokens": "S30 Lx1 Rx2 Rtightx2 Ltightx1 S15 Lx2 Ltightx1 Lx1 Rtightx1 Rx4 Lx5 Rx2 S30",
+  "groups": {
+   "path": 36,
+   "pickups": 94,
+   "traps": 6
+  },
+  "total_len": 457
+ },
+ {
+  "name": "Final_3_TutoVersion",
+  "pieces": 27,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 457,
+  "fwd": 260,
+  "lat": 55,
+  "net": 0,
+  "tokens": "S30 Lx1 Rx2 Rtightx2 Ltightx1 S15 Lx2 Ltightx1 Lx1 Rtightx1 Rx4 Lx5 Rx2 S30",
+  "groups": {
+   "path": 38,
+   "pickups": 94
+  },
+  "total_len": 457
+ },
+ {
+  "name": "Final_4",
+  "pieces": 42,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 671,
+  "fwd": 317,
+  "lat": 128,
+  "net": 0,
+  "tokens": "S30 Rx1 Rtightx1 Ltightx1 Lx5 Rtightx3 Rx1 S15 Lx1 Rx3 S30 Rx1 Lx3 S15 Rtightx2 Lx1 Ltightx1 Lx1 Ltightx1 Rx1 Rtightx1 Rx3 Ltightx1 Lx2 S30",
+  "groups": {
+   "path": 53,
+   "pickups": 101,
+   "traps": 7
+  },
+  "total_len": 671
+ },
+ {
+  "name": "Final_4_Short",
+  "pieces": 28,
+  "scales": [
+   1.5
+  ],
+  "ends": 4,
+  "forks": 0,
+  "length": 383,
+  "fwd": 240,
+  "lat": 66,
+  "net": 0,
+  "tokens": "S30 Rx1 Rtightx1 Ltightx1 Lx3 Rtightx4 Lx1 Ltightx1 Lx1 Ltightx1 Rx1 Rtightx1 Rx3 Ltightx1 Lx2 S30",
+  "groups": {
+   "path": 34,
+   "pickups": 57,
+   "traps": 3
+  },
+  "total_len": 413
+ },
+ {
+  "name": "Final_5",
+  "pieces": 59,
+  "scales": [
+   1.5
+  ],
+  "ends": 16,
+  "forks": 0,
+  "length": 45,
+  "fwd": 45,
+  "lat": 0,
+  "net": 0,
+  "tokens": "S45",
+  "groups": {
+   "path": 72,
+   "pickups": 137,
+   "traps": 5
+  },
+  "total_len": 911
+ },
+ {
+  "name": "Final_5_Short",
+  "pieces": 23,
+  "scales": [
+   1.5
+  ],
+  "ends": 6,
+  "forks": 0,
+  "length": 45,
+  "fwd": 45,
+  "lat": 0,
+  "net": 0,
+  "tokens": "S45",
+  "groups": {
+   "path": 26,
+   "pickups": 96,
+   "traps": 5
+  },
+  "total_len": 404
+ },
+ {
+  "name": "Final_6",
+  "pieces": 47,
+  "scales": [
+   1.5
+  ],
+  "ends": 8,
+  "forks": 0,
+  "length": 735,
+  "fwd": 253,
+  "lat": 242,
+  "net": 0,
+  "tokens": "S30 Ltightx1 Rx4 Lx2 Ltightx1 Lx1 S30 Rx1 Ltightx1 Rtightx1 Rx3 Ltightx1 Lx1 Ltightx1 Lx1 Rx1 Rtightx1 Rx3 Lx1 Rx2 Lx1 Ltightx2 Lx1 S30 Lx1 Rx2 Lx2 S30",
+  "groups": {
+   "path": 48,
+   "pickups": 130,
+   "traps": 5
+  },
+  "total_len": 780
+ },
+ {
+  "name": "Final_6_Short",
+  "pieces": 22,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 363,
+  "fwd": 204,
+  "lat": 102,
+  "net": 0,
+  "tokens": "S30 Ltightx1 Rx4 Lx2 Ltightx1 Lx1 S30 Rx4 Ltightx2 Lx1 S30",
+  "groups": {
+   "path": 34,
+   "pickups": 64,
+   "traps": 5
+  },
+  "total_len": 363
+ },
+ {
+  "name": "Final_7",
+  "pieces": 59,
+  "scales": [
+   1.5
+  ],
+  "ends": 8,
+  "forks": 0,
+  "length": 85,
+  "fwd": 81,
+  "lat": 15,
+  "net": 0,
+  "tokens": "S30 Rx1 Lx1 S15",
+  "groups": {
+   "path": 87,
+   "pickups": 190,
+   "traps": 5
+  },
+  "total_len": 1126
+ },
+ {
+  "name": "Final_8",
+  "pieces": 47,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 523,
+  "fwd": 243,
+  "lat": 111,
+  "net": 0,
+  "tokens": "S30 Ltightx2 Rtightx4 S15 Ltightx4 S15 Rtightx4 S45 Rx1 Lx3 S15 Ltightx2 Rtightx4 S15 Ltightx4 S15 Rtightx4 S15 Ltightx2 S30",
+  "groups": {
+   "path": 50,
+   "pickups": 91,
+   "traps": 5
+  },
+  "total_len": 523
+ },
+ {
+  "name": "Final_9",
+  "pieces": 49,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 563,
+  "fwd": 309,
+  "lat": -6,
+  "net": 0,
+  "tokens": "S30 Ltightx2 Rtightx4 S15 Ltightx4 S15 Rtightx4 S30 Lx4 S15 Rx2 S15 Ltightx2 Rtightx4 S15 Ltightx4 S15 Rtightx4 S15 Ltightx2 S30",
+  "groups": {
+   "path": 53,
+   "pickups": 84,
+   "traps": 6
+  },
+  "total_len": 563
+ },
+ {
+  "name": "StartZone",
+  "pieces": 5,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 85,
+  "fwd": 81,
+  "lat": 15,
+  "net": 0,
+  "tokens": "S30 Rx1 Lx1 S15",
+  "groups": {},
+  "total_len": 85
+ },
+ {
+  "name": "StartZoneBonus",
+  "pieces": 1,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 15,
+  "fwd": 15,
+  "lat": 0,
+  "net": 0,
+  "tokens": "S15",
+  "groups": {},
+  "total_len": 15
+ },
+ {
+  "name": "Test_10_Alex",
+  "pieces": 58,
+  "scales": [
+   1.5
+  ],
+  "ends": 8,
+  "forks": 0,
+  "length": 180,
+  "fwd": 117,
+  "lat": -15,
+  "net": 0,
+  "tokens": "S30 Rtightx2 S15 Ltightx2 S15 Ltightx2 S15 Rx2 S15",
+  "groups": {
+   "path": 59,
+   "pickups": 76,
+   "traps": 4
+  },
+  "total_len": 650
+ },
+ {
+  "name": "Test_10_Alex_Short",
+  "pieces": 45,
+  "scales": [
+   1.5
+  ],
+  "ends": 8,
+  "forks": 0,
+  "length": 180,
+  "fwd": 117,
+  "lat": -15,
+  "net": 0,
+  "tokens": "S30 Rtightx2 S15 Ltightx2 S15 Ltightx2 S15 Rx2 S15",
+  "groups": {
+   "path": 49,
+   "pickups": 58,
+   "traps": 5
+  },
+  "total_len": 509
+ },
+ {
+  "name": "Test_11_Alex",
+  "pieces": 48,
+  "scales": [
+   1.0
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 407,
+  "fwd": 230,
+  "lat": 51,
+  "net": 0,
+  "tokens": "S30 Lx1 Rx2 Rtightx1 S10 Rtightx2 Ltightx2 S10 Ltightx2 S20 Ltightx2 S10 Rtightx2 Rx2 S10 Ltightx4 S20 Rx2 S20 Rx2 S10 Ltightx2 Rtightx2 Ltightx3 Rtightx1 S20",
+  "groups": {
+   "path": 49,
+   "pickups": 78,
+   "traps": 5
+  },
+  "total_len": 407
+ },
+ {
+  "name": "Test_12_Alex",
+  "pieces": 59,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 724,
+  "fwd": 320,
+  "lat": 4,
+  "net": 0,
+  "tokens": "S30 Lx2 S15 Rx1 Rtightx3 S45 Ltightx2 S30 Ltightx2 S30 Ltightx2 Rtightx2 S15 Rtightx2 S15 Rx2 Ltightx2 S15 Rtightx2 S15 Rtightx2 Ltightx2 S30 Ltightx2 S30 Ltightx2 S30 Rx1 Rtightx1 S15 Rx1 Rtightx1 Ltightx2 S30",
+  "groups": {
+   "path": 62,
+   "pickups": 106,
+   "traps": 5
+  },
+  "total_len": 724
+ },
+ {
+  "name": "Test_13_Alex",
+  "pieces": 54,
+  "scales": [
+   1.5
+  ],
+  "ends": 22,
+  "forks": 0,
+  "length": 120,
+  "fwd": 70,
+  "lat": 62,
+  "net": 0,
+  "tokens": "S30 Rtightx2 S30 Lx1 Ltightx1 S15",
+  "groups": {
+   "path": 56,
+   "pickups": 133,
+   "traps": 6
+  },
+  "total_len": 850
+ },
+ {
+  "name": "Test_13_Short",
+  "pieces": 35,
+  "scales": [
+   1.5
+  ],
+  "ends": 14,
+  "forks": 0,
+  "length": 188,
+  "fwd": 111,
+  "lat": 108,
+  "net": 0,
+  "tokens": "S30 Rtightx2 S15 Lx1 Ltightx1 Rx2 S15 Lx1 Ltightx1 S15",
+  "groups": {
+   "path": 33,
+   "pickups": 76
+  },
+  "total_len": 449
+ },
+ {
+  "name": "Test_14_Alex",
+  "pieces": 54,
+  "scales": [
+   1.5
+  ],
+  "ends": 6,
+  "forks": 0,
+  "length": 73,
+  "fwd": 70,
+  "lat": -11,
+  "net": 0,
+  "tokens": "S30 Ltightx1 Rx1 S15",
+  "groups": {
+   "path": 59,
+   "pickups": 185,
+   "obstacles": 20,
+   "traps": 6
+  },
+  "total_len": 732
+ },
+ {
+  "name": "Test_14_Alex_Short",
+  "pieces": 39,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 527,
+  "fwd": 249,
+  "lat": 72,
+  "net": 0,
+  "tokens": "S30 Ltightx1 Rx1 Rtightx2 S15 Lx5 Rx4 Ltightx1 S30 Rtightx2 S15 Rtightx2 S15 Ltightx2 S30 Ltightx2 S30 Rtightx2 Ltightx2 S30",
+  "groups": {
+   "path": 42,
+   "pickups": 108,
+   "obstacles": 1,
+   "traps": 6
+  },
+  "total_len": 527
+ },
+ {
+  "name": "Test_15_Alex",
+  "pieces": 70,
+  "scales": [
+   1.5
+  ],
+  "ends": 30,
+  "forks": 0,
+  "length": 203,
+  "fwd": 111,
+  "lat": 123,
+  "net": 0,
+  "tokens": "S30 Rtightx2 S30 Lx1 Ltightx1 Rx2 S15 Lx1 Ltightx1 S15",
+  "groups": {
+   "path": 73,
+   "pickups": 231,
+   "obstacles": 23,
+   "traps": 6
+  },
+  "total_len": 1036
+ },
+ {
+  "name": "Test_16_Alex",
+  "pieces": 82,
+  "scales": [
+   1.0,
+   1.5
+  ],
+  "ends": 24,
+  "forks": 0,
+  "length": 0,
+  "fwd": 0,
+  "lat": 0,
+  "net": 0,
+  "tokens": "",
+  "groups": {
+   "path": 87,
+   "pickups": 251,
+   "obstacles": 21
+  },
+  "total_len": 1128
+ },
+ {
+  "name": "Test_8_Alex",
+  "pieces": 31,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 485,
+  "fwd": 270,
+  "lat": 30,
+  "net": 0,
+  "tokens": "S45 Lx2 Rx4 S45 Ltightx2 S15 Ltightx2 S45 Rx3 Lx1 Rx2 S30 Ltightx2 S15",
+  "groups": {
+   "path": 41,
+   "pickups": 41,
+   "traps": 5
+  },
+  "total_len": 485
+ },
+ {
+  "name": "Test_9_Alex",
+  "pieces": 36,
+  "scales": [
+   1.0
+  ],
+  "ends": 2,
+  "forks": 2,
+  "length": 307,
+  "fwd": 132,
+  "lat": 54,
+  "net": 0,
+  "tokens": "S30 Lx1 Rx1 Rtightx2 S20 Ltightx4 S20 Rtightx2 S20 Rx2 S10 Rx2 S10 Ltightx2 S10 Ltightx3 Rtightx1 S30",
+  "groups": {
+   "path": 36,
+   "pickups": 43,
+   "traps": 4
+  },
+  "total_len": 317
+ },
+ {
+  "name": "Tuto_test",
+  "pieces": 29,
+  "scales": [
+   1.5
+  ],
+  "ends": 2,
+  "forks": 0,
+  "length": 391,
+  "fwd": 257,
+  "lat": 0,
+  "net": 0,
+  "tokens": "S30 Rtightx2 Lx1 Ltightx2 Lx1 Rtightx2 S15 Ltightx1 Lx1 Rx2 Rtightx1 Rx1 Lx2 S15 Rtightx2 Lx1 Ltightx2 Lx1 Rtightx2 S15",
+  "groups": {
+   "path": 31,
+   "pickups": 35
+  },
+  "total_len": 391
+ }
+]

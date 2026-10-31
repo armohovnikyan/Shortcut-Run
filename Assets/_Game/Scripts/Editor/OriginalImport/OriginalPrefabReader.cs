@@ -23,6 +23,9 @@ public class OriginalPrefabNode
 
     public Vector3 WorldPosition => LocalToWorld.GetPosition();
 
+    // Uniform world scale; measured on a direction because lossyScale is unreliable under a mirror.
+    public float WorldScale => LocalToWorld.MultiplyVector(Vector3.right).magnitude;
+
     // Heading around Y only — every piece in the original lies flat.
     public float WorldYaw
     {
@@ -44,7 +47,17 @@ public static class OriginalPrefabReader
 {
     private static readonly Regex DocumentHeader = new Regex(@"^--- !u!(\d+) &(-?\d+)", RegexOptions.Multiline);
 
-    public static OriginalPrefabNode Read(string path)
+    /// <summary>mirrored = the whole prefab flipped left-right (X axis): every position, heading and island centre
+    /// comes out mirrored. Done with an invisible parent that has scale (-1, 1, 1), so nothing else has to care.
+    /// What does have to care is a piece's own bend direction (see OriginalTrackBuilder.Piece.mirrored).</summary>
+    public static OriginalPrefabNode Read(string path, bool mirrored = false)
+    {
+        OriginalPrefabNode root = ReadTree(path);
+        if (mirrored && root != null) root.Parent = new OriginalPrefabNode { Name = "Mirror", LocalScale = new Vector3(-1f, 1f, 1f) };
+        return root;
+    }
+
+    private static OriginalPrefabNode ReadTree(string path)
     {
         string text = File.ReadAllText(path);
         var names = new Dictionary<long, string>();          // GameObject id -> name
