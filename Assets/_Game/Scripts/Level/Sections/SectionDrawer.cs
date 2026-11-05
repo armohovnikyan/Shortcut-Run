@@ -14,12 +14,10 @@ public class SectionDrawer : LevelDrawer
     [Tooltip("The sections the road may be built from. Fill Sample Library adds a starter set. " +
              "Start / Finish tags, min level and max uses are ignored here.")]
     public List<SectionDef> library = new List<SectionDef>();
-    [Tooltip("Only sections of this piece scale are used (1.5 = the default road width).")]
-    public float sectionScale = 1.5f;
     [Tooltip("A section further than this from the drawing is flagged. 0 = 0.6 × road width.")]
     [Min(0f)] public float flagDeviation;
 
-    public override bool UsesRoadDefaultWidth => true;
+    public override bool JoinsForksAtSides => false;
 
     /// <summary>One section of the built road, in this object's local space (x, z).</summary>
     public class PlacedSection

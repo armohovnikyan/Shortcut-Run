@@ -24,7 +24,8 @@ public class LevelDrawer : MonoBehaviour
 
     [Header("Scale")]
     [Tooltip("Auto: the drawn road width is stretched to the road's default width, whatever size the image is. " +
-             "MetersPerPixel: set it by hand (the Inspector then shows the road width it gives and warns when it is off).")]
+             "MetersPerPixel: set it by hand (how big the layout is; the road width is the Road Width field). " +
+             "FitLength: the whole drawing is scaled to Target Length.")]
     public ScaleMode scaleMode = ScaleMode.Auto;
     [Tooltip("World metres per image pixel.")]
     [Min(0.001f)] public float metersPerPixel = 1f;
@@ -32,8 +33,9 @@ public class LevelDrawer : MonoBehaviour
     [Min(1f)] public float targetLength = 300f;
 
     [Header("Road")]
-    [Tooltip("Smooth mode only: width given to every drawn spline. Sections mode uses the road's default width.")]
-    [Min(0.1f)] public float roadWidth = 1f;
+    [Tooltip("Width given to every drawn spline. The Section Drawer also scales its sections to it (sections of the " +
+             "default road are 9.17 m wide). Auto scale stretches the drawn stroke to this width.")]
+    [Min(0.1f)] public float roadWidth = 9.1695f;
     [Tooltip("Height (local Y) of every knot.")]
     public float roadHeight = 1f;
 
@@ -52,8 +54,13 @@ public class LevelDrawer : MonoBehaviour
     [Tooltip("Placed on every brown dot, top at Road Height (into the \"Islands\" holder in the level's Track).")]
     [FormerlySerializedAs("helperPlatformPrefab")]
     public GameObject islandPrefab;
-    [Tooltip("Placed on every yellow dot, facing along the road (into the level's \"JumpPads\" holder).")]
+    [Tooltip("Placed on every yellow dot, facing along the road, its top surface level with the road's (into the level's \"JumpPads\" holder).")]
     public GameObject jumpPadPrefab;
+    [Tooltip("The level's finish platform, moved to the red dot and turned to face back along the road. " +
+             "Empty = the child of the level root named \"FinishPlatform...\".")]
+    public Transform finishPlatform;
+    [Tooltip("How far past the red dot (along the road) the finish platform sits. As in the original levels.")]
+    [Min(0f)] public float finishBeyondEnd = 2.83f;
     // What "Place Objects" made last time — replaced on the next placing. Moving them by hand is fine.
     [HideInInspector] public List<GameObject> placedObjects = new List<GameObject>();
 
@@ -75,6 +82,11 @@ public class LevelDrawer : MonoBehaviour
 
     /// <summary>True: the road is built to the SplineRoad's default width instead of this drawer's Road Width.</summary>
     public virtual bool UsesRoadDefaultWidth => false;
+
+
+    /// <summary>True: forks are joined by stretching the arms to the side of the single road. False: the forks are left
+    /// as drawn, for a builder that makes its own (the Section Drawer).</summary>
+    public virtual bool JoinsForksAtSides => true;
 
     protected virtual void OnDrawGizmosSelected()
     {

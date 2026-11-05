@@ -27,9 +27,11 @@ public class LevelDrawerEditor : Editor
         public List<DrawnPath> paths;
         public List<DrawnPath> smoothed; // every traced line after the forks are joined, before knots are thinned out
         public float roadWidth;
+        public float joinDistance; // metres: line ends closer than this around one end belong to a fork
         public Vector3? start, finish;
         public readonly List<Vector3> islands = new List<Vector3>();
         public readonly List<Pose> jumpPads = new List<Pose>();
+        public Pose? finishPose; // where the finish platform goes (past the red dot, facing back along the road)
         public string summary;
     }
 
@@ -38,7 +40,7 @@ public class LevelDrawerEditor : Editor
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-        DrawPropertiesExcluding(serializedObject, "m_Script");
+        DrawPropertiesExcluding(serializedObject, HiddenFields((LevelDrawer)target));
         serializedObject.ApplyModifiedProperties();
 
         var drawer = (LevelDrawer)target;
@@ -55,9 +57,9 @@ public class LevelDrawerEditor : Editor
             if (GUILayout.Button("Preview")) summary = Preview(drawer);
             using (new EditorGUI.DisabledScope(road == null))
                 if (GUILayout.Button("Draw Road")) Draw(drawer, road);
-            using (new EditorGUI.DisabledScope(drawer.islandPrefab == null && drawer.jumpPadPrefab == null))
+            using (new EditorGUI.DisabledScope(!CanPlaceObjects(drawer)))
                 if (GUILayout.Button(new GUIContent("Place Objects",
-                        "Islands on brown dots, jump pads on yellow dots. Replaces what the last placing made.")))
+                        "Islands on brown dots, jump pads on yellow dots, the finish platform to the red dot. Replaces what the last placing made.")))
                     PlaceObjects(drawer);
         }
 
@@ -65,10 +67,21 @@ public class LevelDrawerEditor : Editor
         if (!string.IsNullOrEmpty(summary)) EditorGUILayout.HelpBox(summary, MessageType.None);
     }
 
+    // Fields not shown: the script, plus the scale values the chosen Scale Mode doesn't use.
+    internal static string[] HiddenFields(LevelDrawer drawer, params string[] more)
+    {
+        var hidden = new List<string> { "m_Script" };
+        hidden.AddRange(more);
+        if (drawer.scaleMode != LevelDrawer.ScaleMode.MetersPerPixel) hidden.Add("metersPerPixel");
+        if (drawer.scaleMode != LevelDrawer.ScaleMode.FitLength) hidden.Add("targetLength");
+        return hidden.ToArray();
+    }
+
     // Whatever scale is set by hand, show the road width it gives so a typo doesn't quietly build a squashed level.
     private static void DrawWidthCheck(LevelDrawer drawer, SplineRoad road)
     {
-        if (drawer.measuredStrokePx <= 0f || road == null || drawer.scaleMode != LevelDrawer.ScaleMode.MetersPerPixel) return;
+        if (drawer.measuredStrokePx <= 0f || road == null || !drawer.JoinsForksAtSides ||
+            drawer.scaleMode != LevelDrawer.ScaleMode.MetersPerPixel) return;
         float drawn = drawer.measuredStrokePx * drawer.metersPerPixel, wanted = BuildWidth(drawer, road);
         if (Mathf.Abs(drawn - wanted) <= wanted * 0.03f)
         {
@@ -114,11 +127,11 @@ public class LevelDrawerEditor : Editor
         Drawing drawing = Build(drawer);
         summary = drawing.summary;
         if (drawing.paths == null || drawing.paths.Count == 0) return;
-        if (WriteRoad(drawer, road, drawing.paths)) summary = Preview(drawer);
+        if (WriteRoad(drawer, road, drawing.paths, drawing.roadWidth)) summary = Preview(drawer);
     }
 
     // Replaces the road's splines with the drawn paths (one Undo step) and bakes the road. False = cancelled.
-    internal static bool WriteRoad(LevelDrawer drawer, SplineRoad road, List<DrawnPath> paths)
+    internal static bool WriteRoad(LevelDrawer drawer, SplineRoad road, List<DrawnPath> paths, float width)
     {
         SplineContainer container = road.Container;
         if (container.Splines.Count > 0 && !EditorUtility.DisplayDialog("Draw Road",
@@ -153,7 +166,7 @@ public class LevelDrawerEditor : Editor
         EditorUtility.SetDirty(container);
         PrefabUtility.RecordPrefabInstancePropertyModifications(container);
 
-        for (int i = 0; i < container.Splines.Count; i++) road.SetWidth(i, BuildWidth(drawer, road));
+        for (int i = 0; i < container.Splines.Count; i++) road.SetWidth(i, width);
         road.Bake();
         return true;
     }
@@ -174,9 +187,11 @@ public class LevelDrawerEditor : Editor
     internal static string PlaceObjects(LevelDrawer drawer, Drawing drawing)
     {
         drawer.placedObjects.RemoveAll(o => o == null); // deleted by hand meanwhile
+        Transform platform = FindFinishPlatform(drawer);
         if (drawer.placedObjects.Count > 0 && !EditorUtility.DisplayDialog("Place Objects",
                 $"Remove the {drawer.placedObjects.Count} object(s) placed last time (moved or not) and place " +
-                $"{drawing.islands.Count} island(s) + {drawing.jumpPads.Count} jump pad(s) from the image?\n\n" +
+                $"{drawing.islands.Count} island(s) + {drawing.jumpPads.Count} jump pad(s)" +
+                $"{(platform != null && drawing.finishPose.HasValue ? " and move the finish platform" : "")} from the image?\n\n" +
                 "Undo (Ctrl+Z) brings the old ones back.", "Replace", "Cancel"))
             return null;
 
@@ -197,22 +212,63 @@ public class LevelDrawerEditor : Editor
         {
             Transform holder = Holder(drawer, "JumpPads");
             foreach (Pose pad in drawing.jumpPads)
-                Spawn(drawer, drawer.jumpPadPrefab, holder, pad, ++pads);
+                Spawn(drawer, drawer.jumpPadPrefab, holder, pad, ++pads, topOnRoad: true);
+        }
+
+        string finish = "";
+        if (!drawing.finishPose.HasValue) finish = "   No red dot - finish platform not moved.";
+        else if (platform == null) finish = "   No finish platform found - assign Finish Platform.";
+        else
+        {
+            Undo.RecordObject(platform, "Place Level Objects");
+            platform.SetPositionAndRotation(drawer.transform.TransformPoint(drawing.finishPose.Value.position),
+                                            drawer.transform.rotation * drawing.finishPose.Value.rotation);
+            EditorUtility.SetDirty(platform);
+            finish = "   Finish platform moved to the red dot.";
         }
 
         EditorUtility.SetDirty(drawer);
         Undo.CollapseUndoOperations(group);
-        return $"Placed {platforms} island(s), {pads} jump pad(s).";
+        return $"Placed {platforms} island(s), {pads} jump pad(s).{finish}";
     }
 
-    private static void Spawn(LevelDrawer drawer, GameObject prefab, Transform holder, Pose local, int number)
+    // The drawer's own Finish Platform, else a child of the level root named "FinishPlatform...".
+    internal static Transform FindFinishPlatform(LevelDrawer drawer)
+    {
+        if (drawer.finishPlatform != null) return drawer.finishPlatform;
+        foreach (Transform child in drawer.transform.root)
+            if (child.name.StartsWith("FinishPlatform")) return child;
+        return null;
+    }
+
+    internal static bool CanPlaceObjects(LevelDrawer drawer) =>
+        drawer.islandPrefab != null || drawer.jumpPadPrefab != null || FindFinishPlatform(drawer) != null;
+
+    private static void Spawn(LevelDrawer drawer, GameObject prefab, Transform holder, Pose local, int number, bool topOnRoad = false)
     {
         var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, holder);
         Undo.RegisterCreatedObjectUndo(instance, "Place Level Objects");
         instance.name = $"{prefab.name} ({number})";
-        instance.transform.SetPositionAndRotation(drawer.transform.TransformPoint(local.position),
-                                                  drawer.transform.rotation * local.rotation);
+        Vector3 world = drawer.transform.TransformPoint(local.position);
+        instance.transform.SetPositionAndRotation(world, drawer.transform.rotation * local.rotation);
+        // The object's top surface lands exactly on the road's top surface (the road's top is at the knots' height),
+        // wherever its pivot is.
+        if (topOnRoad && TopOf(instance, out float top))
+            instance.transform.position += Vector3.up * (world.y - top);
         drawer.placedObjects.Add(instance);
+    }
+
+    // Highest point of what you stand on: the solid colliders, else the renderers. False when it has neither.
+    private static bool TopOf(GameObject instance, out float top)
+    {
+        Physics.SyncTransforms();
+        top = float.NegativeInfinity;
+        foreach (Collider c in instance.GetComponentsInChildren<Collider>())
+            if (c.enabled && !c.isTrigger) top = Mathf.Max(top, c.bounds.max.y);
+        if (float.IsNegativeInfinity(top))
+            foreach (Renderer r in instance.GetComponentsInChildren<Renderer>())
+                if (r.bounds.size != Vector3.zero) top = Mathf.Max(top, r.bounds.max.y);
+        return !float.IsNegativeInfinity(top);
     }
 
     // The level's holder object by name, made when missing: a direct child of the level root, or of `parentName`
@@ -242,7 +298,7 @@ public class LevelDrawerEditor : Editor
             return drawing;
         }
         RoadImageTracer.Result traced = RoadImageTracer.Trace(texture.GetPixels32(), texture.width, texture.height,
-                                                               drawer.darkThreshold, drawer.forkJoinDistance);
+                                                               drawer.darkThreshold, drawer.JoinsForksAtSides ? drawer.forkJoinDistance : 0f);
         int imageWidth = texture.width, imageHeight = texture.height;
         Object.DestroyImmediate(texture);
 
@@ -254,7 +310,7 @@ public class LevelDrawerEditor : Editor
 
         drawer.measuredStrokePx = traced.StrokeThickness;
         SplineRoad road = drawer.FindRoad();
-        float roadWidth = BuildWidth(drawer, road);
+        float roadWidth = BuildWidth(drawer, road); // what Auto scale stretches the drawn road to
 
         float pixelLength = 0f;
         foreach (RoadImageTracer.Path path in traced.Paths) pixelLength += PolylineLength(path.Points, path.Closed);
@@ -283,8 +339,10 @@ public class LevelDrawerEditor : Editor
         }
 
         float halfWidth = roadWidth * 0.5f;
-        int forks = JoinForks(smoothed, traced.JoinDistance * scale, halfWidth);
-        int trimmed = TrimAtCrossings(smoothed, halfWidth);
+        drawing.joinDistance = traced.JoinDistance * scale;
+        bool sides = drawer.JoinsForksAtSides;
+        int forks = sides ? JoinForks(smoothed, drawing.joinDistance, halfWidth) : 0;
+        int trimmed = sides ? TrimAtCrossings(smoothed, halfWidth) : 0;
 
         drawing.smoothed = smoothed;
         drawing.roadWidth = roadWidth;
@@ -310,12 +368,19 @@ public class LevelDrawerEditor : Editor
             drawing.jumpPads.Add(new Pose(position, Quaternion.LookRotation(RoadDirectionAt(smoothed, position), Vector3.up)));
         }
 
+        // The finish platform sits just past the red dot, facing back the way the race came (like the original levels).
+        if (drawing.finish.HasValue)
+        {
+            Vector3 along = RoadDirectionAt(smoothed, drawing.finish.Value);
+            drawing.finishPose = new Pose(drawing.finish.Value + along * drawer.finishBeyondEnd, Quaternion.LookRotation(-along, Vector3.up));
+        }
+
         int loops = drawing.paths.FindAll(p => p.closed).Count;
         drawing.summary = $"Image {imageWidth}×{imageHeight}, stroke ≈ {traced.StrokeThickness:0.#} px\n" +
                   $"{drawing.paths.Count} spline(s){(loops > 0 ? $" ({loops} loop)" : "")}, {knots} knots, " +
                   $"road length ≈ {pixelLength * scale:0} m ({scale:0.###} m/px)\n" +
                   $"Directed by green/blue dots: {marked} of {drawing.paths.Count} spline(s)\n" +
-                  $"Forks joined: {forks}   Ends pulled back to a crossing road's edge: {trimmed}\n" +
+                  (sides ? $"Forks joined: {forks}   Ends pulled back to a crossing road's edge: {trimmed}\n" : "") +
                   $"Race start: {(traced.Start.HasValue ? "green-dotted line end" : "no green line end — lowest line end used")}   " +
                   $"Finish dot: {(traced.Finish.HasValue ? "found" : "none")}\n" +
                   $"Brown dots (islands): {drawing.islands.Count}   Yellow dots (jump pads): {drawing.jumpPads.Count}";

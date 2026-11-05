@@ -24,8 +24,8 @@ public static class SpawnBoxTool
         EditorUtility.SetDirty(box);
     }
 
-    /// <summary>Replaces the box's points: the player's in the middle of the player zone, NPCs in staggered rows
-    /// filling the NPC zone from its front edge back. Capacity = Max (or Min) NPCs.</summary>
+    /// <summary>Replaces the box's points: the player's in the middle of the player zone, NPCs at random spots in the NPC
+    /// zone at least Min Spacing apart (eased when it doesn't fit). Capacity = Max (or Min) NPCs. Every press is a new layout.</summary>
     public static void GeneratePoints(SpawnBox box)
     {
         if (box.playerPoint != null) Object.DestroyImmediate(box.playerPoint.gameObject);
@@ -34,26 +34,28 @@ public static class SpawnBoxTool
 
         box.playerPoint = NewPoint(box, "PlayerPoint", new Vector3(0f, 0f, box.playerZone.depth * 0.5f));
 
+        // Random-looking but never crowded: points are thrown at random into the zone, each kept at least `spacing` from the
+        // others; when the zone is too full for that, the spacing is eased a little and it starts over.
         int count = Mathf.Max(box.npcCountMin, box.npcCountMax, 1);
-        float usable = Mathf.Max(0f, box.npcZone.width - 2f * Margin);
-        int columns = Mathf.Max(1, Mathf.FloorToInt(usable / box.minSpacing) + 1);
-        float step = columns > 1 ? usable / (columns - 1) : 0f;
-        int rows = Mathf.CeilToInt(count / (float)columns) + 1; // staggered rows hold fewer
-        float rowStep = Mathf.Min(box.minSpacing, Mathf.Max(0.5f, (box.npcZone.depth - 2f * Margin) / rows));
-        float z = box.NpcZoneStart + box.npcZone.depth - Margin;
-
-        int made = 0;
-        for (int row = 0; made < count; row++, z -= rowStep)
+        float halfWidth = Mathf.Max(0f, box.npcZone.width * 0.5f - Margin);
+        float zMin = box.NpcZoneStart + Margin, zMax = box.NpcZoneStart + Mathf.Max(Margin, box.npcZone.depth - Margin);
+        var random = new System.Random();
+        var spots = new List<Vector2>();
+        float spacing = box.minSpacing;
+        for (int round = 0; round < 40; round++, spacing *= 0.93f)
         {
-            bool shifted = row % 2 == 1 && columns > 1;
-            int inRow = shifted ? columns - 1 : columns;
-            for (int c = 0; c < inRow && made < count; c++, made++)
+            spots.Clear();
+            for (int tries = 0; tries < count * 80 && spots.Count < count; tries++)
             {
-                float x = -usable * 0.5f + c * step + (shifted ? step * 0.5f : 0f);
-                if (columns == 1) x = 0f;
-                box.npcPoints.Add(NewPoint(box, $"NpcPoint ({made + 1})", new Vector3(x, 0f, Mathf.Max(z, box.NpcZoneStart))));
+                var candidate = new Vector2(Mathf.Lerp(-halfWidth, halfWidth, (float)random.NextDouble()),
+                                            Mathf.Lerp(zMin, zMax, (float)random.NextDouble()));
+                if (spots.TrueForAll(s => (s - candidate).sqrMagnitude >= spacing * spacing)) spots.Add(candidate);
             }
+            if (spots.Count >= count) break;
         }
+        spots.Sort((a, b) => b.y.CompareTo(a.y)); // front of the zone first, so point 1 is the front-most
+        for (int i = 0; i < spots.Count; i++)
+            box.npcPoints.Add(NewPoint(box, $"NpcPoint ({i + 1})", new Vector3(spots[i].x, 0f, spots[i].y)));
     }
 
     private static Transform NewPoint(SpawnBox box, string pointName, Vector3 local)

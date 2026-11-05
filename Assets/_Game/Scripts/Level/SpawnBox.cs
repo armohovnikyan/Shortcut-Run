@@ -33,7 +33,8 @@ public class SpawnBox : MonoBehaviour
              "Capped by the number of NPC points.")]
     [Min(0)] public int npcCountMin = 4;
     [Min(0)] public int npcCountMax;
-    [Tooltip("Generate Points keeps at least this distance between neighbouring NPC points.")]
+    [Tooltip("Generate Points keeps at least this distance between NPC points, and every run keeps the shaken starts " +
+             "this far apart too (a shake that would put two runners closer is re-rolled smaller).")]
     [Min(0.5f)] public float minSpacing = 2.2f;
 
     [Header("Points")]
@@ -53,25 +54,74 @@ public class SpawnBox : MonoBehaviour
     {
         player = default;
         if (playerPoint == null) return false;
-        player = Shaken(playerPoint, playerZone);
+        player = Shaken(playerPoint, playerZone, 0f, null);
 
         int wanted = npcCountMax > npcCountMin ? Random.Range(npcCountMin, npcCountMax + 1) : npcCountMin;
         var pool = new List<Transform>(npcPoints);
         pool.RemoveAll(p => p == null);
+        var chosen = new List<Transform>();
         for (int i = 0; i < wanted && pool.Count > 0; i++)
         {
             int pick = Random.Range(0, pool.Count);
-            npcs.Add(Shaken(pool[pick], npcZone));
+            chosen.Add(pool[pick]);
             pool.RemoveAt(pick);
         }
+
+        // Shake them one after the other, each kept clear of every start so far. A crowded zone may not manage it on the
+        // first go, so shake again a few times and keep the roll with the most room between runners.
+        List<Pose> bestRoll = null;
+        float bestRoom = -1f;
+        for (int attempt = 0; attempt < 8; attempt++)
+        {
+            var roll = new List<Pose>();
+            var placed = new List<Vector3> { player.position };
+            float room = float.PositiveInfinity;
+            foreach (Transform point in chosen)
+            {
+                Pose pose = Shaken(point, npcZone, NpcZoneStart, placed);
+                room = Mathf.Min(room, Clearance(pose.position, placed));
+                roll.Add(pose);
+                placed.Add(pose.position);
+            }
+            if (room > bestRoom) { bestRoom = room; bestRoll = roll; }
+            if (room >= minSpacing) break;
+        }
+        if (bestRoll != null) npcs.AddRange(bestRoll);
         return true;
     }
 
-    private Pose Shaken(Transform point, Zone zone)
+    // The point moved at random by up to the zone's noise, kept inside the zone and at least minSpacing from every start in
+    // `avoid`. A shake that is too close is re-rolled, later tries smaller; if none fits the point stays where it is.
+    private Pose Shaken(Transform point, Zone zone, float zoneStart, List<Vector3> avoid)
     {
-        Vector2 shake = Random.insideUnitCircle * zone.noise;
-        Vector3 position = point.position + transform.right * shake.x + transform.forward * shake.y + transform.up * zone.yOffset;
-        return new Pose(position, point.rotation);
+        Vector3 local = transform.InverseTransformPoint(point.position);
+        Vector3 best = transform.TransformPoint(local) + transform.up * zone.yOffset; // the unshaken point is the last resort
+        float bestClearance = Clearance(best, avoid);
+        for (int attempt = 0; attempt < 40; attempt++)
+        {
+            float scale = attempt < 20 ? 1f : 1f - (attempt - 19) / 21f; // later tries shake less
+            Vector2 shake = Random.insideUnitCircle * (zone.noise * scale);
+            Vector3 moved = local + new Vector3(shake.x, 0f, shake.y);
+            // Stay inside the zone (a point the user placed outside it may only move within its own reach).
+            moved.x = Mathf.Clamp(moved.x, Mathf.Min(-zone.width * 0.5f, local.x), Mathf.Max(zone.width * 0.5f, local.x));
+            moved.z = Mathf.Clamp(moved.z, Mathf.Min(zoneStart, local.z), Mathf.Max(zoneStart + zone.depth, local.z));
+            Vector3 world = transform.TransformPoint(moved) + transform.up * zone.yOffset;
+            float clearance = Clearance(world, avoid);
+            // The first far-enough shake wins (a random pick of the fitting ones); until then keep the roomiest.
+            if (clearance >= minSpacing) { best = world; bestClearance = clearance; break; }
+            if (clearance > bestClearance) { best = world; bestClearance = clearance; }
+        }
+        return new Pose(best, point.rotation);
+    }
+
+    // Flat distance from the position to the nearest of the others (infinite when there are none).
+    private float Clearance(Vector3 position, List<Vector3> others)
+    {
+        float nearest = float.PositiveInfinity;
+        if (others == null) return nearest;
+        foreach (Vector3 other in others)
+            nearest = Mathf.Min(nearest, Vector3.ProjectOnPlane(position - other, transform.up).magnitude);
+        return nearest;
     }
 
     // Selected: both zones (green = player, yellow = NPCs) with their points as dots and the noise as a ring.

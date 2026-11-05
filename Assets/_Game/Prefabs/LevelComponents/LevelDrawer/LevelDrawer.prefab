@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8697461426591736390}
-  - component: {fileID: 7322787657467845126}
+  - component: {fileID: -1861511650161739599}
+  - component: {fileID: 7377596080981326175}
   m_Layer: 0
   m_Name: LevelDrawer
   m_TagString: Untagged
@@ -32,7 +33,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7322787657467845126
+--- !u!114 &-1861511650161739599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8710178340310529154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dca5875706448a5449f93468ab0fa34e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SectionDrawer
+  roadImage: {fileID: 0}
+  road: {fileID: 0}
+  darkThreshold: 0.5
+  scaleMode: 2
+  metersPerPixel: 1
+  targetLength: 300
+  roadWidth: 9.1695
+  roadHeight: 1
+  cornerSmoothing: 3
+  knotTolerance: 0.2
+  forkJoinDistance: 0
+  islandPrefab: {fileID: 5131747178156220931, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
+  jumpPadPrefab: {fileID: 4838550746972370007, guid: 0e79bdc2c2fa8d242bf881b3ada9800c, type: 3}
+  finishPlatform: {fileID: 0}
+  finishBeyondEnd: 2.83
+  placedObjects: []
+  measuredStrokePx: 0
+  library: []
+  flagDeviation: 0
+--- !u!114 &7377596080981326175
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -47,10 +79,17 @@ MonoBehaviour:
   roadImage: {fileID: 0}
   road: {fileID: 0}
   darkThreshold: 0.5
-  scaleMode: 0
+  scaleMode: 2
   metersPerPixel: 1
   targetLength: 300
-  roadWidth: 1
+  roadWidth: 9.1695
   roadHeight: 1
   cornerSmoothing: 3
   knotTolerance: 0.2
+  forkJoinDistance: 0
+  islandPrefab: {fileID: 5131747178156220931, guid: 41ff1d15fd746244c838199e07c716d3, type: 3}
+  jumpPadPrefab: {fileID: 4838550746972370007, guid: 0e79bdc2c2fa8d242bf881b3ada9800c, type: 3}
+  finishPlatform: {fileID: 0}
+  finishBeyondEnd: 2.83
+  placedObjects: []
+  measuredStrokePx: 0

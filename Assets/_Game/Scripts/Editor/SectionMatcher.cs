@@ -56,9 +56,12 @@ public static class SectionMatcher
     private struct Run { public int q, first, last; }
 
     /// <summary>The clean line for one drawn path, every 1 m. Null when the path is too short.</summary>
-    public static List<Vector2> BuildTarget(List<Vector3> path, float offset, out float startYaw)
+    public static List<Vector2> BuildTarget(List<Vector3> path, float offset, out float startYaw, float roadWidth = 0f)
     {
         startYaw = offset;
+        // The wobble limits are for a road as wide as the default one; a narrower / wider road scales them.
+        float unit = roadWidth > 0f ? roadWidth / 9.165f : 1f;
+        float minRun = MinRun * unit, maxJog = MaxJog * unit;
         List<Vector3> line = LevelDrawerEditor.Resample(path, 1f, false);
         int n = line.Count;
         if (n < 4) return null;
@@ -88,8 +91,8 @@ public static class SectionMatcher
             for (int i = 1; i < runs.Count - 1; i++)
             {
                 int length = runs[i].last - runs[i].first + 1;
-                bool jog = length < MaxJog && runs[i - 1].q == runs[i + 1].q;
-                if (length >= MinRun && !jog) continue;
+                bool jog = length < maxJog && runs[i - 1].q == runs[i + 1].q;
+                if (length >= minRun && !jog) continue;
                 Run before = runs[i - 1], after = runs[i + 1];
                 runs.RemoveAt(i);
                 if (before.q == after.q)
@@ -165,11 +168,15 @@ public static class SectionMatcher
 
         var defs = new List<SectionDef>();
         var seen = new HashSet<string>();
+        // Every library section is used at the scale of the road being built (a copy, the library itself is untouched),
+        // so a narrower or wider road just means smaller or bigger sections.
         foreach (SectionDef def in library)
-            if (def != null && def.IsValid && Mathf.Abs(def.scale - scale) < 0.05f && seen.Add(def.pieces.Trim())) defs.Add(def);
+            if (def != null && def.IsValid && seen.Add(def.pieces.Trim()))
+                defs.Add(new SectionDef { name = def.name, pieces = def.pieces, scale = scale, weight = def.weight,
+                                          difficulty = def.difficulty, minLevel = def.minLevel, maxUses = def.maxUses, tags = def.tags });
         if (defs.Count == 0)
         {
-            warnings.Add($"Spline {number}: the library has no usable section of scale {scale} — press Fill Sample Library.");
+            warnings.Add($"Spline {number}: the library has no usable section — press Fill Sample Library.");
             chain.uncovered = new List<Vector2>(target);
             return chain;
         }
@@ -356,6 +363,95 @@ public static class SectionMatcher
         float lengthSq = ab.sqrMagnitude;
         if (lengthSq < 1e-8f) return (p - a).sqrMagnitude;
         return (p - (a + ab * Mathf.Clamp01(Vector2.Dot(p - a, ab) / lengthSq))).sqrMagnitude;
+    }
+
+    // ---------- Mirror ----------
+
+    /// <summary>The second half of a symmetric road: `half` reflected across the line through `origin` with `normal`
+    /// (the road's direction, so the line is square to it) and driven the other way - last section first, each section's
+    /// pieces in reverse (turns keep their side: reflecting swaps it, reversing swaps it back). `axisYaw` is the normal's yaw.</summary>
+    public static List<SectionDrawer.PlacedSection> Unfold(IList<SectionDrawer.PlacedSection> half, Vector2 origin, Vector2 normal,
+                                                           float axisYaw, IList<SectionDef> library)
+    {
+        Vector2 Point(Vector2 p) => p - 2f * Vector2.Dot(p - origin, normal) * normal;
+        float Yaw(float yaw) => 2f * axisYaw - yaw;
+        var result = new List<SectionDrawer.PlacedSection>();
+        for (int i = half.Count - 1; i >= 0; i--)
+        {
+            SectionDrawer.PlacedSection source = half[i];
+            var tokens = source.def.pieces.Split(new[] { ' ', ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+            System.Array.Reverse(tokens);
+            string pieces = string.Join(" ", tokens);
+
+            string name = pieces == string.Join(" ", source.def.pieces.Split(new[] { ' ', ',' }, System.StringSplitOptions.RemoveEmptyEntries))
+                ? source.def.name : source.def.name + " (reversed)";
+            if (library != null)
+                foreach (SectionDef def in library)
+                    if (def != null && string.Join(" ", def.pieces.Split(new[] { ' ', ',' }, System.StringSplitOptions.RemoveEmptyEntries)) == pieces)
+                    { name = def.name; break; }
+
+            var placed = new SectionDrawer.PlacedSection
+            {
+                def = new SectionDef { name = name, pieces = pieces, scale = source.def.scale, weight = source.def.weight,
+                                       difficulty = source.def.difficulty, minLevel = source.def.minLevel,
+                                       maxUses = source.def.maxUses, tags = source.def.tags },
+                maxDeviation = source.maxDeviation, flagged = source.flagged,
+            };
+            for (int s = source.samples.Count - 1; s >= 0; s--)
+                placed.samples.Add(new SectionDef.Sample { position = Point(source.samples[s].position), yaw = Yaw(source.samples[s].yaw) });
+            placed.position = placed.samples[0].position;
+            placed.yaw = placed.samples[0].yaw;
+            result.Add(placed);
+        }
+        return result;
+    }
+
+    /// <summary>The same road reflected across the line through `origin` heading `axisYaw`: every section swaps to its
+    /// mirror image (L/R and l/r swapped, taken from the library by name when it has it). Used for symmetric forks.</summary>
+    public static SectionDrawer.Chain Mirror(SectionDrawer.Chain source, Vector2 origin, float axisYaw, int number, IList<SectionDef> library)
+    {
+        Vector2 axis = SectionDef.Forward(axisYaw);
+        Vector2 Point(Vector2 p) => 2f * (origin + axis * Vector2.Dot(p - origin, axis)) - p;
+        float Yaw(float yaw) => 2f * axisYaw - yaw;
+        List<Vector2> Points(List<Vector2> list)
+        {
+            if (list == null) return null;
+            var result = new List<Vector2>(list.Count);
+            foreach (Vector2 p in list) result.Add(Point(p));
+            return result;
+        }
+
+        var chain = new SectionDrawer.Chain
+        {
+            number = number, complete = source.complete, endGap = source.endGap,
+            meanError = source.meanError, maxError = source.maxError,
+            target = Points(source.target), uncovered = Points(source.uncovered) ?? new List<Vector2>(),
+        };
+        foreach (SectionDrawer.PlacedSection placed in source.sections)
+        {
+            var tokens = placed.def.pieces.Split(new[] { ' ', ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < tokens.Length; i++)
+                tokens[i] = tokens[i] == "L" ? "R" : tokens[i] == "R" ? "L" : tokens[i] == "l" ? "r" : tokens[i] == "r" ? "l" : tokens[i];
+            string pieces = string.Join(" ", tokens);
+
+            string name = pieces == placed.def.pieces.Trim() ? placed.def.name : placed.def.name + " (mirrored)";
+            if (library != null)
+                foreach (SectionDef def in library)
+                    if (def != null && def.pieces.Trim() == pieces) { name = def.name; break; }
+
+            var mirrored = new SectionDrawer.PlacedSection
+            {
+                def = new SectionDef { name = name, pieces = pieces, scale = placed.def.scale, weight = placed.def.weight,
+                                       difficulty = placed.def.difficulty, minLevel = placed.def.minLevel,
+                                       maxUses = placed.def.maxUses, tags = placed.def.tags },
+                position = Point(placed.position), yaw = Yaw(placed.yaw),
+                maxDeviation = placed.maxDeviation, flagged = placed.flagged,
+            };
+            foreach (SectionDef.Sample sample in placed.samples)
+                mirrored.samples.Add(new SectionDef.Sample { position = Point(sample.position), yaw = Yaw(sample.yaw) });
+            chain.sections.Add(mirrored);
+        }
+        return chain;
     }
 
     // ---------- Chain -> knots ----------
