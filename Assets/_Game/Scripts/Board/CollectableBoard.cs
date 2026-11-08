@@ -7,6 +7,8 @@ public class CollectableBoard : BaseBoard, ICollectable
 {
     [SerializeField] private BoardSO boardSO;
     public BoardSO Data => boardSO;
+    /// <summary>Lying there and can be picked up (not taken, not respawning). NPCs check this before heading for it.</summary>
+    public bool IsAvailable => interactable;
 
     private bool interactable = true;
     private Coroutine timerRoutine = null;

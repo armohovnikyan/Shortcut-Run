@@ -167,7 +167,7 @@ public class GameManager : MonoBehaviour
         if (level == null) return;
         RunBoost.ResetRun();
         BoardMagnet.ResetRun();
-        runManager.Prepare(level);
+        runManager.Prepare(level, LevelNumber);
         MenuShown?.Invoke();
     }
 

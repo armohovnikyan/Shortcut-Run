@@ -31,6 +31,9 @@ public class RunManager : MonoBehaviour
     [Tooltip("Bonus only: seconds the player keeps falling before being dragged back to the last platform.")]
     [SerializeField, Min(0f)] private float bonusFallDelay = 0.6f;
 
+    [Tooltip("NPC board collecting: start level and board numbers. Empty = NPCs never collect on purpose.")]
+    [SerializeField] private NpcBoardCollectingSO npcBoardCollecting;
+
     [Tooltip("Print countdown, places, finishes and the result to the Console (no UI needed to test).")]
     [SerializeField] private bool logEvents = true;
 
@@ -66,13 +69,15 @@ public class RunManager : MonoBehaviour
     // ---------- Public API (called by GameManager) ----------
 
     /// <summary>The menu: spawns the runners on the level, idle, and waits for StartRun().</summary>
-    public void Prepare(Level newLevel)
+    /// <param name="levelNumber">1 = first level. NPC board collecting starts at the SO's start level.</param>
+    public void Prepare(Level newLevel, int levelNumber = 1)
     {
         Cleanup();
         level = newLevel;
         level.PlaceJumpPads(); // before the spawn, so nothing starts on a pad that is about to move
 
-        spawner = new RunnerSpawner(level, playerPrefab, npcSkins);
+        bool collects = npcBoardCollecting != null && levelNumber >= npcBoardCollecting.StartLevel;
+        spawner = new RunnerSpawner(level, playerPrefab, npcSkins, collects ? npcBoardCollecting : null);
         Player player = spawner.SpawnAll();
         if (player == null) return;
 

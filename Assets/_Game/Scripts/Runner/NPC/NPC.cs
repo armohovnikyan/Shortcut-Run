@@ -18,6 +18,11 @@ public class NPC : Runner, IKillAble
     private WaypointNavigator _navigator;
     private int _agentTargetIndex = -1; // checkpoint the agent is currently walking to
     private bool _leftRoadInShortcut;   // the current shortcut has gone off the road (bridge or jump)
+    private Vector3[] _checkpoints;
+    private BoardCollector _collector;  // null = this level has no board collecting
+    private NpcBoardCollectingSO _collectSettings;
+    private CollectableBoard _agentDetour; // board the agent is currently walking to instead of a checkpoint
+    private readonly NavMeshPath _scratchPath = new NavMeshPath();
 
     public bool IsKnockedOut { get; private set; }
     /// <summary>Hit off the road by a boosted runner (BotKnocker). For effects; the run hears it as a fall (Fell).</summary>
@@ -34,8 +39,18 @@ public class NPC : Runner, IKillAble
     /// Joins the route at the next checkpoint ahead of where it was spawned, not at the track start.</summary>
     public void SetPath(Vector3[] checkpoints)
     {
+        _checkpoints = checkpoints;
         _navigator = new WaypointNavigator(checkpoints, WaypointNavigator.NextIndexFrom(checkpoints, transform.position));
         _agentTargetIndex = -1;
+        _collector = null;
+    }
+
+    /// <summary>Turns on board collecting for this NPC (after SetPath). Not called = the NPC never detours for boards.</summary>
+    public void SetBoardCollecting(NpcBoardCollectingSO settings, CollectableBoard[] boards)
+    {
+        if (settings == null || boards == null || boards.Length == 0 || _checkpoints == null) return;
+        _collectSettings = settings;
+        _collector = new BoardCollector(settings, boards, _checkpoints);
     }
 
     protected override void OnBeginRace()
@@ -63,7 +78,12 @@ public class NPC : Runner, IKillAble
         // Knocked out: the knockout arc owns the transform — don't let FollowRoute re-enable the agent.
         if (!IsRunning || _navigator == null || IsKnockedOut) return;
 
-        _navigator.Tick(transform.position, BridgeReach);
+        // Priority collecting with a board in reach: no shortcut now (it would spend the boards it needs).
+        bool holdShortcuts = _collector != null && _collector.SuppressShortcuts;
+        _navigator.Tick(transform.position, holdShortcuts ? 0f : BridgeReach);
+
+        _collector?.Tick(transform.position, BoardCount, _navigator.CurrentIndex,
+            _navigator.State == NavigationState.FollowingRoute && _agent.enabled, Time.deltaTime, IsReachable);
 
         // Finishing is reported by the level's FinishLine, not here. Finished only means
         // "last checkpoint reached" — the agent just keeps walking to it.
@@ -80,6 +100,7 @@ public class NPC : Runner, IKillAble
         {
             _agent.enabled = false;
             _agentTargetIndex = -1;
+            _agentDetour = null;
             _leftRoadInShortcut = false;
             ResumeMotion();
         }
@@ -105,6 +126,23 @@ public class NPC : Runner, IKillAble
         }
         if (!_agent.isOnNavMesh) return;
 
+        // Board detour: walk to the board; when it's gone the checkpoint is set again below (back on the route).
+        CollectableBoard detour = _collector?.Target;
+        if (detour != null)
+        {
+            if (_agentDetour != detour)
+            {
+                _agentDetour = detour;
+                _agent.SetDestination(detour.transform.position);
+            }
+            return;
+        }
+        if (_agentDetour != null)
+        {
+            _agentDetour = null;
+            _agentTargetIndex = -1;
+        }
+
         if (_agentTargetIndex != _navigator.CurrentIndex)
         {
             _agentTargetIndex = _navigator.CurrentIndex;
@@ -114,6 +152,20 @@ public class NPC : Runner, IKillAble
 
         if (!_agent.pathPending && _agent.pathStatus != NavMeshPathStatus.PathComplete)
             _navigator.ForceShortcut();
+    }
+
+    // A walkable NavMesh path to the board that isn't much longer than the detour limit.
+    private bool IsReachable(Vector3 point)
+    {
+        if (!_agent.enabled || !_agent.isOnNavMesh) return false;
+        if (!NavMesh.SamplePosition(point, out NavMeshHit hit, 1.5f, NavMesh.AllAreas)) return false;
+        if (!NavMesh.CalculatePath(transform.position, hit.position, NavMesh.AllAreas, _scratchPath)
+            || _scratchPath.status != NavMeshPathStatus.PathComplete) return false;
+
+        float length = 0f;
+        Vector3[] corners = _scratchPath.corners;
+        for (int i = 1; i < corners.Length; i++) length += Vector3.Distance(corners[i - 1], corners[i]);
+        return length <= _collectSettings.MaxDetour * 1.5f;
     }
 
     // ---------- IKillAble ----------

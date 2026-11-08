@@ -16,9 +16,12 @@ public class RunnerSpawner
     public IReadOnlyList<Runner> Runners => runners;
     public Player Player { get; private set; }
 
-    public RunnerSpawner(Level level, Player playerPrefab, GameObject[] npcSkins)
+    private readonly NpcBoardCollectingSO boardCollecting; // null = NPCs don't collect on purpose (level too early)
+
+    public RunnerSpawner(Level level, Player playerPrefab, GameObject[] npcSkins, NpcBoardCollectingSO boardCollecting = null)
     {
         this.level = level;
+        this.boardCollecting = boardCollecting;
         this.playerPrefab = playerPrefab;
         this.npcSkins = npcSkins == null ? new GameObject[0] : (GameObject[])npcSkins.Clone();
     }
@@ -41,12 +44,17 @@ public class RunnerSpawner
             return Player;
         }
 
+        CollectableBoard[] boards = boardCollecting != null
+            ? level.GetComponentsInChildren<CollectableBoard>()
+            : null;
+
         for (int i = 0; i < plan.npcs.Count; i++)
         {
             NPC prefab = prefabs[Random.Range(0, prefabs.Length)];
             NPC npc = Spawn(prefab, plan.npcs[i]);
             npc.ApplySkin(NextSkin()); // no skins set = keeps the model baked into the prefab
             npc.SetPath(level.BuildNpcCheckpoints()); // own list = own random side through each loop
+            npc.SetBoardCollecting(boardCollecting, boards);
         }
         return Player;
     }
