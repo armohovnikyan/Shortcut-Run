@@ -90,7 +90,6 @@ GameObject:
   - component: {fileID: 8888277123410889146}
   - component: {fileID: 7533788041151191770}
   - component: {fileID: 8218581746487590319}
-  - component: {fileID: 4631758058661114593}
   m_Layer: 0
   m_Name: Swing obstacle
   m_TagString: Untagged
@@ -172,24 +171,3 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &4631758058661114593
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1615691200828943521}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.05, y: 0.05835941, z: 0.05}
-  m_Center: {x: -9.313226e-10, y: -9.313224e-10, z: 0}

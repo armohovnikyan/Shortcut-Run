@@ -22,7 +22,7 @@ public class NPC : Runner, IKillAble
     private BoardCollector _collector;  // null = this level has no board collecting
     private NpcBoardCollectingSO _collectSettings;
     private CollectableBoard _agentDetour; // board the agent is currently walking to instead of a checkpoint
-    private readonly NavMeshPath _scratchPath = new NavMeshPath();
+    private NavMeshPath _scratchPath; // created in Awake: Unity forbids NavMeshPath in field initializers
 
     public bool IsKnockedOut { get; private set; }
     /// <summary>Hit off the road by a boosted runner (BotKnocker). For effects; the run hears it as a fall (Fell).</summary>
@@ -32,6 +32,7 @@ public class NPC : Runner, IKillAble
     {
         base.Awake();
         _agent = GetComponent<NavMeshAgent>();
+        _scratchPath = new NavMeshPath();
     }
 
     /// <summary>Called once by the spawner right after Instantiate (Level.BuildNpcCheckpoints) —
