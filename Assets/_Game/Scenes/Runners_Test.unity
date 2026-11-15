@@ -740,7 +740,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelLoader
   sequence: {fileID: 0}
   levelPrefabs:
-  - {fileID: 9213418989101578930, guid: be72932575dc3d2458c278c414a87959, type: 3}
+  - {fileID: 9213418989101578930, guid: 216d0cdd905dbc442b523dcde2c480c2, type: 3}
   sceneLevel: {fileID: 0}
 --- !u!4 &1956142689
 Transform:
