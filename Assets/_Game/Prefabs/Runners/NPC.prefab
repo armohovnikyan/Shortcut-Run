@@ -162,6 +162,7 @@ GameObject:
   - component: {fileID: 6644383046303221742}
   - component: {fileID: 4553364366900676313}
   - component: {fileID: 9124524385770808009}
+  - component: {fileID: 2659627557762260647}
   m_Layer: 7
   m_Name: NPC
   m_TagString: Bot
@@ -253,7 +254,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -332,6 +333,21 @@ MonoBehaviour:
     m_Bits: 128
   bumpRadius: 0.7
   bumpHeight: 1
+--- !u!114 &2659627557762260647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2184587977272286700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a896822dc57b6a47a19b60a203f814a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ObstacleBlocker
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 1
 --- !u!1 &5181734612418514705
 GameObject:
   m_ObjectHideFlags: 0
