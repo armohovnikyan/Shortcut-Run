@@ -1,9 +1,12 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Looping "go to the peak and come back" animation for a UI element: it can move, stretch, or both.
 ///   Upgrade arrow: Move Offset (0, 20) + Peak Scale (1.2, 1) = hops up and gets wider at the top.
-///   Price field:   Move Offset (0, 0)  + Peak Scale (1.15, 1.15) = grows a bit and returns.
+///   Price field:   Move Offset (0, 0)  + Peak Scale (1.15, 1.15) + Scale From Visible Centre = grows a bit around
+///                  the digits and coin, and returns.
 /// Runs on unscaled time, so it keeps playing while the game is paused.
 /// </summary>
 public class UiPulse : MonoBehaviour
@@ -16,6 +19,9 @@ public class UiPulse : MonoBehaviour
     [SerializeField] private Vector2 moveOffset;
     [Tooltip("Size at the peak. (1, 1) = no change, (1.2, 1) = 20% wider.")]
     [SerializeField] private Vector2 peakScale = Vector2.one;
+    [Tooltip("Grow from the middle of what is drawn (texts' actual letters, images) instead of from the pivot. " +
+             "For elements whose pivot sits in a corner or whose text doesn't fill its box, like the price.")]
+    [SerializeField] private bool scaleFromVisibleCentre;
 
     [Header("Timing")]
     [Tooltip("Seconds for one full trip: rest → peak → rest.")]
@@ -66,9 +72,45 @@ public class UiPulse : MonoBehaviour
 
     private void Apply(float amount)
     {
-        target.anchoredPosition = restPosition + moveOffset * amount;
-
         Vector2 scale = Vector2.LerpUnclamped(Vector2.one, peakScale, amount);
+        Vector2 position = restPosition + moveOffset * amount;
+
+        // Scaling happens around the pivot; shift by how far the visible centre would drift so it stays put.
+        if (scaleFromVisibleCentre && amount != 0f && TryGetVisibleCentre(out Vector2 centre))
+            position += Vector2.Scale(Vector2.Scale(centre, Vector2.one - scale), restScale);
+
+        target.anchoredPosition = position;
         target.localScale = new Vector3(restScale.x * scale.x, restScale.y * scale.y, restScale.z);
+    }
+
+    // Centre of everything drawn under the target, in the target's own (unscaled) space, measured from its pivot.
+    // Texts count by their letters, not their box, so a right-aligned price centres on the digits it shows.
+    private bool TryGetVisibleCentre(out Vector2 centre)
+    {
+        bool any = false;
+        Vector2 min = Vector2.positiveInfinity, max = Vector2.negativeInfinity;
+        foreach (Graphic graphic in target.GetComponentsInChildren<Graphic>())
+        {
+            if (!graphic.enabled) continue;
+            Vector3 a, b;
+            if (graphic is TMP_Text text)
+            {
+                Bounds letters = text.textBounds;
+                if (letters.size.x <= 0f) continue; // empty text
+                a = letters.min; b = letters.max;
+            }
+            else
+            {
+                Rect rect = graphic.rectTransform.rect;
+                a = rect.min; b = rect.max;
+            }
+            Vector2 p = target.InverseTransformPoint(graphic.transform.TransformPoint(a));
+            Vector2 q = target.InverseTransformPoint(graphic.transform.TransformPoint(b));
+            min = Vector2.Min(min, Vector2.Min(p, q));
+            max = Vector2.Max(max, Vector2.Max(p, q));
+            any = true;
+        }
+        centre = any ? (min + max) * 0.5f : Vector2.zero;
+        return any;
     }
 }

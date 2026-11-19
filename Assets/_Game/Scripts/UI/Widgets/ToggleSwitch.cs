@@ -15,6 +15,14 @@ public class ToggleSwitch : MonoBehaviour, IPointerClickHandler
     [Tooltip("State before anything sets it (SettingsView overrides this with the saved setting).")]
     [SerializeField] private bool startOn = true;
 
+    [Header("Look")]
+    [Tooltip("The switch's background. Gets On Sprite while on and Off Sprite while off.")]
+    [SerializeField] private Image background;
+    [Tooltip("Empty = the background's own sprite.")]
+    [SerializeField] private Sprite onSprite;
+    [Tooltip("Empty = the background never changes.")]
+    [SerializeField] private Sprite offSprite;
+
     [Header("Animation")]
     [SerializeField, Range(0f, 1f)] private float animationDuration = 0.125f;
     [SerializeField] private AnimationCurve slideEase = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
@@ -43,11 +51,19 @@ public class ToggleSwitch : MonoBehaviour, IPointerClickHandler
         slider = GetComponent<Slider>();
         slider.interactable = false; // the slider is only the visual; clicks are handled here
         slider.transition = Selectable.Transition.None;
+        slider.wholeNumbers = false; // whole numbers would snap the slide straight to the end
         slider.minValue = 0f;
         slider.maxValue = 1f;
+        if (background != null && onSprite == null) onSprite = background.sprite;
 
         IsOn = startOn;
         slider.value = IsOn ? 1f : 0f;
+        ShowState();
+    }
+
+    private void ShowState()
+    {
+        if (background != null && offSprite != null) background.sprite = IsOn ? onSprite : offSprite;
     }
 
     // A slide cut off by closing the panel must not leave the handle half-way.
@@ -61,6 +77,7 @@ public class ToggleSwitch : MonoBehaviour, IPointerClickHandler
     {
         Initialize();
         IsOn = !IsOn;
+        ShowState();
 
         if (slideRoutine != null) StopCoroutine(slideRoutine);
         slideRoutine = StartCoroutine(SlideRoutine());
@@ -79,6 +96,7 @@ public class ToggleSwitch : MonoBehaviour, IPointerClickHandler
 
         IsOn = on;
         slider.value = on ? 1f : 0f;
+        ShowState();
     }
 
     private IEnumerator SlideRoutine()

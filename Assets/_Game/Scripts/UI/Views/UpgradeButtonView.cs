@@ -14,10 +14,17 @@ public class UpgradeButtonView : MonoBehaviour
     [SerializeField] private UiPulse[] animations;
     [Tooltip("On = the animations only play while the player has enough coins. Off = they always play.")]
     [SerializeField] private bool animateOnlyWhenAffordable = true;
+    [Tooltip("Button background while the player can't pay for the upgrade (or it is maxed). Empty = never changes.")]
+    [SerializeField] private Sprite cantBuySprite;
+    [Tooltip("Shown only while the upgrade can be bought (the green arrow).")]
+    [SerializeField] private GameObject canBuyIndicator;
+
+    private Sprite canBuySprite;
 
     public void Bind(UpgradeViewModel viewModel)
     {
         button.onClick.AddListener(viewModel.Buy);
+        canBuySprite = button.image.sprite;
 
         viewModel.Level.Bind(level => levelLabel.text = $"Lvl. {level}");
         viewModel.Price.Bind(_ => ShowPrice(viewModel));
@@ -25,6 +32,8 @@ public class UpgradeButtonView : MonoBehaviour
         viewModel.CanBuy.Bind(canBuy =>
         {
             button.interactable = canBuy;
+            if (cantBuySprite != null) button.image.sprite = canBuy ? canBuySprite : cantBuySprite;
+            if (canBuyIndicator != null) canBuyIndicator.SetActive(canBuy);
             foreach (UiPulse pulse in animations)
                 if (pulse != null) pulse.enabled = canBuy || !animateOnlyWhenAffordable;
         });
